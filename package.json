@@ -1,0 +1,41 @@
+{
+  "name": "@logic-universe/logic-ir",
+  "version": "0.1.0",
+  "description": "JavaScript implementation of LogicIR: A Tri-Axial Fractal Topology (ZYModel) for Deterministic Logic as Data",
+  "homepage": "https://logicuniverse.org",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/logicuniverse/logicuniverse.git",
+    "directory": "LogicIR-JS"
+  },
+  "scripts": {
+    "dev": "ultra --no-pretty -r dev",
+    "build": "ultra --no-pretty -r build",
+    "test": "ultra --no-pretty -r test",
+    "format": "prettier --write \"packages/*/src/**/*.{ts,tsx,js,json,md}\""
+  },
+  "keywords": [
+    "LogicUniverse",
+    "LogicIR",
+    "ZYModel",
+    "Tri-Axial-Fractal-Topology",
+    "Deterministic-Logic",
+    "Fractal-Computing"
+  ],
+  "author": "Zhang Yang",
+  "license": "Apache-2.0",
+  "private": true,
+  "engines": {
+    "node": ">=18.0.0",
+    "yarn": "1.22.x"
+  },
+  "packageManager": "yarn@1.22.19",
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "ts-essentials": "^10.1.1",
+    "ultra-runner": "^3.10.5"
+  }
+}
