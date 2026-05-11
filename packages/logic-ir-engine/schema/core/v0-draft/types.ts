@@ -5,6 +5,8 @@
  * shapes. It must not contain runtime/projector implementation mechanics.
  */
 
+// --- Protocol / Identity / Extension ---
+
 export const LOGIC_IR_CORE_SCHEMA_VERSION = '0.0.0-draft' as const;
 
 export type LogicIRCoreSchemaVersion = typeof LOGIC_IR_CORE_SCHEMA_VERSION;
@@ -51,11 +53,7 @@ export type WithExtensions = {
   extensions?: ExtensionRecord[];
 };
 
-export type LUKind =
-  | 'combinational'
-  | 'sequential'
-  | 'stateful'
-  | 'structural';
+// --- X: Boundary Interaction ---
 
 export type PortPolarity = 'pull' | 'push';
 export type PortDirection = 'input' | 'output';
@@ -93,6 +91,33 @@ export type Connection = WithExtensions & {
   to: EndpointRef;
 };
 
+// --- Y: Manifestation / Organization ---
+
+export type LUKind =
+  | 'combinational'
+  | 'sequential'
+  | 'stateful'
+  | 'structural';
+
+export type LUITarget =
+  | { kind: 'lu'; luId: LUId }
+  | { kind: 'external'; targetId: ExternalTargetId }
+  | {
+      kind: 'requirement';
+      serviceKey: RequirementServiceKey;
+      unitKey: RequirementUnitKey;
+    };
+
+export type LUI = WithExtensions & {
+  kind: LUKind;
+  target: LUITarget;
+  ports: Record<PortKey, Port>;
+  fulfillments?: Record<
+    RequirementServiceKey,
+    RequirementServiceFulfillment
+  >;
+};
+
 export type CompositionSlotShape = 'single' | 'collection' | 'map';
 
 export type CompositionExposedSlot = WithExtensions & {
@@ -121,6 +146,29 @@ export type CompositionValue =
   | { kind: 'collection'; items: CompositionLeaf[] }
   | { kind: 'map'; entries: Record<CompositionFieldKey, CompositionLeaf> };
 
+export type SequentialStep = WithExtensions & {
+  luiId: LUIId;
+};
+
+export type LUOrganization =
+  | { kind: 'combinational' }
+  | { kind: 'sequential'; steps: SequentialStep[] }
+  | { kind: 'stateful' }
+  | {
+      kind: 'structural';
+      exposedSlots: Record<
+        CompositionExposedSlotKey,
+        CompositionExposedSlot
+      >;
+      acceptedSlots?: Record<
+        CompositionAcceptedSlotKey,
+        CompositionAcceptedSlot
+      >;
+      exposedValues?: Record<CompositionExposedSlotKey, CompositionValue>;
+    };
+
+// --- Z: Requirement Fulfillment ---
+
 export type RequirementFulfillmentScope =
   | 'independent-units'
   | 'shared-service';
@@ -133,25 +181,6 @@ export type RequirementService = WithExtensions & {
 export type RequirementUnit = WithExtensions & {
   kind: LUKind;
   ports: Record<PortKey, Port>;
-};
-
-export type LUITarget =
-  | { kind: 'lu'; luId: LUId }
-  | { kind: 'external'; targetId: ExternalTargetId }
-  | {
-      kind: 'requirement';
-      serviceKey: RequirementServiceKey;
-      unitKey: RequirementUnitKey;
-    };
-
-export type LUI = WithExtensions & {
-  kind: LUKind;
-  target: LUITarget;
-  ports: Record<PortKey, Port>;
-  fulfillments?: Record<
-    RequirementServiceKey,
-    RequirementServiceFulfillment
-  >;
 };
 
 export type RequirementServiceFulfillment = Record<
@@ -209,34 +238,14 @@ export type Closure = WithExtensions & {
   forwardedPortKeys?: ForwardedPortKeys;
 };
 
+// --- Recursive Core Containers ---
+
 export type LUCore = WithExtensions & {
   organization: LUOrganization;
   ports: Record<PortKey, Port>;
   luis: Record<LUIId, LUI>;
   connections: Record<ConnectionId, Connection>;
   closures?: Record<ClosureId, Closure>;
-
-};
-
-export type LUOrganization =
-  | { kind: 'combinational' }
-  | { kind: 'sequential'; steps: SequentialStep[] }
-  | { kind: 'stateful' }
-  | {
-      kind: 'structural';
-      exposedSlots: Record<
-        CompositionExposedSlotKey,
-        CompositionExposedSlot
-      >;
-      acceptedSlots?: Record<
-        CompositionAcceptedSlotKey,
-        CompositionAcceptedSlot
-      >;
-      exposedValues?: Record<CompositionExposedSlotKey, CompositionValue>;
-    };
-
-export type SequentialStep = WithExtensions & {
-  luiId: LUIId;
 };
 
 export type LogicUnit = WithExtensions & {

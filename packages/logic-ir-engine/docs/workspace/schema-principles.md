@@ -37,6 +37,18 @@ LogicIR schema 应该像长期协议一样演进：稳定核心、命名空间�
 - JS/TS runtime profile 可以定义 async、subscription、host native、runtime state、error/lifecycle 等软件实现细节。
 - Verilog HDL profile 可以定义 module boundary、clock/reset、combinational block、sequential block、generate/elaboration-time 结构和静态绑定约束。
 
+## Profile / Feature / Extension Strategy
+
+后续扩展采用三层结构：profile 按领域拆，feature 按能力拆，extension 按具体节点声明拆。
+
+- **Profile** 表示一组稳定的 target/domain 规则，例如 `software-runtime`、`verilog-hdl`、`type-system`、`control-flow`、`visual-editor`、`legacy-tsjs-v1`。
+- **Feature / Capability** 表示 profile 内可单独声明支持的能力，例如 `async-policy`、`dynamic-fulfillment`、`clock-reset`、`module-binding`、`port-types`、`payload-path-types`。
+- **Extension record** 挂在具体 schema 节点上，承载 optional/required payload。
+- 不要把 JS runtime、HDL、类型系统、编辑器布局和兼容迁移塞进一个大 profile。
+- 也不要为每个字段创建一个 profile；字段级数据应作为 profile namespace 下的 extension key。
+- Projector 不能只声明“支持某 profile”就默认支持全部能力；必须声明具体 features/capabilities。
+- 影响语义或正确性的 extension 应为 `required`；只影响展示、布局、注释或可安全降级优化的 extension 可以为 `optional`。
+
 ## Projection Target Discipline
 
 - 每个 schema 计划必须显式评估 JS/TS runtime projection impact。
