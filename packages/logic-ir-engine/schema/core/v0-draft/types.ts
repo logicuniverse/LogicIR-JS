@@ -21,7 +21,6 @@ export type LUId = LocalId;
 export type LUIId = LocalId;
 export type ConnectionId = LocalId;
 export type ClosureId = LocalId;
-export type ReachabilityStepId = LocalId;
 export type ExternalTargetId = LogicIRId;
 
 /**
@@ -75,7 +74,7 @@ export type Port = WithExtensions & {
 export type PortOwner =
   | { kind: 'lu' }
   | { kind: 'lui'; luiId: LUIId }
-  | { kind: 'closure'; luiId: LUIId; closureId: ClosureId };
+  | { kind: 'closure'; closureId: ClosureId };
 
 export type PayloadPathSegment = PinKey | number;
 export type PayloadPath = PayloadPathSegment[];
@@ -173,60 +172,74 @@ export type RequirementFulfillmentScope =
   | 'independent-units'
   | 'shared-service';
 
+export type RequirementSurface = Record<
+  RequirementServiceKey,
+  RequirementService
+>;
+
+export type PlainRequirementSurface = Record<
+  RequirementServiceKey,
+  PlainRequirementService
+>;
+
 export type RequirementService = WithExtensions & {
   fulfillmentScope: RequirementFulfillmentScope;
   units: Record<RequirementUnitKey, RequirementUnit>;
 };
 
+export type PlainRequirementService = WithExtensions & {
+  fulfillmentScope: RequirementFulfillmentScope;
+  units: Record<RequirementUnitKey, PlainRequirementUnit>;
+};
+
 export type RequirementUnit = WithExtensions & {
+  kind: LUKind;
+  ports: Record<PortKey, Port>;
+  requirements?: PlainRequirementSurface;
+};
+
+export type PlainRequirementUnit = WithExtensions & {
   kind: LUKind;
   ports: Record<PortKey, Port>;
 };
 
-export type RequirementServiceFulfillment = Record<
-  RequirementUnitKey,
-  Fulfillment
->;
+export type RequirementServiceFulfillment =
+  | IndependentUnitsFulfillment
+  | SharedServiceFulfillment;
 
-export type Fulfillment =
+export type IndependentUnitsFulfillment = WithExtensions & {
+  kind: 'independent-units';
+  units: Record<RequirementUnitKey, UnitFulfillment>;
+};
+
+export type SharedServiceFulfillment = WithExtensions & {
+  kind: 'shared-service';
+  supplier: UpstreamServiceSupplierFulfillment;
+};
+
+export type UnitFulfillment =
   | ClosureFulfillment
-  | UpstreamLineageFulfillment;
+  | UpstreamUnitFulfillment;
 
 export type ClosureFulfillment = WithExtensions & {
   kind: 'closure';
   closureId: ClosureId;
 };
 
-export type UpstreamLineageFulfillment = WithExtensions & {
-  kind: 'upstream-lineage';
-  reachabilityPath: ReachabilityStep[];
+export type UpstreamUnitFulfillment = WithExtensions & {
+  kind: 'upstream-unit';
+  reachabilityPath: ReachabilityPath;
   supplierServiceKey: RequirementServiceKey;
   supplierUnitKey: RequirementUnitKey;
 };
 
-export type ReachabilityStep =
-  | LUIReachabilityStep
-  | ClosureReachabilityStep
-  | LUReachabilityStep;
-
-export type LUIReachabilityStep = WithExtensions & {
-  id: ReachabilityStepId;
-  kind: 'lui';
-  luiId: LUIId;
+export type UpstreamServiceSupplierFulfillment = WithExtensions & {
+  kind: 'upstream-service';
+  reachabilityPath: ReachabilityPath;
+  supplierServiceKey: RequirementServiceKey;
 };
 
-export type ClosureReachabilityStep = WithExtensions & {
-  id: ReachabilityStepId;
-  kind: 'closure';
-  luiId: LUIId;
-  closureId: ClosureId;
-};
-
-export type LUReachabilityStep = WithExtensions & {
-  id: ReachabilityStepId;
-  kind: 'lu';
-  luId: LUId;
-};
+export type ReachabilityPath = ClosureId[];
 
 export type ForwardedPortKeys = WithExtensions & {
   inputs?: PortKey[];
@@ -251,5 +264,5 @@ export type LUCore = WithExtensions & {
 export type LogicUnit = WithExtensions & {
   schemaVersion: LogicIRCoreSchemaVersion;
   core: LUCore;
-  requirements?: Record<RequirementServiceKey, RequirementService>;
+  requirements?: RequirementSurface;
 };
