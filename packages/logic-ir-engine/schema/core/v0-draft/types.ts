@@ -16,11 +16,10 @@ export type LogicIRCoreSchemaVersion = typeof LOGIC_IR_CORE_SCHEMA_VERSION;
  * references, diffing, and migration. They must not encode semantic meaning.
  */
 export type LogicIRId = string;
-export type LocalId = LogicIRId;
-export type LUId = LocalId;
-export type LUIId = LocalId;
-export type ConnectionId = LocalId;
-export type ClosureId = LocalId;
+export type LUId = LogicIRId;
+export type LUIId = LogicIRId;
+export type ConnectionId = LogicIRId;
+export type ClosureId = LogicIRId;
 
 /**
  * `key` values are stable semantic names in a declared namespace or contract
@@ -83,6 +82,13 @@ export type Port = WithExtensions & {
   pins?: PinSet;
 };
 
+/**
+ * A port surface has one `PortKey` namespace. `input` and `output` are
+ * `Port.boundary` values, so the same owner cannot declare both input `foo`
+ * and output `foo`.
+ */
+export type PortSurface = Record<PortKey, Port>;
+
 export type PortOwner =
   | { kind: 'lu' }
   | { kind: 'lui'; luiId: LUIId }
@@ -110,8 +116,6 @@ export type LUKind =
   | 'stateful'
   | 'structural';
 
-export type NonStructuralLUKind = Exclude<LUKind, 'structural'>;
-
 export type LUITarget =
   | { kind: 'lu'; luId: LUId }
   | {
@@ -127,37 +131,43 @@ export type LUITarget =
 
 export type LUIBase = WithExtensions & {
   target: LUITarget;
-  ports: Record<PortKey, Port>;
+  ports: PortSurface;
   fulfillments: Record<
     RequirementServiceKey,
     RequirementServiceFulfillment
   >;
 };
 
+export type StructuralCompositionContract = WithExtensions & {
+  outlets: CompositionOutletKey[];
+  anchors: Record<CompositionAnchorKey, CompositionAnchor>;
+};
+
 export type StructuralLUI = LUIBase & {
   kind: 'structural';
-  compositionSurface: {
-    outlets: Record<CompositionOutletKey, CompositionOutlet>;
-    anchors: Record<CompositionAnchorKey, CompositionAnchor>;
-  };
+  compositionSurface: StructuralCompositionContract;
 };
 
-export type NonStructuralLUI = LUIBase & {
-  kind: NonStructuralLUKind;
-};
+export type CombinationalLUI = LUIBase & { kind: 'combinational' };
 
-export type LUI = StructuralLUI | NonStructuralLUI;
+export type SequentialLUI = LUIBase & { kind: 'sequential' };
 
-export type CompositionSlotShape = 'single' | 'collection' | 'map';
+export type StatefulLUI = LUIBase & { kind: 'stateful' };
+
+export type LUI =
+  | StructuralLUI
+  | CombinationalLUI
+  | SequentialLUI
+  | StatefulLUI;
+
+export type CompositionAnchorShape = 'single' | 'collection' | 'map';
 
 export type CompositionAnchor = {
-  shape: CompositionSlotShape;
+  shape: CompositionAnchorShape;
   required: boolean;
 };
 
-export type CompositionOutlet = {};
-
-export type CompositionExportSlot = {
+export type CompositionExportAnchor = {
   required: boolean;
 };
 
@@ -168,7 +178,7 @@ export type CompositionLeaf =
       outletKey: CompositionOutletKey;
     }
   | {
-      kind: 'placeholder';
+      kind: 'external-outlet';
       outletKey: CompositionOutletKey;
     }
   | { kind: 'empty' };
@@ -181,31 +191,43 @@ export type CompositionValue =
       entries: Record<CompositionFieldKey, CompositionLeaf>;
     };
 
-export type CompositionAnchorFills = Record<
-  CompositionAnchorKey,
-  CompositionValue
->;
-
-export type CompositionExportSlotFills = Record<
-  CompositionAnchorKey,
-  CompositionLeaf
->;
-
-export type SequentialStep = {
-  luiId: LUIId;
+export type LUCoreBase = WithExtensions & {
+  ports: PortSurface;
+  connections: Record<ConnectionId, Connection>;
+  closures: Record<ClosureId, Closure>;
 };
 
-export type LUKindOrganization =
-  | { kind: 'combinational' }
-  | { kind: 'sequential'; steps: SequentialStep[] }
-  | { kind: 'stateful' }
-  | {
-      kind: 'structural';
-      exportSlots: Record<CompositionAnchorKey, CompositionExportSlot>;
-      placeholderOutlets: Record<CompositionOutletKey, CompositionAnchor>;
-      exportSlotFills: CompositionExportSlotFills;
-      luiFills: Record<LUIId, CompositionAnchorFills>;
-    };
+export type CombinationalLUCore = LUCoreBase & {
+  kindOrganization: { kind: 'combinational' };
+  luis: Record<LUIId, CombinationalLUI>;
+};
+
+export type SequentialLUCore = LUCoreBase & {
+  kindOrganization: { kind: 'sequential'; steps: LUIId[] };
+  luis: Record<
+    LUIId,
+    CombinationalLUI | StatefulLUI | SequentialLUI
+  >;
+};
+
+export type StatefulLUCore = LUCoreBase & {
+  kindOrganization: { kind: 'stateful' };
+  luis: Record<LUIId, CombinationalLUI | StatefulLUI>;
+};
+
+export type StructuralLUCore = LUCoreBase & {
+  kindOrganization: {
+    kind: 'structural';
+    exportAnchors: Record<CompositionAnchorKey, CompositionExportAnchor>;
+    externalOutlets: Record<CompositionOutletKey, CompositionAnchor>;
+    exportAnchorFills: Record<CompositionAnchorKey, CompositionLeaf>;
+    luiFills: Record<
+      LUIId,
+      Record<CompositionAnchorKey, CompositionValue>
+    >;
+  };
+  luis: Record<LUIId, CombinationalLUI | StatefulLUI | StructuralLUI>;
+};
 
 // --- Z: Requirement Fulfillment ---
 
@@ -257,16 +279,58 @@ export type PlainRequirementService = WithExtensions & {
   units: Record<RequirementUnitKey, PlainRequirementUnit>;
 };
 
-export type RequirementUnit = {
-  kind: LUKind;
-  ports: Record<PortKey, Port>;
+export type RequirementUnitBase = {
+  ports: PortSurface;
   requirements: PlainRequirementSurface;
 };
 
-export type PlainRequirementUnit = {
-  kind: LUKind;
-  ports: Record<PortKey, Port>;
+export type PlainRequirementUnitBase = {
+  ports: PortSurface;
 };
+
+export type CombinationalRequirementUnit = RequirementUnitBase & {
+  kind: 'combinational';
+};
+
+export type SequentialRequirementUnit = RequirementUnitBase & {
+  kind: 'sequential';
+};
+
+export type StatefulRequirementUnit = RequirementUnitBase & {
+  kind: 'stateful';
+};
+
+export type StructuralRequirementUnit = RequirementUnitBase & {
+  kind: 'structural';
+  compositionSurface: StructuralCompositionContract;
+};
+
+export type RequirementUnit =
+  | CombinationalRequirementUnit
+  | SequentialRequirementUnit
+  | StatefulRequirementUnit
+  | StructuralRequirementUnit;
+
+export type PlainCombinationalRequirementUnit =
+  PlainRequirementUnitBase & { kind: 'combinational' };
+
+export type PlainSequentialRequirementUnit =
+  PlainRequirementUnitBase & { kind: 'sequential' };
+
+export type PlainStatefulRequirementUnit =
+  PlainRequirementUnitBase & { kind: 'stateful' };
+
+export type PlainStructuralRequirementUnit =
+  PlainRequirementUnitBase & {
+    kind: 'structural';
+    compositionSurface: StructuralCompositionContract;
+  };
+
+export type PlainRequirementUnit =
+  | PlainCombinationalRequirementUnit
+  | PlainSequentialRequirementUnit
+  | PlainStatefulRequirementUnit
+  | PlainStructuralRequirementUnit;
 
 export type RequirementServiceFulfillment = WithExtensions &
   (IndependentUnitsFulfillment | SharedServiceFulfillment);
@@ -316,13 +380,11 @@ export type Closure = WithExtensions & {
 
 // --- Recursive Core Containers ---
 
-export type LUCore = WithExtensions & {
-  kindOrganization: LUKindOrganization;
-  ports: Record<PortKey, Port>;
-  luis: Record<LUIId, LUI>;
-  connections: Record<ConnectionId, Connection>;
-  closures: Record<ClosureId, Closure>;
-};
+export type LUCore =
+  | CombinationalLUCore
+  | SequentialLUCore
+  | StatefulLUCore
+  | StructuralLUCore;
 
 export type LogicUnit = WithExtensions & {
   schemaVersion: LogicIRCoreSchemaVersion;

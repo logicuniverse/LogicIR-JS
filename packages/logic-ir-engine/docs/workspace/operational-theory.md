@@ -56,7 +56,7 @@ Z 轴区分“声明需求”和“满足需求”：
 - **Require (-Z)** 和 **Fulfill (+Z)** 是同一条履约路径从两侧读取的方向。
 - **Z-0** 表示在当前 LUI 处通过 Closure 本地履约。
 - **Z-n** 表示沿 supply lineage 向上游解析履约。
-- Requirement service 可以 inline 定义，也可以通过 namespace/key 引用外部预定义 contract。外部 contract 解析后才能用于检查 LUI ports、unit compatibility 和 fulfillment shape；core 不定义 registry/database lookup 机制。
+- Requirement service 可以 inline 定义，也可以通过 namespace/key 引用外部预定义 contract。外部 contract 解析后才能用于检查 LUI ports、unit compatibility、structural composition surface 和 fulfillment shape；core 不定义 registry/database lookup 机制。
 
 Requirement fulfillment 不能被普通数据流、命名查找、参数传递、callback 或 ambient context 隐藏。数据和信号沿 X/Y 平面移动；所需逻辑的供应沿 Z 轴表达。
 
@@ -100,17 +100,17 @@ Endpoint refs 应支持 port-level 以及 payload-level 寻址：
 
 ## Structural Spatial Slices and Distributed Projection
 
-Structural composition 可以用 anchor 和 outlet 两个原语理解。`CompositionAnchor` 有 `shape` 和 `required`，表示可以接收 composition value 的锚点；`CompositionOutlet` 是可以放入某个 anchor 的结构出口。Structural LU/closure 的 `exportSlots` 是当前结构对外提供的隐式 single anchors，因此只保存 `required`；`placeholderOutlets` 是当前结构声明的 placeholder outlets。一个 structural LU 被实例化成 LUI 后，这些 placeholder outlets 在父级视角解析为 `compositionSurface.anchors`，由父级填充；structural LUI 的 `compositionSurface.outlets` 则是该 LUI 提供给父级放入当前 LU/closure anchor 的 outlets。
+Structural composition 可以用 anchor 和 outlet 两个原语理解。`CompositionAnchor` 有 `shape` 和 `required`，表示可以接收 composition value 的锚点；outlet 在 core 中只是可放入某个 anchor 的结构出口 key，因此 `compositionSurface.outlets` 是 set-like key array。Structural LU/closure 的 `exportAnchors` 是当前结构对外提供的隐式 single anchors，因此只保存 `required`；`externalOutlets` 是当前结构内部可引用、但由父级 composition context 供应的 outlets。一个 structural LU 被实例化成 LUI 后，这些 external outlets 在父级视角解析为 `compositionSurface.anchors`，由父级填充；structural LUI 的 `compositionSurface.outlets` 则是该 LUI 提供给父级放入当前 LU/closure anchor 的 outlets。
 
-Structural LU 的 `exportSlots` 仍可以被读取为 named spatial slices。一个 structural LU 不需要只有一个默认出口；`root` 可以是常用主 slice 约定，但不是 schema 特权字段。多个 `exportSlots` 允许同一个 structural LUI 在父级中按不同空间切片被引用。
+Structural LU 的 `exportAnchors` 仍可以被读取为 named spatial slices。一个 structural LU 不需要只有一个默认出口；`root` 可以是常用主 slice 约定，但不是 schema 特权字段。多个 `exportAnchors` 允许同一个 structural LUI 在父级中按不同空间切片被引用。
 
-`exportSlotFills[exportSlotKey]` 描述某个 anchor / slice 的 single composition leaf。遍历这些 leaves 可以推导该 slice 直接使用哪些 child LUI outlets、哪些 placeholder outlets，以及哪些 child structural export slices 被接入。集合或映射组合不直接放在当前 LU/closure 的 export slot 上；它们属于 structural LUI anchors，并通过 `luiFills[luiId]` 提供。`luiFills[luiId]` 描述该 child LUI 实例的 anchors 如何被填充；它属于实例上下文，不属于某一次 `lui-outlet` 引用。
+`exportAnchorFills[anchorKey]` 描述某个 export anchor / slice 的 single composition leaf。遍历这些 leaves 可以推导该 slice 直接使用哪些 child LUI outlets、哪些 external outlets，以及哪些 child structural export slices 被接入。集合或映射组合不直接放在当前 LU/closure 的 export anchor 上；它们属于 structural LUI anchors，并通过 `luiFills[luiId]` 提供。`luiFills[luiId]` 描述该 child LUI 实例的 anchors 如何被填充；它属于实例上下文，不属于某一次 `lui-outlet` 引用。
 
-基于这些结构，projector 或 analyzer 可以把一个含 N 个 export slots 的 structural LU 切分成 N 个 slice subsystems。切分后，每个 subsystem 可以有自己的局部结构和跨 slice 通信边界。一个常见 lowering 是为每个 slice subsystem 生成一个 push-notifiable `rx` input bus 和一个 push-notifiable `tx` output bus；`tx` 不必按目标 slice 膨胀成 N-1 个端口，目标 slice/channel 可以作为第一层 pin 或 `payloadPath` 段，后续段表达 message field、bus lane 或嵌套地址。
+基于这些结构，projector 或 analyzer 可以把一个含 N 个 export anchors 的 structural LU 切分成 N 个 slice subsystems。切分后，每个 subsystem 可以有自己的局部结构和跨 slice 通信边界。一个常见 lowering 是为每个 slice subsystem 生成一个 push-notifiable `rx` input bus 和一个 push-notifiable `tx` output bus；`tx` 不必按目标 slice 膨胀成 N-1 个端口，目标 slice/channel 可以作为第一层 pin 或 `payloadPath` 段，后续段表达 message field、bus lane 或嵌套地址。
 
 这种分布式 slice 设计由 core 支持，但不由 core 强制。Core 只提供：
 
-- `exportSlots` / `exportSlotFills` 表达 spatial slice boundary 和 slice composition。
+- `exportAnchors` / `exportAnchorFills` 表达 spatial slice boundary 和 slice composition。
 - `luiFills` 表达 child LUI 实例的 anchor fills / composition context。
 - `ConnectionId` 保留拆分后逻辑边的独立身份。
 - `EndpointRef.payloadPath` 表达 bus、sub-bus、lane 或 nested message address。

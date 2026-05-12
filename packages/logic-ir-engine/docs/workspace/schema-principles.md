@@ -16,7 +16,7 @@
 - Projection target 只约束 schema 的可表达性和边界语义，不要求当前阶段立即实现所有 projector。
 - Core 可以表达 target-neutral 的端口 contact capability，例如 readable、notifiable、retained-current；但不能规定这些能力在 JS runtime 或 HDL 中的具体实现位置和机制。
 - Core 可以表达嵌套 payload 的逻辑寻址，例如 object path、array index、bus lane 或包裹总线字段；但不能把深层 payload 结构自动提升为 nested core pins 或 target-specific type system。
-- Core 可以表达 structural `exportSlots` 作为 named spatial slices，并允许 `Connection + payloadPath` 支撑 slice 间 bus-style routing；但不能把某个分布式 runtime 的 RX/TX 端口生成、placement、transport、scheduling 或 serialization 规则固定为 core schema。
+- Core 可以表达 structural `exportAnchors` 作为 named spatial slices，并允许 `Connection + payloadPath` 支撑 slice 间 bus-style routing；但不能把某个分布式 runtime 的 RX/TX 端口生成、placement、transport、scheduling 或 serialization 规则固定为 core schema。
 - X 轴仍然是 unit-level boundary drive。端口 contact capability 不能反向变成新的 X 轴方向。
 
 ## Long-Lived Protocol Model
