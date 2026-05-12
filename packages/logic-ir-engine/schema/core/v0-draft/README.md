@@ -35,6 +35,16 @@ Add glossary, model, invariants, wire-shape, examples, or generated formats only
 
 This draft refines the representative schema sketch in `docs/essay.md` without changing the X/Y/Z model. X remains the unit-level boundary-drive axis; `Port.interaction` is contact-level capability describing whether a port is readable, notifiable, and/or retained-current. The submitted essay text does not need to be edited for this draft refinement.
 
+## Current Shape
+
+- `PortSurface` is `Record<PortKey, Port>` with one key namespace per owner. `Port.boundary` stores the owner boundary side; `Connection.from/to` stores graph direction inside the containing core.
+- `LUCore` is a discriminated union by `kindOrganization.kind`. The containing LU kind constrains which LUI kinds may appear in its single `luis` map.
+- Sequential organization is the minimal ordered list `steps: LUIId[]`. Guards, branches, async policy, return behavior, and addressable control-flow nodes belong in features or `LUCore.extensions`.
+- Structural composition uses anchors and outlets. `compositionSurface.outlets` is a set-like `CompositionOutletKey[]`; anchors carry `shape` and `required`.
+- Structural LU/closure cores declare `exportAnchors`, `externalOutlets`, `exportAnchorFills`, and `luiFills` in the structural `kindOrganization` branch. LU/closure export anchors are single anchors; non-single composition is supplied through structural LUI anchors and `luiFills`.
+- Requirement services may be inline or external. External services and external LUI targets use `namespace + key`; registry lookup and realization details are outside core.
+- Extensions attach to stable owner or relationship nodes. Kind-specific metadata for `kindOrganization` internals is expressed through owner-level extensions, usually `LUCore.extensions`, using selectors inside the extension payload.
+
 ## Core Invariants
 
 | ID | Area | Invariant |
@@ -44,7 +54,7 @@ This draft refines the representative schema sketch in `docs/essay.md` without c
 | CORE-003 | Map identity | When an entity is stored in a `Record<Id, Entity>`, the record key is the entity identity. The entity body must not repeat the same id field unless it is not keyed by an enclosing record. This includes LUIs, closures, and connections. |
 | CORE-004 | LogicUnit boundary | `LogicUnit` is the schema body for one bounded LU. It does not declare its own registry identity or catalog key; LU maps, package indexes, file names, and import aliases belong to the application/tooling layer that carries the `LogicUnit`. |
 | CORE-005 | LU kind | `LUCore.kindOrganization.kind` is the single source of truth for the LU execution-plane kind. `LogicUnit` must not repeat this kind at its wrapper level. |
-| CORE-006 | Required empty collections | Core collection fields must be present even when empty. Use `{}` for empty maps and `[]` for empty lists in fields such as `requirements`, `closures`, `fulfillments`, structural `externalOutlets`, structural `exportAnchorFills`, structural `luiFills`, nested `requirements`, and `forwardedPortKeys.inputs/outputs`. Optional fields are reserved for meaningful absence, such as whole-port `payloadPath`, missing `role`, missing `pins`, or no extension records. |
+| CORE-006 | Required empty collections | Core collection fields must be present even when empty. Use `{}` for empty maps and `[]` for empty lists in fields such as `requirements`, `closures`, `fulfillments`, structural `compositionSurface.outlets`, structural `externalOutlets`, structural `exportAnchorFills`, structural `luiFills`, nested `requirements`, and `forwardedPortKeys.inputs/outputs`. Optional fields are reserved for meaningful absence, such as whole-port `payloadPath`, missing `role`, missing `pins`, or no extension records. |
 | CORE-007 | In-plane flow | Ports and connections express ordinary data or signal interaction only. Requirement fulfillment and structural composition must not be encoded as a connection. |
 | CORE-008 | LUCore kind union | `LUCore` is a discriminated union by `kindOrganization.kind`. It keeps one `luis` map in the wire shape, but the allowed LUI value kinds are constrained by the containing LU kind: combinational cores contain only combinational LUIs; stateful cores contain combinational or stateful LUIs; sequential cores contain combinational, stateful, or sequential LUIs; structural cores contain combinational, stateful, or structural LUIs. Cross-reference existence and target compatibility are still validator responsibilities. |
 | CORE-009 | Single-driver target | Within one `LUCore.connections` map, target driving is checked by overlapping `Connection.to` endpoint addresses (`owner`, `portKey`, and `payloadPath`), not only by whole-port identity. Fan-out from one `from` endpoint is allowed. Fan-in, multi-driver, partial-merge, or resolver behavior must be represented by an explicit LUI, or by a required feature extension that declares resolution semantics. |
@@ -108,7 +118,7 @@ These rules are validation targets where they depend on ports and cross-referenc
 | ID | LU kind | Draft discipline |
 | --- | --- | --- |
 | CORE-062 | `combinational` | Space-like, pull-driven logic. Boundary inputs should be `pullReadable` inputs; a `primary-result`, when present, should be a `pullReadable` output. Push-notifiable advancement belongs in another LU kind or an explicit adapter or feature rule. |
-| CORE-063 | `sequential` | Time-like ordered progression. Progression is represented by ordered sequential step objects that each reference a LUI, not software await/no-await. Sequential steps do not have their own ids unless future core semantics require addressable control-flow steps. A `primary-result` may be readable, notifiable, or both; this interaction describes the boundary contact, not software await/no-await behavior. |
+| CORE-063 | `sequential` | Time-like ordered progression. Progression is represented by `kindOrganization.steps: LUIId[]`, an ordered list of LUIs, not software await/no-await. Sequential steps do not have their own ids or objects unless future core semantics require addressable control-flow nodes. A `primary-result` may be readable, notifiable, or both; this interaction describes the boundary contact, not software await/no-await behavior. |
 | CORE-064 | `stateful` | Time-like resident state under external arrival. Push-notifiable inputs may advance resident state; outputs may be notifiable, readable, or retained-current depending on whether the boundary emits events, exposes sampled state, or exposes latest state. |
 | CORE-065 | `structural` | Space-like structure re-manifested under external arrival. Structural LUs declare export anchors, external outlets, export-anchor fills, and child LUI fills inside the structural `kindOrganization` branch. Push-notifiable inputs may trigger re-manifestation; current-valued contacts can represent prop/state/signal surfaces without making current a third X-axis direction. |
 

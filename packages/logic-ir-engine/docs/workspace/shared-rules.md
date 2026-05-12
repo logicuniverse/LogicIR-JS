@@ -29,6 +29,7 @@
 - Core schema 稳定后默认只做 additive changes；破坏性核心语义变化必须走 major version，并说明 migration 或 compat layer。
 - Feature 必须命名空间化，并明确扩展是 optional 还是 required。
 - Projection 实现必须声明 capability set，包括支持的 core version、features 和 target constraints。应用层 bundle/profile 只能作为 feature 集合引用，不能替代具体 feature capability。
+- Extension 应挂在稳定 owner 或关系节点上；`kindOrganization` 内部字段、sequential `steps`、composition leaf/value、pin children 等 helper 结构的附加数据通过 owner-level extension payload selector 表达。
 - Projector 遇到不支持的 required extension 或无法保持声明语义的结构时，必须返回 diagnostic，不能静默降级。
 
 ## 计划先于实现

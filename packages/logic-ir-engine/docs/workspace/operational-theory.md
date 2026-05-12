@@ -47,6 +47,8 @@ Y 轴描述当前层如何跨时间存在：
 
 当前旧代码中的 `Composable` 更接近早期 structural/composition 实现痕迹，不应阻止新 schema 采用 `Structural`。
 
+当前 core schema 的执行平面形状是：`LUCore.kindOrganization.kind` 是 LU kind 的唯一来源；`LUCore` 按该 kind 形成 discriminated union；每个 core 仍使用一个 `luis` map，但允许的 LUI kind 由外层 LU kind 约束。Sequential core 的最小组织数据是 `steps: LUIId[]`，只表达有序推进的 LUI 序列；分支、guard、return、go-back、async/await 策略或可寻址 control-flow node 都不是 core sequential step 结构，应该由 feature extension 或 projection lowering 表达。
+
 ## Requirement Fulfillment: Z
 
 Z 轴区分“声明需求”和“满足需求”：
@@ -88,6 +90,7 @@ Requirement fulfillment 不能被普通数据流、命名查找、参数传递�
 Endpoint refs 应支持 port-level 以及 payload-level 寻址：
 
 - `owner + portKey` 定位一个边界 contact。
+- 每个 owner 的 port surface 是一个 `PortKey` namespace；`input` 和 `output` 不是两套 key 空间，而是同一 `Port` 上的 `boundary` 属性。
 - `payloadPath` 定位该 port payload 内部的嵌套位置，例如 object field、array item、bus lane 或包裹总线字段。
 - `Port.pins` 只声明第一层可见 pin surface；pin 继承 port 的 boundary 和 interaction。
 - `Port.boundary` 是 port 在 owner 边界上的侧别，而 `Connection.from/to` 是相对当前 `LUCore` 图的流向。当前 LU/Closure 的 input boundary 是图内 source，当前 LU/Closure 的 output boundary 是图内 sink；子 LUI 的 input boundary 是图内 sink，子 LUI 的 output boundary 是图内 source。
@@ -117,6 +120,8 @@ Structural LU 的 `exportAnchors` 仍可以被读取为 named spatial slices。�
 
 具体的 RX/TX 端口生成、placement、transport、调度、打包、序列化、fan-in resolver 或 merge policy 属于 projection strategy 或 required feature extension。Projector 不能把这些语义作为隐式 runtime 假设静默引入。
 
+Core 的 structural outlet 目前只是 key：`compositionSurface.outlets: CompositionOutletKey[]` 是 set-like 声明，不携带 shape、required 或额外 metadata。需要 outlet category、layout、type、compatibility tag 或 distributed routing hint 时，应挂到拥有该 surface 的结构上，例如 structural LUI 的 `compositionSurface.extensions` 或外层 `LUCore.extensions`，由 extension payload 用 outlet key selector 指向具体 outlet。
+
 ## Core/Feature/Projection
 
 - **Core schema** 保存跨 projection target 必须共同理解的逻辑拓扑语义。
@@ -125,6 +130,8 @@ Structural LU 的 `exportAnchors` 仍可以被读取为 named spatial slices。�
 - **Projection** 是能力声明和 lowering/realization pipeline，不只是一个转换函数。
 - Projector 必须声明支持的 core version、features、LU kinds、fulfillment forms 和 target constraints。应用层 bundle 必须解析成具体 feature 后才能用于能力判断。
 - 不支持 required extension 或无法保持声明语义时，projector 必须安全失败并返回 diagnostic。
+
+当前 core schema 把 extension attachment 控制在稳定 owner 或关系节点上：`LogicUnit`、`LUCore`、`LUI`、`Port`、`Connection`、`Closure`、requirement service、service-level fulfillment 和 unit fulfillment。`kindOrganization` 内部字段、sequential `steps`、composition leaves/values、pin children 等 helper 结构不直接挂 extension；相关 metadata 由 owner-level extension payload 通过 selectors 指到内部位置。
 
 ## Projection Targets
 

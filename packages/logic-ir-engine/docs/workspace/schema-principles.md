@@ -18,6 +18,8 @@
 - Core 可以表达嵌套 payload 的逻辑寻址，例如 object path、array index、bus lane 或包裹总线字段；但不能把深层 payload 结构自动提升为 nested core pins 或 target-specific type system。
 - Core 可以表达 structural `exportAnchors` 作为 named spatial slices，并允许 `Connection + payloadPath` 支撑 slice 间 bus-style routing；但不能把某个分布式 runtime 的 RX/TX 端口生成、placement、transport、scheduling 或 serialization 规则固定为 core schema。
 - X 轴仍然是 unit-level boundary drive。端口 contact capability 不能反向变成新的 X 轴方向。
+- Core 的 port surface 使用单一 `PortKey` namespace；`input` / `output` 是 port boundary，不是两套独立 key 空间。
+- Core sequential organization 只保存 `steps: LUIId[]`。更细的 control-flow、guard、branch、return、go-back、async 或调度语义必须走 feature extension 或 projection lowering。
 
 ## Long-Lived Protocol Model
 
@@ -52,6 +54,8 @@ LogicIR schema 应该像长期协议一样演进：稳定核心、命名空间�
 - Feature 和应用层 bundle 是多对多关系：一个 feature 可以被多个 bundle 复用，一个 bundle 也可以组合多个 namespace 下的 feature。
 - 不要把 JS runtime、HDL、类型系统、编辑器布局和兼容迁移塞进一个大 feature。
 - 也不要为每个字段创建一个 feature；字段级数据应作为相关 feature 下的 extension key。
+- Extension attachment 应优先选择稳定 owner 或关系节点，例如 `LogicUnit`、`LUCore`、`LUI`、`Port`、`Connection`、`Closure`、requirement service、service-level fulfillment 或 unit fulfillment。不要为了给 helper 子结构加 metadata 而让 `PinSet`、sequential `steps`、composition leaf/value 或 `kindOrganization` 内部字段自己支持 extension；owner-level payload 可以用 selectors 指向这些内部位置。
+- Kind-specific metadata 应通过 `LUCore.extensions` 组织。`kindOrganization` 是 core 最小骨架，不是各 target/runtime 私有数据的容器。
 - Projector 不能只声明“支持某 bundle/profile”就默认支持全部能力；必须声明具体 features/capabilities，或解析 bundle manifest 后逐项声明覆盖。
 - 影响语义或正确性的 extension 应为 `required`；只影响展示、布局、注释或可安全降级优化的 extension 可以为 `optional`。
 

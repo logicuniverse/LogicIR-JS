@@ -14,6 +14,13 @@ Use this pattern:
 
 Feature and bundle are not a strict tree: one feature can appear in multiple bundles, and one bundle can reference many features. Extension records belong to features, not directly to bundles. LogicIR core does not define profile membership.
 
+Attachment:
+
+- Attach extensions to stable owner or relationship nodes, such as `LogicUnit`, `LUCore`, `LUI`, `Port`, `Connection`, `Closure`, requirement services, service-level fulfillment, or unit fulfillment.
+- Do not attach extensions directly to helper children such as `PinSet`, sequential `steps`, `kindOrganization` branch internals, `CompositionLeaf`, or `CompositionValue`.
+- When metadata targets an internal position, put selectors in the owner-level payload, such as `portKey`, `unitKey`, `stepIndex`, `anchorKey`, `outletKey`, or `payloadPath`.
+- Kind-specific organization metadata belongs on `LUCore.extensions`, not inside each `kindOrganization` branch.
+
 Guidelines:
 
 - Use `required` when unsupported data would change semantics, correctness, compatibility, or projection validity.

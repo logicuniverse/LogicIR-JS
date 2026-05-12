@@ -32,6 +32,8 @@ Profile/bundle names are application-layer conveniences for grouping features. T
 - Mark each extension record optional or required.
 - Optional extension: unsupported tools may ignore it only if core semantics remain unchanged.
 - Required extension: unsupported tools must fail with diagnostic.
+- Attach extensions to stable owner or relationship nodes. For internal helper positions such as sequential `steps`, composition leaves/values, pin children, or `kindOrganization` branch internals, use selector fields in the owner-level payload rather than adding extension arrays to the helper itself.
+- Kind-specific metadata should attach to `LUCore.extensions`; `kindOrganization` remains the target-neutral minimal organization skeleton.
 
 ## Versioning
 

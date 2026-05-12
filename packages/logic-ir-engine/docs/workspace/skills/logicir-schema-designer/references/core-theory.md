@@ -56,3 +56,16 @@ Core schema must preserve at least:
 - Closure cores and same-key forwarded port declarations.
 - Target references for LU-defined, external, and requirement-backed manifestations.
 - Clear separation between representation and projection/runtime.
+
+## Current Core Draft Alignment
+
+The active v0 draft expresses those obligations with:
+
+- `PortSurface = Record<PortKey, Port>`, using one key namespace per owner and `Port.boundary` for input/output side.
+- `Port.interaction` as contact capability: `pullReadable`, `pushNotifiable`, and `retainedCurrent`.
+- `EndpointRef.payloadPath` for payload/bus/lane addressing without turning nested payload into nested core pins.
+- `LUCore.kindOrganization.kind` as the execution-plane kind discriminator.
+- `steps: LUIId[]` as the minimal sequential organization; richer control flow is feature/projection territory.
+- Structural anchors/outlets through `exportAnchors`, `externalOutlets`, `exportAnchorFills`, `luiFills`, and structural LUI `compositionSurface`.
+- Requirement services as inline or external contracts, and fulfillment as explicit closure or upstream lineage relations.
+- Extensions attached to stable owner or relationship nodes, with selector payloads for internal helper positions.

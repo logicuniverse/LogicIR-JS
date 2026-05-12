@@ -53,6 +53,7 @@ Load only the reference needed for the current task:
 - Do not treat `Composable` in old code as binding theory; prefer essay terminology such as `Structural` when designing the new schema.
 - Do not let requirement fulfillment collapse into ordinary data flow, parameter passing, naming lookup, callbacks, or ambient context.
 - Do not allow a projector to ignore unsupported required extensions.
+- Keep the current v0 core draft thin: `kindOrganization` stores only target-neutral organization skeletons, and kind-specific metadata belongs in owner-level extensions such as `LUCore.extensions`.
 
 ## Current Prototype Reading Heuristics
 

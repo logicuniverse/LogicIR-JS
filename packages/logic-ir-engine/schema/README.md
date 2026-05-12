@@ -26,6 +26,18 @@ Use TypeScript as the schema authoring source for this package, with strict limi
 - `profiles/`: application/tool-layer feature bundle notes. Profiles are not part of the LogicIR object model.
 - `migrations/`: mappings from old schemas or implementations to the new schema.
 
+## Current Core Draft
+
+The active core draft is `core/v0-draft/types.ts`. Its current shape uses:
+
+- `PortSurface` with one `PortKey` namespace per owner.
+- `Port.interaction` for readable/notifiable/retained-current contact capability.
+- `LUCore.kindOrganization.kind` as the LU kind discriminator.
+- `steps: LUIId[]` as minimal sequential organization.
+- Structural `exportAnchors`, `externalOutlets`, `exportAnchorFills`, `luiFills`, and structural LUI `compositionSurface`.
+- Inline or external requirement service contracts and explicit closure/upstream fulfillment relations.
+- Feature-scoped extension records on stable owner or relationship nodes.
+
 ## Drafting Discipline
 
 Keep the workspace incremental. Do not create placeholder files for design areas that have not started. Add new files only when they carry decisions, constraints, examples, or schema types that are ready to discuss.
