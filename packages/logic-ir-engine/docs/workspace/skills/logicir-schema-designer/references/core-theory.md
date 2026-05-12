@@ -20,7 +20,7 @@ LogicIR is a structured-data representation of logical topology. It is not itsel
 
 ## X/Y Execution Plane
 
-- X = interaction polarity.
+- X = unit-level boundary drive.
   - Pull (-X): sampling, reading, requesting, latching, gated progression.
   - Push (+X): arrival, event, notification, delivery directly advances boundary.
 - Y = manifestation mode.
@@ -48,6 +48,8 @@ Core schema must preserve at least:
 
 - Bounded LUs and local LUIs.
 - Ports, endpoint refs, port discipline, and in-plane connections.
+- Port-level contact capabilities such as readable, notifiable, and retained-current, while keeping their runtime/HDL realization out of core.
+- Payload-level endpoint addressing for nested payload structures such as object fields, array items, bus lanes, and wrapped bus fields, while keeping deep type/packing realization in feature extensions or projectors.
 - LU kind and kind-specific organization.
 - Requirement services and requirement units.
 - Fulfillment relations, including Closure and upstream lineage.

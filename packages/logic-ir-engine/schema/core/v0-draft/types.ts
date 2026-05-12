@@ -21,7 +21,6 @@ export type LUId = LocalId;
 export type LUIId = LocalId;
 export type ConnectionId = LocalId;
 export type ClosureId = LocalId;
-export type ExternalTargetId = LogicIRId;
 
 /**
  * `key` values are stable semantic names in a declared namespace or contract
@@ -32,17 +31,27 @@ export type PortKey = LogicIRKey;
 export type PinKey = LogicIRKey;
 export type RequirementServiceKey = LogicIRKey;
 export type RequirementUnitKey = LogicIRKey;
-export type ExtensionNamespace = string;
+export type ExternalRequirementServiceNamespace = string;
+export type ExternalRequirementServiceKey = LogicIRKey;
+export type ExternalTargetNamespace = string;
+export type ExternalTargetKey = LogicIRKey;
+export type FeatureNamespace = string;
+export type FeatureKey = LogicIRKey;
 export type ExtensionKey = LogicIRKey;
 export type ExtensionPayload = unknown;
-export type CompositionExposedSlotKey = LogicIRKey;
-export type CompositionAcceptedSlotKey = LogicIRKey;
+export type CompositionExportSlotKey = LogicIRKey;
+export type CompositionAcceptSlotKey = LogicIRKey;
 export type CompositionFieldKey = LogicIRKey;
 
 export type ExtensionRequirement = 'optional' | 'required';
 
+export type FeatureRef = {
+  namespace: FeatureNamespace;
+  key: FeatureKey;
+};
+
 export type ExtensionRecord = {
-  namespace: ExtensionNamespace;
+  feature: FeatureRef;
   key: ExtensionKey;
   requirement: ExtensionRequirement;
   payload: ExtensionPayload;
@@ -54,19 +63,22 @@ export type WithExtensions = {
 
 // --- X: Boundary Interaction ---
 
-export type PortPolarity = 'pull' | 'push';
-export type PortDirection = 'input' | 'output';
+export type PortBoundary = 'input' | 'output';
 export type PortRole = 'primary-result';
 
-export type Pin = WithExtensions;
+export type PortInteraction = {
+  pullReadable: boolean;
+  pushNotifiable: boolean;
+  retainedCurrent: boolean;
+};
 
 export type PinSet =
-  | { kind: 'indexed'; count: number; item?: Pin }
-  | { kind: 'keyed'; entries: Record<PinKey, Pin> };
+  | { kind: 'indexed'; count: number }
+  | { kind: 'keyed'; keys: PinKey[] };
 
 export type Port = WithExtensions & {
-  polarity: PortPolarity;
-  direction: PortDirection;
+  interaction: PortInteraction;
+  boundary: PortBoundary;
   role?: PortRole;
   pins?: PinSet;
 };
@@ -100,7 +112,11 @@ export type LUKind =
 
 export type LUITarget =
   | { kind: 'lu'; luId: LUId }
-  | { kind: 'external'; targetId: ExternalTargetId }
+  | {
+      kind: 'external';
+      namespace: ExternalTargetNamespace;
+      key: ExternalTargetKey;
+    }
   | {
       kind: 'requirement';
       serviceKey: RequirementServiceKey;
@@ -111,7 +127,7 @@ export type LUI = WithExtensions & {
   kind: LUKind;
   target: LUITarget;
   ports: Record<PortKey, Port>;
-  fulfillments?: Record<
+  fulfillments: Record<
     RequirementServiceKey,
     RequirementServiceFulfillment
   >;
@@ -119,51 +135,64 @@ export type LUI = WithExtensions & {
 
 export type CompositionSlotShape = 'single' | 'collection' | 'map';
 
-export type CompositionExposedSlot = WithExtensions & {
-  shape?: CompositionSlotShape;
-  required?: boolean;
+export type CompositionExportSlot = {
+  shape: CompositionSlotShape;
+  required: boolean;
 };
 
-export type CompositionAcceptedSlot = WithExtensions & {
-  required?: boolean;
+export type CompositionAcceptSlot = {
+  required: boolean;
 };
 
 export type CompositionLeaf =
   | {
-      kind: 'lui-exposure';
+      kind: 'lui-export';
       luiId: LUIId;
-      exposedSlotKey: CompositionExposedSlotKey;
-      acceptedSlots?: Record<
-        CompositionAcceptedSlotKey,
-        CompositionValue
-      >;
+      exportSlotKey: CompositionExportSlotKey;
     }
-  | { kind: 'accepted-slot'; slotKey: CompositionAcceptedSlotKey };
+  | {
+      kind: 'accept';
+      acceptSlotKey: CompositionAcceptSlotKey;
+    };
 
 export type CompositionValue =
   | CompositionLeaf
   | { kind: 'collection'; items: CompositionLeaf[] }
-  | { kind: 'map'; entries: Record<CompositionFieldKey, CompositionLeaf> };
+  | {
+      kind: 'map';
+      entries: Record<CompositionFieldKey, CompositionLeaf>;
+    };
 
-export type SequentialStep = WithExtensions & {
+export type CompositionAcceptSlotFills = Record<
+  CompositionAcceptSlotKey,
+  CompositionValue
+>;
+
+export type CompositionExportSlotFills = Record<
+  CompositionExportSlotKey,
+  CompositionValue
+>;
+
+export type SequentialStep = {
   luiId: LUIId;
 };
 
-export type LUOrganization =
+export type LUKindOrganization =
   | { kind: 'combinational' }
   | { kind: 'sequential'; steps: SequentialStep[] }
   | { kind: 'stateful' }
   | {
       kind: 'structural';
-      exposedSlots: Record<
-        CompositionExposedSlotKey,
-        CompositionExposedSlot
+      exportSlots: Record<
+        CompositionExportSlotKey,
+        CompositionExportSlot
       >;
-      acceptedSlots?: Record<
-        CompositionAcceptedSlotKey,
-        CompositionAcceptedSlot
+      acceptSlots: Record<
+        CompositionAcceptSlotKey,
+        CompositionAcceptSlot
       >;
-      exposedValues?: Record<CompositionExposedSlotKey, CompositionValue>;
+      exportSlotFills: CompositionExportSlotFills;
+      luiFills: Record<LUIId, CompositionAcceptSlotFills>;
     };
 
 // --- Z: Requirement Fulfillment ---
@@ -174,13 +203,37 @@ export type RequirementFulfillmentScope =
 
 export type RequirementSurface = Record<
   RequirementServiceKey,
-  RequirementService
+  RequirementServiceEntry
 >;
 
 export type PlainRequirementSurface = Record<
   RequirementServiceKey,
-  PlainRequirementService
+  PlainRequirementServiceEntry
 >;
+
+export type RequirementServiceEntry =
+  | InlineRequirementServiceEntry
+  | ExternalRequirementServiceEntry;
+
+export type PlainRequirementServiceEntry =
+  | InlinePlainRequirementServiceEntry
+  | ExternalRequirementServiceEntry;
+
+export type InlineRequirementServiceEntry = {
+  kind: 'inline';
+  service: RequirementService;
+};
+
+export type InlinePlainRequirementServiceEntry = {
+  kind: 'inline';
+  service: PlainRequirementService;
+};
+
+export type ExternalRequirementServiceEntry = {
+  kind: 'external';
+  namespace: ExternalRequirementServiceNamespace;
+  key: ExternalRequirementServiceKey;
+};
 
 export type RequirementService = WithExtensions & {
   fulfillmentScope: RequirementFulfillmentScope;
@@ -192,48 +245,46 @@ export type PlainRequirementService = WithExtensions & {
   units: Record<RequirementUnitKey, PlainRequirementUnit>;
 };
 
-export type RequirementUnit = WithExtensions & {
+export type RequirementUnit = {
   kind: LUKind;
   ports: Record<PortKey, Port>;
-  requirements?: PlainRequirementSurface;
+  requirements: PlainRequirementSurface;
 };
 
-export type PlainRequirementUnit = WithExtensions & {
+export type PlainRequirementUnit = {
   kind: LUKind;
   ports: Record<PortKey, Port>;
 };
 
-export type RequirementServiceFulfillment =
-  | IndependentUnitsFulfillment
-  | SharedServiceFulfillment;
+export type RequirementServiceFulfillment = WithExtensions &
+  (IndependentUnitsFulfillment | SharedServiceFulfillment);
 
-export type IndependentUnitsFulfillment = WithExtensions & {
+export type IndependentUnitsFulfillment = {
   kind: 'independent-units';
   units: Record<RequirementUnitKey, UnitFulfillment>;
 };
 
-export type SharedServiceFulfillment = WithExtensions & {
+export type SharedServiceFulfillment = {
   kind: 'shared-service';
   supplier: UpstreamServiceSupplierFulfillment;
 };
 
-export type UnitFulfillment =
-  | ClosureFulfillment
-  | UpstreamUnitFulfillment;
+export type UnitFulfillment = WithExtensions &
+  (ClosureFulfillment | UpstreamUnitFulfillment);
 
-export type ClosureFulfillment = WithExtensions & {
+export type ClosureFulfillment = {
   kind: 'closure';
   closureId: ClosureId;
 };
 
-export type UpstreamUnitFulfillment = WithExtensions & {
+export type UpstreamUnitFulfillment = {
   kind: 'upstream-unit';
   reachabilityPath: ReachabilityPath;
   supplierServiceKey: RequirementServiceKey;
   supplierUnitKey: RequirementUnitKey;
 };
 
-export type UpstreamServiceSupplierFulfillment = WithExtensions & {
+export type UpstreamServiceSupplierFulfillment = {
   kind: 'upstream-service';
   reachabilityPath: ReachabilityPath;
   supplierServiceKey: RequirementServiceKey;
@@ -241,28 +292,28 @@ export type UpstreamServiceSupplierFulfillment = WithExtensions & {
 
 export type ReachabilityPath = ClosureId[];
 
-export type ForwardedPortKeys = WithExtensions & {
-  inputs?: PortKey[];
-  outputs?: PortKey[];
+export type ForwardedPortKeys = {
+  inputs: PortKey[];
+  outputs: PortKey[];
 };
 
 export type Closure = WithExtensions & {
   core: LUCore;
-  forwardedPortKeys?: ForwardedPortKeys;
+  forwardedPortKeys: ForwardedPortKeys;
 };
 
 // --- Recursive Core Containers ---
 
 export type LUCore = WithExtensions & {
-  organization: LUOrganization;
+  kindOrganization: LUKindOrganization;
   ports: Record<PortKey, Port>;
   luis: Record<LUIId, LUI>;
   connections: Record<ConnectionId, Connection>;
-  closures?: Record<ClosureId, Closure>;
+  closures: Record<ClosureId, Closure>;
 };
 
 export type LogicUnit = WithExtensions & {
   schemaVersion: LogicIRCoreSchemaVersion;
   core: LUCore;
-  requirements?: RequirementSurface;
+  requirements: RequirementSurface;
 };

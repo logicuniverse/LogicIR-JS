@@ -1,6 +1,6 @@
 ---
 name: logicir-schema-designer
-description: Use when designing, reviewing, or implementing LogicIR schema, sub-schema/profile, projection, projector capability, or runtime-alignment changes; especially when work must reconcile the LogicIR essay theory, old TS/JS prototype schema, JS/TS runtime projection, and Verilog HDL projection constraints.
+description: Use when designing, reviewing, or implementing LogicIR schema, feature extensions, projection, projector capability, or runtime-alignment changes; especially when work must reconcile the LogicIR essay theory, old TS/JS prototype schema, JS/TS runtime projection, and Verilog HDL projection constraints.
 ---
 
 # LogicIR Schema Designer
@@ -15,13 +15,13 @@ Use this skill to keep LogicIR schema and projection work aligned with the theor
    - If source code exists, treat current TS/JS schema and projector code as old prototype/reference, not as schema authority.
 2. Classify the task:
    - Core schema change.
-   - Profile/sub-schema or extension change.
+   - Feature/extension change.
    - Projection/projector capability change.
    - Runtime implementation or compatibility change.
    - Theory extraction or documentation change.
 3. Preserve the core boundary:
    - Put only cross-target logical topology semantics in core.
-   - Put target/runtime/tool-specific details in namespaced profiles or extensions.
+   - Put target/runtime/tool-specific details in namespaced features or extensions.
    - Require projectors to declare capability before projection.
 4. Check projection targets:
    - Always assess JS/TS runtime impact.
@@ -30,7 +30,7 @@ Use this skill to keep LogicIR schema and projection work aligned with the theor
 5. For design plans, include:
    - Current old implementation reference points.
    - Essay/theory mapping.
-   - Core/profile/extension boundary.
+   - Core/feature/extension boundary.
    - Required vs optional extension status.
    - Projector capability set changes.
    - JS/TS projection impact.
@@ -42,7 +42,7 @@ Use this skill to keep LogicIR schema and projection work aligned with the theor
 Load only the reference needed for the current task:
 
 - `references/core-theory.md`: LU/LUI, X/Y/Z, Closure, LogicIR representation obligations.
-- `references/schema-protocol.md`: core/profile/extension, versioning, compatibility, projector capability rules.
+- `references/schema-protocol.md`: core/feature/extension, versioning, compatibility, projector capability rules.
 - `references/projection-targets.md`: JS/TS runtime and Verilog HDL projection constraints.
 
 ## Non-Negotiable Rules
@@ -58,9 +58,9 @@ Load only the reference needed for the current task:
 
 When reviewing `src/types/models.ts`, `src/projection.ts`, or `src/types/runtime.ts` in the LogicIR JS engine:
 
-- Read `PortKind.Pull` and `PortKind.Push` as old X-axis evidence.
-- Read `Property`, `Thenable`, `subscribe`, `StateStore`, and lifecycle ids as software runtime/profile evidence.
+- Read `PortKind.Pull` and `PortKind.Push` as old boundary/contact evidence; keep unit-level X-axis drive separate from port-level contact capability.
+- Read `Property` as retained-current contact evidence; read its store/cache/subscription mechanics as software runtime feature evidence.
+- Read `Thenable`, `subscribe`, `StateStore`, and lifecycle ids as software runtime feature evidence.
 - Read `SequentialStep` as old sequential organization evidence, with `isAwaited` as JS async projection detail.
 - Read `dependencies`, `Provider`, `SovereignSource`, `AbstractLUT`, and `closures` as old Z-axis approximation.
-- Read `Composable` and composition maps as old structural/profile evidence, not final theory vocabulary.
-
+- Read `Composable` and composition maps as old structural/feature evidence, not final theory vocabulary.

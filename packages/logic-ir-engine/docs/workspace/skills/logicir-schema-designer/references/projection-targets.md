@@ -4,9 +4,9 @@ Use this when assessing how schema or projection changes affect JS/TS runtime an
 
 ## JS/TS Runtime Projection
 
-Software runtime details belong in a profile or projector implementation, not core schema.
+Software runtime details belong in feature extensions or projector implementation, not core schema.
 
-Common JS/TS profile concerns:
+Common JS/TS feature concerns:
 
 - async and thenable/promise realization.
 - subscription and event listener mechanics.
@@ -52,6 +52,5 @@ For every proposed core field, ask:
 
 - Does JS/TS need this only because of runtime implementation?
 - Does HDL need this only because of hardware realization?
-- Can this be expressed as profile metadata or projector capability instead?
+- Can this be expressed as feature extension data or projector capability instead?
 - Would removing this field destroy the logical topology, or only one target's lowering path?
-

@@ -21,9 +21,9 @@ Use TypeScript as the schema authoring source for this package, with strict limi
 ## Directory Roles
 
 - `core/`: target-neutral LogicIR semantic core.
-- `profiles/`: target, host, runtime, tool, or domain sub-schemas. Create concrete profile folders only after core needs them.
-- `projection/`: projector capability declarations, diagnostics, and projection contract schemas. Create concrete drafts only after core/profile fields exist.
-- `extensions/`: namespaced extension registry and extension-specific schemas.
+- `extensions/`: feature-scoped extension registry and extension-specific schemas.
+- `projection/`: projector capability declarations, diagnostics, and projection contract schemas. Create concrete drafts only after core or feature extension fields exist.
+- `profiles/`: application/tool-layer feature bundle notes. Profiles are not part of the LogicIR object model.
 - `migrations/`: mappings from old schemas or implementations to the new schema.
 
 ## Drafting Discipline
@@ -32,4 +32,4 @@ Keep the workspace incremental. Do not create placeholder files for design areas
 
 ## Compatibility Rule
 
-LogicIR schema evolves like a long-lived protocol: stable core, namespaced extensions, explicit capability declaration, and safe failure when a projector cannot preserve declared semantics.
+LogicIR schema evolves like a long-lived protocol: stable core, namespaced features, explicit extension requirements, explicit capability declaration, and safe failure when a projector cannot preserve declared semantics.

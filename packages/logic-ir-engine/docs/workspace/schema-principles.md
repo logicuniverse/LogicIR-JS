@@ -14,6 +14,10 @@
 - 新 schema 必须表达 LogicIR 的拓扑、边界语义、Requirement/Fulfillment、Closure、Projection/Runtime 分离。
 - 新 schema 不能只服务 JS runtime，也不能把某一个 projector 的实现便利当成 schema 的核心语义。
 - Projection target 只约束 schema 的可表达性和边界语义，不要求当前阶段立即实现所有 projector。
+- Core 可以表达 target-neutral 的端口 contact capability，例如 readable、notifiable、retained-current；但不能规定这些能力在 JS runtime 或 HDL 中的具体实现位置和机制。
+- Core 可以表达嵌套 payload 的逻辑寻址，例如 object path、array index、bus lane 或包裹总线字段；但不能把深层 payload 结构自动提升为 nested core pins 或 target-specific type system。
+- Core 可以表达 structural `exportSlots` 作为 named spatial slices，并允许 `Connection + payloadPath` 支撑 slice 间 bus-style routing；但不能把某个分布式 runtime 的 RX/TX 端口生成、placement、transport、scheduling 或 serialization 规则固定为 core schema。
+- X 轴仍然是 unit-level boundary drive。端口 contact capability 不能反向变成新的 X 轴方向。
 
 ## Long-Lived Protocol Model
 
@@ -22,31 +26,33 @@ LogicIR schema 应该像长期协议一样演进：稳定核心、命名空间�
 - Core schema 是长期稳定的语义核心，只放跨 projection target 必须共同理解的逻辑拓扑。
 - Core schema 稳定后默认只做 additive changes，不随意删除字段或改变既有语义。
 - 破坏性核心语义变化必须走 major version，并提供 migration 或 compat layer。
-- Profile/sub-schema 用于承载目标或领域扩展，例如 software runtime、Verilog HDL、分布式运行时或验证工具。
-- 扩展必须命名空间化，避免不同 profile 的字段和语义互相污染。
+- Feature/extension 用于承载目标或领域扩展，例如 software runtime、Verilog HDL、分布式运行时或验证工具。
+- Feature 必须有命名空间，避免不同应用、工具或 target 的字段和语义互相污染。
 - 扩展必须区分 optional 和 required：optional 可以被不了解的工具忽略，required 不被支持时必须安全失败并给出 diagnostic。
 - 旧工具或旧 projector 遇到不支持的 required extension 时，不能假装支持，也不能静默丢失语义。
 
-## Core/Profile/Projection Boundary
+## Core/Feature/Projection Boundary
 
 - Core schema 定义 LogicIR 是否仍是同一个逻辑拓扑的必要语义。
-- Profile/sub-schema 定义某类 target、host、runtime、tooling 或领域所需的附加约束。
+- Feature/extension 定义某类 target、host、runtime、tooling 或领域所需的附加约束。
+- Profile/bundle 不是 LogicIR 对象模型的一部分；它只是应用层或工具层为了方便引用而组织 feature 集合。
 - Projection 实现不是单一函数，而是一组声明过的能力集合。
-- Projector 必须声明支持的 core version、profiles、features、LU kinds、fulfillment forms 和 target constraints。
+- Projector 必须声明支持的 core version、features、LU kinds、fulfillment forms 和 target constraints。它可以接受应用层 bundle 名称，但必须解析为具体 feature。
 - Projector 只能在声明能力覆盖 schema 需求时执行 projection；否则必须返回结构化 diagnostic。
-- JS/TS runtime profile 可以定义 async、subscription、host native、runtime state、error/lifecycle 等软件实现细节。
-- Verilog HDL profile 可以定义 module boundary、clock/reset、combinational block、sequential block、generate/elaboration-time 结构和静态绑定约束。
+- JS/TS runtime feature 可以定义 async、subscription、host native、runtime state、error/lifecycle 等软件实现细节。
+- Verilog HDL feature 可以定义 module boundary、clock/reset、combinational block、sequential block、generate/elaboration-time 结构和静态绑定约束。
 
-## Profile / Feature / Extension Strategy
+## Feature / Extension Strategy
 
-后续扩展采用三层结构：profile 按领域拆，feature 按能力拆，extension 按具体节点声明拆。
+后续扩展采用 feature-centered 结构：feature 是 projector capability unit，extension 是挂在具体节点上的 payload。应用层可以定义 profile/bundle 来引用 feature 集合，但 LogicIR core 不定义 profile。
 
-- **Profile** 表示一组稳定的 target/domain 规则，例如 `software-runtime`、`verilog-hdl`、`type-system`、`control-flow`、`visual-editor`、`legacy-tsjs-v1`。
-- **Feature / Capability** 表示 profile 内可单独声明支持的能力，例如 `async-policy`、`dynamic-fulfillment`、`clock-reset`、`module-binding`、`port-types`、`payload-path-types`。
-- **Extension record** 挂在具体 schema 节点上，承载 optional/required payload。
-- 不要把 JS runtime、HDL、类型系统、编辑器布局和兼容迁移塞进一个大 profile。
-- 也不要为每个字段创建一个 profile；字段级数据应作为 profile namespace 下的 extension key。
-- Projector 不能只声明“支持某 profile”就默认支持全部能力；必须声明具体 features/capabilities。
+- **Feature / Capability** 表示可单独声明、验证和投影的能力单元。Feature 自身有稳定身份，通常是 `namespace + key`，例如 `logicir.software-runtime / async-policy`、`logicir.verilog-hdl / clock-reset`、`logicir.type-system / payload-types`。
+- **Extension record** 挂在具体 schema 节点上，显式引用所属 `feature`，并用 `key` 标识该 feature 下的具体 extension kind，承载 optional/required payload。
+- **Application bundle/profile** 可以作为应用层 feature 集合，例如 `software-runtime`、`verilog-hdl`、`type-system`、`control-flow`、`visual-editor`、`legacy-tsjs-v1`，但不进入 canonical LogicIR object。
+- Feature 和应用层 bundle 是多对多关系：一个 feature 可以被多个 bundle 复用，一个 bundle 也可以组合多个 namespace 下的 feature。
+- 不要把 JS runtime、HDL、类型系统、编辑器布局和兼容迁移塞进一个大 feature。
+- 也不要为每个字段创建一个 feature；字段级数据应作为相关 feature 下的 extension key。
+- Projector 不能只声明“支持某 bundle/profile”就默认支持全部能力；必须声明具体 features/capabilities，或解析 bundle manifest 后逐项声明覆盖。
 - 影响语义或正确性的 extension 应为 `required`；只影响展示、布局、注释或可安全降级优化的 extension 可以为 `optional`。
 
 ## Projection Target Discipline

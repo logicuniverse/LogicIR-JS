@@ -20,7 +20,7 @@
 - 理论映射，明确关联 LU/LUI、X/Y、Z、Closure、Requirement/Fulfillment 或 Projection/Runtime 分离。
 - 实现范围，说明要改哪些子系统，不只列文件名。
 - 公开类型、API、数据形状或行为语义的变化。
-- Core schema、profile/sub-schema 或 extension 的边界变化。
+- Core schema、feature/extension 或应用层 feature bundle 的边界变化。
 - required/optional extension 判断，以及命名空间。
 - Projector capability set 的新增或变更。
 - JS/TS runtime projection impact。
