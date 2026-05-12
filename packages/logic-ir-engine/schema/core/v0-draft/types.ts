@@ -39,8 +39,8 @@ export type FeatureNamespace = string;
 export type FeatureKey = LogicIRKey;
 export type ExtensionKey = LogicIRKey;
 export type ExtensionPayload = unknown;
-export type CompositionExportSlotKey = LogicIRKey;
-export type CompositionAcceptSlotKey = LogicIRKey;
+export type CompositionAnchorKey = LogicIRKey;
+export type CompositionOutletKey = LogicIRKey;
 export type CompositionFieldKey = LogicIRKey;
 
 export type ExtensionRequirement = 'optional' | 'required';
@@ -110,6 +110,8 @@ export type LUKind =
   | 'stateful'
   | 'structural';
 
+export type NonStructuralLUKind = Exclude<LUKind, 'structural'>;
+
 export type LUITarget =
   | { kind: 'lu'; luId: LUId }
   | {
@@ -123,8 +125,7 @@ export type LUITarget =
       unitKey: RequirementUnitKey;
     };
 
-export type LUI = WithExtensions & {
-  kind: LUKind;
+export type LUIBase = WithExtensions & {
   target: LUITarget;
   ports: Record<PortKey, Port>;
   fulfillments: Record<
@@ -133,27 +134,44 @@ export type LUI = WithExtensions & {
   >;
 };
 
+export type StructuralLUI = LUIBase & {
+  kind: 'structural';
+  compositionSurface: {
+    outlets: Record<CompositionOutletKey, CompositionOutlet>;
+    anchors: Record<CompositionAnchorKey, CompositionAnchor>;
+  };
+};
+
+export type NonStructuralLUI = LUIBase & {
+  kind: NonStructuralLUKind;
+};
+
+export type LUI = StructuralLUI | NonStructuralLUI;
+
 export type CompositionSlotShape = 'single' | 'collection' | 'map';
 
-export type CompositionExportSlot = {
+export type CompositionAnchor = {
   shape: CompositionSlotShape;
   required: boolean;
 };
 
-export type CompositionAcceptSlot = {
+export type CompositionOutlet = {};
+
+export type CompositionExportSlot = {
   required: boolean;
 };
 
 export type CompositionLeaf =
   | {
-      kind: 'lui-export';
+      kind: 'lui-outlet';
       luiId: LUIId;
-      exportSlotKey: CompositionExportSlotKey;
+      outletKey: CompositionOutletKey;
     }
   | {
-      kind: 'accept';
-      acceptSlotKey: CompositionAcceptSlotKey;
-    };
+      kind: 'placeholder';
+      outletKey: CompositionOutletKey;
+    }
+  | { kind: 'empty' };
 
 export type CompositionValue =
   | CompositionLeaf
@@ -163,14 +181,14 @@ export type CompositionValue =
       entries: Record<CompositionFieldKey, CompositionLeaf>;
     };
 
-export type CompositionAcceptSlotFills = Record<
-  CompositionAcceptSlotKey,
+export type CompositionAnchorFills = Record<
+  CompositionAnchorKey,
   CompositionValue
 >;
 
 export type CompositionExportSlotFills = Record<
-  CompositionExportSlotKey,
-  CompositionValue
+  CompositionAnchorKey,
+  CompositionLeaf
 >;
 
 export type SequentialStep = {
@@ -183,16 +201,10 @@ export type LUKindOrganization =
   | { kind: 'stateful' }
   | {
       kind: 'structural';
-      exportSlots: Record<
-        CompositionExportSlotKey,
-        CompositionExportSlot
-      >;
-      acceptSlots: Record<
-        CompositionAcceptSlotKey,
-        CompositionAcceptSlot
-      >;
+      exportSlots: Record<CompositionAnchorKey, CompositionExportSlot>;
+      placeholderOutlets: Record<CompositionOutletKey, CompositionAnchor>;
       exportSlotFills: CompositionExportSlotFills;
-      luiFills: Record<LUIId, CompositionAcceptSlotFills>;
+      luiFills: Record<LUIId, CompositionAnchorFills>;
     };
 
 // --- Z: Requirement Fulfillment ---

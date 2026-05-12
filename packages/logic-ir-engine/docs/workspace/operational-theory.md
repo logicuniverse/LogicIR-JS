@@ -100,16 +100,18 @@ Endpoint refs 应支持 port-level 以及 payload-level 寻址：
 
 ## Structural Spatial Slices and Distributed Projection
 
-Structural LU 的 `exportSlots` 可以被读取为 named spatial slices。一个 structural LU 不需要只有一个默认出口；`root` 可以是常用主 slice 约定，但不是 schema 特权字段。多个 `exportSlots` 允许同一个 structural LUI 在父级中按不同空间切片被引用。
+Structural composition 可以用 anchor 和 outlet 两个原语理解。`CompositionAnchor` 有 `shape` 和 `required`，表示可以接收 composition value 的锚点；`CompositionOutlet` 是可以放入某个 anchor 的结构出口。Structural LU/closure 的 `exportSlots` 是当前结构对外提供的隐式 single anchors，因此只保存 `required`；`placeholderOutlets` 是当前结构声明的 placeholder outlets。一个 structural LU 被实例化成 LUI 后，这些 placeholder outlets 在父级视角解析为 `compositionSurface.anchors`，由父级填充；structural LUI 的 `compositionSurface.outlets` 则是该 LUI 提供给父级放入当前 LU/closure anchor 的 outlets。
 
-`exportSlotFills[exportSlotKey]` 描述某个 slice 的 composition tree。遍历这个 tree 可以推导该 slice 直接使用哪些 child LUIs、哪些 accepted slots，以及哪些 child structural export slices 被接入。`luiFills[luiId]` 则描述该 child LUI 实例的 accepted slots 如何被填充；它属于实例上下文，不属于某一次 `lui-export` 引用。
+Structural LU 的 `exportSlots` 仍可以被读取为 named spatial slices。一个 structural LU 不需要只有一个默认出口；`root` 可以是常用主 slice 约定，但不是 schema 特权字段。多个 `exportSlots` 允许同一个 structural LUI 在父级中按不同空间切片被引用。
+
+`exportSlotFills[exportSlotKey]` 描述某个 anchor / slice 的 single composition leaf。遍历这些 leaves 可以推导该 slice 直接使用哪些 child LUI outlets、哪些 placeholder outlets，以及哪些 child structural export slices 被接入。集合或映射组合不直接放在当前 LU/closure 的 export slot 上；它们属于 structural LUI anchors，并通过 `luiFills[luiId]` 提供。`luiFills[luiId]` 描述该 child LUI 实例的 anchors 如何被填充；它属于实例上下文，不属于某一次 `lui-outlet` 引用。
 
 基于这些结构，projector 或 analyzer 可以把一个含 N 个 export slots 的 structural LU 切分成 N 个 slice subsystems。切分后，每个 subsystem 可以有自己的局部结构和跨 slice 通信边界。一个常见 lowering 是为每个 slice subsystem 生成一个 push-notifiable `rx` input bus 和一个 push-notifiable `tx` output bus；`tx` 不必按目标 slice 膨胀成 N-1 个端口，目标 slice/channel 可以作为第一层 pin 或 `payloadPath` 段，后续段表达 message field、bus lane 或嵌套地址。
 
 这种分布式 slice 设计由 core 支持，但不由 core 强制。Core 只提供：
 
 - `exportSlots` / `exportSlotFills` 表达 spatial slice boundary 和 slice composition。
-- `luiFills` 表达 child LUI 实例的 composition context。
+- `luiFills` 表达 child LUI 实例的 anchor fills / composition context。
 - `ConnectionId` 保留拆分后逻辑边的独立身份。
 - `EndpointRef.payloadPath` 表达 bus、sub-bus、lane 或 nested message address。
 
