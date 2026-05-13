@@ -58,6 +58,18 @@ active schema/profile files.
 3. Should diagnostics be separate artifacts or embedded in projection result
    envelopes?
 
+## Future Reference Probes
+
+1. What is the smallest circuit/netlist projection profile that can stress-test
+   core topology without becoming a current project target?
+2. Which circuit concepts belong in future features, such as component binding,
+   pin map, footprint, electrical rules, net classes, and EDA export adapters?
+3. Can mechanical assembly or product enclosure projections reuse LogicIR
+   structural topology plus domain extensions, or do they require a separate
+   model that only references LogicIR units?
+4. What criteria would justify promoting heterogeneous system realization from
+   north-star probe to an actual stack exploration?
+
 ## Current Code Alignment
 
 1. Which old runtime hooks are pure observation versus behavior-changing

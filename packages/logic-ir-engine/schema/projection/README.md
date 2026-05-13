@@ -8,6 +8,13 @@ Projection profiles cover `LogicIR -> target artifact | executable plan`.
 Execution profiles cover realization after that point. See
 [`../ARCHITECTURE.md`](../ARCHITECTURE.md) for the profile and stack model.
 
+Projection targets are not limited to software and HDL in principle. Future
+reference routes may include circuit/netlist, mechanical assembly, product
+enclosure, or mixed hardware/software realization artifacts. Those routes should
+be introduced as feature-backed projection profiles with explicit diagnostics
+and capability declarations. They must not cause footprint, electrical,
+mechanical, manufacturing, or tool-export details to move into core schema.
+
 Do not create a concrete capability draft until core or feature-extension fields exist. Projection work should then define capability declarations, diagnostics, and safe-failure behavior against those fields.
 
 Current core-facing capability checks should account for:

@@ -18,6 +18,28 @@ Generated code, Verilog files, reports, executable plans, providers, compilers,
 and engines are derived artifacts or implementations. They are not the core
 portable source objects of the LogicIR protocol.
 
+## North Star, Not Project Plan
+
+The long-term north star is heterogeneous system realization: a LogicIR document
+can describe the logical topology of a system, while profiles, features,
+extensions, and providers realize different parts as software, HDL/FPGA/ASIC
+logic, circuit/netlist artifacts, external services, mechanical assemblies,
+product enclosures, or other domain artifacts.
+
+This is an architectural pressure test, not a current project plan. It should
+keep the core broad enough to represent stable logical topology, but it must not
+pull target-domain details into core. Physical footprints, pin maps, electrical
+rules, board constraints, mechanical dimensions, materials, enclosure geometry,
+manufacturing constraints, placement, routing, and tool-specific export formats
+belong in namespaced features, extension records, projection profiles, and
+execution or realization bindings.
+
+Current primary stacks remain software and Verilog HDL. Circuit/netlist,
+mechanical design, and product enclosure routes are reference probes and future
+extension paths. They are useful for checking whether the architecture stays
+target-neutral and extensible, but they should not drive core schema changes
+unless they reveal a missing target-neutral topology relation.
+
 ## LogicIR Document
 
 A LogicIR document answers:

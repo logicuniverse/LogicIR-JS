@@ -14,6 +14,18 @@ The goal is to produce human/AI discussion material for later schema work. These
 files should not be copied into active `schema/` as final profile definitions
 without review.
 
+## Reference Probes
+
+This exploration keeps `basic-software` and `basic-hdl` as the initial primary
+stacks. Circuit/netlist, mechanical assembly, product enclosure, and broader
+heterogeneous system realization are useful north-star probes, but they are not
+part of this pack's implementation target.
+
+Those future routes should stay projection/profile/feature work. They can test
+whether LogicIR core remains a clean logical-topology carrier, but they should
+not be used to move electrical, physical, mechanical, manufacturing, placement,
+routing, or tool-export details into core schema.
+
 ## Source Inputs
 
 - `schema/ARCHITECTURE.md`: current profile/stack architecture.

@@ -45,6 +45,12 @@ Example stack shapes:
 - `verilog-hdl-sim`: HDL IR pipeline, Verilog emission projection, and simulator
   execution profile.
 
+Longer-term reference stacks may target circuit/netlist, mechanical assembly,
+product enclosure, or heterogeneous system realization flows. Treat those as
+future projection routes and architecture probes unless concrete feature,
+profile, provider, and artifact contracts exist. They should validate the
+profile model, not expand LogicIR core with target-domain implementation data.
+
 ## Rules
 
 - Profiles and stacks stay outside the canonical LogicIR object shape.
