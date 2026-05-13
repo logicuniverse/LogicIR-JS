@@ -28,10 +28,13 @@ Profile/bundle names are application-layer conveniences for grouping features. T
 
 - Give each feature a stable identity, usually `namespace + key`.
 - Application-layer bundles may group features, but projectors must resolve them to concrete feature identities.
-- Extension records belong to a feature and use an extension key inside that feature.
-- Mark each extension record optional or required.
-- Optional extension: unsupported tools may ignore it only if core semantics remain unchanged.
-- Required extension: unsupported tools must fail with diagnostic.
+- Each `LogicUnit` declares a local feature manifest that inlines feature namespace/key/version.
+- Extension records reference that manifest by local `featureKey` and use an extension key inside the resolved feature.
+- References to external namespace/key contracts may carry optional versions.
+- Feature definitions own extension-kind schemas, including payload required and optional fields.
+- Profiles mark feature/extension contracts optional or required for a specific processing layer.
+- Optional contract: unsupported tools may ignore it only if profile semantics remain unchanged.
+- Required contract: unsupported tools must fail with diagnostic.
 - Attach extensions to stable owner or relationship nodes. For internal helper positions such as sequential `steps`, composition leaves/values, pin children, or `kindOrganization` branch internals, use selector fields in the owner-level payload rather than adding extension arrays to the helper itself.
 - Kind-specific metadata should attach to `LUCore.extensions`; `kindOrganization` remains the target-neutral minimal organization skeleton.
 
@@ -40,7 +43,7 @@ Profile/bundle names are application-layer conveniences for grouping features. T
 - Core schema stable releases default to additive changes.
 - Breaking core semantic changes require a major version.
 - Breaking changes require migration or compat-layer notes.
-- Application-layer feature bundles may version independently, but must state compatible core version ranges and concrete feature refs.
+- Application-layer feature bundles may version independently, but must state compatible core version ranges and concrete feature identities.
 
 ## Projector Capability Set
 
@@ -48,7 +51,8 @@ Projectors must declare:
 
 - Supported core schema versions.
 - Supported concrete features.
-- Supported optional/required extension keys under those features.
+- Feature manifest resolution from local `featureKey` aliases to concrete feature identities.
+- Supported extension keys under those features, checked against the selected profile's required/optional contracts.
 - Supported LU kinds.
 - Supported fulfillment forms.
 - Target constraints and known semantic limits.
@@ -62,7 +66,7 @@ Every schema/projection plan must include:
 - Old implementation reference points.
 - Theory mapping.
 - Core/feature/extension boundary.
-- Required vs optional extension status.
+- Required vs optional feature/extension contract status.
 - Projector capability changes.
 - JS/TS runtime impact.
 - Verilog HDL impact.

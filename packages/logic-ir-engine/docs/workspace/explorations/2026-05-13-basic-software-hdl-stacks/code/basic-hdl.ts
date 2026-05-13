@@ -122,7 +122,7 @@ export const basicHdlIRProfile: IRPipelineProfile = {
       id: 'check-extension-capabilities',
       capability: 'logicir.capability.check-extension-capabilities',
       requirement: 'required',
-      produces: 'required extension coverage diagnostics',
+      produces: 'profile-required feature/extension contract diagnostics',
     },
     {
       id: 'type-and-signal-check',

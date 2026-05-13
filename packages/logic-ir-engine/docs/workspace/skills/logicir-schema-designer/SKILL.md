@@ -31,7 +31,7 @@ Use this skill to keep LogicIR schema and projection work aligned with the theor
    - Current old implementation reference points.
    - Essay/theory mapping.
    - Core/feature/extension boundary.
-   - Required vs optional extension status.
+   - Required vs optional feature/extension contract status.
    - Projector capability set changes.
    - JS/TS projection impact.
    - Verilog HDL projection impact.
@@ -52,8 +52,9 @@ Load only the reference needed for the current task:
 - Do not place HDL-specific clock/reset or module elaboration details in core schema unless they express target-neutral logical topology.
 - Do not treat `Composable` in old code as binding theory; prefer essay terminology such as `Structural` when designing the new schema.
 - Do not let requirement fulfillment collapse into ordinary data flow, parameter passing, naming lookup, callbacks, or ambient context.
-- Do not allow a projector to ignore unsupported required extensions.
+- Do not allow a projector to ignore unsupported profile-required feature or extension contracts.
 - Keep the current v0 core draft thin: `kindOrganization` stores only target-neutral organization skeletons, and kind-specific metadata belongs in owner-level extensions such as `LUCore.extensions`.
+- Treat `LogicUnit.features` as the LU-local feature manifest; extension records use local `featureKey` aliases rather than direct feature namespace/key references.
 
 ## Current Prototype Reading Heuristics
 

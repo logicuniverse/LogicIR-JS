@@ -27,10 +27,11 @@
 
 - LogicIR schema 按长期协议思路演进：稳定 core、命名空间扩展、显式 capability、安全失败。
 - Core schema 稳定后默认只做 additive changes；破坏性核心语义变化必须走 major version，并说明 migration 或 compat layer。
-- Feature 必须命名空间化，并明确扩展是 optional 还是 required。
+- Feature 必须命名空间化，并定义 extension kind 的 payload schema；profile 明确 feature/extension contract 是 optional 还是 required。
 - Projection 实现必须声明 capability set，包括支持的 core version、features 和 target constraints。应用层 bundle/profile 只能作为 feature 集合引用，不能替代具体 feature capability。
+- 每个 LogicUnit 通过自己的 `features` manifest 声明 feature 依赖；document/package 只是容器，不应成为 LU 语义依赖的唯一来源。
 - Extension 应挂在稳定 owner 或关系节点上；`kindOrganization` 内部字段、sequential `steps`、composition leaf/value、pin children 等 helper 结构的附加数据通过 owner-level extension payload selector 表达。
-- Projector 遇到不支持的 required extension 或无法保持声明语义的结构时，必须返回 diagnostic，不能静默降级。
+- Projector 遇到不支持的 profile-required extension contract 或无法保持声明语义的结构时，必须返回 diagnostic，不能静默降级。
 
 ## 计划先于实现
 

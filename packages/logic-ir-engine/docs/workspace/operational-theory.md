@@ -99,7 +99,7 @@ Endpoint refs 应支持 port-level 以及 payload-level 寻址：
 - `to.payloadPath` 在 pull-readable flow 中是 target payload assembly location，在 push-notifiable flow 中是 target payload path prefix/remap。
 - Single-driver 检查应按 target endpoint path overlap 判断：同一 `owner + portKey` 下，whole-port 与任意 sub-path 冲突，重复 path 冲突，parent/child path 冲突；不同 sibling lanes 可以分别连接。
 - 如果深层 payload 需要独立拓扑、不同 boundary/interaction 或独立身份，应引入中间 LUI，而不是把 pin 层变成完整子图。
-- `payloadPath` 只做寻址和路径映射，不做计算、fan-in、merge、pack/unpack 语义；这些需要 LUI 或 required feature extension。
+- `payloadPath` 只做寻址和路径映射，不做计算、fan-in、merge、pack/unpack 语义；这些需要 LUI 或 profile-required feature extension。
 
 ## Structural Spatial Slices and Distributed Projection
 
@@ -118,20 +118,20 @@ Structural LU 的 `exportAnchors` 仍可以被读取为 named spatial slices。�
 - `ConnectionId` 保留拆分后逻辑边的独立身份。
 - `EndpointRef.payloadPath` 表达 bus、sub-bus、lane 或 nested message address。
 
-具体的 RX/TX 端口生成、placement、transport、调度、打包、序列化、fan-in resolver 或 merge policy 属于 projection strategy 或 required feature extension。Projector 不能把这些语义作为隐式 runtime 假设静默引入。
+具体的 RX/TX 端口生成、placement、transport、调度、打包、序列化、fan-in resolver 或 merge policy 属于 projection strategy 或 profile-required feature extension。Projector 不能把这些语义作为隐式 runtime 假设静默引入。
 
 Core 的 structural outlet 目前只是 key：`compositionSurface.outlets: CompositionOutletKey[]` 是 set-like 声明，不携带 shape、required 或额外 metadata。需要 outlet category、layout、type、compatibility tag 或 distributed routing hint 时，应挂到拥有该 surface 的结构上，例如 structural LUI 的 `compositionSurface.extensions` 或外层 `LUCore.extensions`，由 extension payload 用 outlet key selector 指向具体 outlet。
 
 ## Core/Feature/Projection
 
 - **Core schema** 保存跨 projection target 必须共同理解的逻辑拓扑语义。
-- **Feature/extension** 保存某个 target、host、runtime、tooling 或领域的附加约束。
+- **Feature/extension** 保存某个 target、host、runtime、tooling 或领域的附加约束。每个 `LogicUnit` 通过本地 `features` manifest 声明自己使用的 feature，extension record 通过本地 `featureKey` 引用该 manifest。
 - **Profile/bundle** 不是 LogicIR object model 的一部分；如果应用或工具需要，可以作为 feature 集合的引用便利存在。
 - **Projection** 是能力声明和 lowering/realization pipeline，不只是一个转换函数。
 - Projector 必须声明支持的 core version、features、LU kinds、fulfillment forms 和 target constraints。应用层 bundle 必须解析成具体 feature 后才能用于能力判断。
-- 不支持 required extension 或无法保持声明语义时，projector 必须安全失败并返回 diagnostic。
+- 不支持 profile-required feature/extension contract 或无法保持声明语义时，projector 必须安全失败并返回 diagnostic。
 
-当前 core schema 把 extension attachment 控制在稳定 owner 或关系节点上：`LogicUnit`、`LUCore`、`LUI`、`Port`、`Connection`、`Closure`、requirement service、service-level fulfillment 和 unit fulfillment。`kindOrganization` 内部字段、sequential `steps`、composition leaves/values、pin children 等 helper 结构不直接挂 extension；相关 metadata 由 owner-level extension payload 通过 selectors 指到内部位置。
+当前 core schema 把 extension attachment 控制在稳定 owner 或关系节点上：`LogicUnit`、`LUCore`、`LUI`、`Port`、`Connection`、`Closure`、requirement service、service-level fulfillment 和 unit fulfillment。`kindOrganization` 内部字段、sequential `steps`、composition leaves/values、pin children 等 helper 结构不直接挂 extension；相关 metadata 由 owner-level extension payload 通过 selectors 指到内部位置。Extension record 的 `featureKey` 必须在当前 `LogicUnit.features` manifest 中解析，document/package 只是容器，不是 LU 语义依赖的来源。
 
 ## Projection Targets
 
@@ -149,8 +149,8 @@ LogicIR schema 按长期协议演进：
 - Core schema 稳定后默认只做 additive changes。
 - 破坏性核心语义变化走 major version。
 - Feature 和 extension 必须命名空间化。
-- Extension 必须标记 optional 或 required。
-- 旧工具可以忽略 optional extension，但遇到不支持的 required extension 必须失败。
+- Feature 定义 extension kind 的 payload schema 和字段必选性；profile 定义该 pipeline/projection/execution 中哪些 feature/extension contract 是 required 或 optional。
+- LogicIR extension record 不携带 record-level required/optional 字段；旧工具遇到不支持的 profile-required extension contract 必须失败。
 - 需要破坏性迁移时必须说明 migration 或 compat layer。
 
 ## Current Implementation Reading Guide

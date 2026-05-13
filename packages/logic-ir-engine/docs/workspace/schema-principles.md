@@ -30,8 +30,8 @@ LogicIR schema 应该像长期协议一样演进：稳定核心、命名空间�
 - 破坏性核心语义变化必须走 major version，并提供 migration 或 compat layer。
 - Feature/extension 用于承载目标或领域扩展，例如 software runtime、Verilog HDL、分布式运行时或验证工具。
 - Feature 必须有命名空间，避免不同应用、工具或 target 的字段和语义互相污染。
-- 扩展必须区分 optional 和 required：optional 可以被不了解的工具忽略，required 不被支持时必须安全失败并给出 diagnostic。
-- 旧工具或旧 projector 遇到不支持的 required extension 时，不能假装支持，也不能静默丢失语义。
+- Feature 必须定义 extension kind 的 payload schema 和字段必选性；profile 必须区分 required 和 optional feature/extension contract。
+- 旧工具或旧 projector 遇到不支持的 profile-required extension contract 时，不能假装支持，也不能静默丢失语义。
 
 ## Core/Feature/Projection Boundary
 
@@ -49,7 +49,8 @@ LogicIR schema 应该像长期协议一样演进：稳定核心、命名空间�
 后续扩展采用 feature-centered 结构：feature 是 projector capability unit，extension 是挂在具体节点上的 payload。应用层可以定义 profile/bundle 来引用 feature 集合，但 LogicIR core 不定义 profile。
 
 - **Feature / Capability** 表示可单独声明、验证和投影的能力单元。Feature 自身有稳定身份，通常是 `namespace + key`，例如 `logicir.software-runtime / async-policy`、`logicir.verilog-hdl / clock-reset`、`logicir.type-system / payload-types`。
-- **Extension record** 挂在具体 schema 节点上，显式引用所属 `feature`，并用 `key` 标识该 feature 下的具体 extension kind，承载 optional/required payload。
+- **LogicUnit feature manifest** 是 LU-local 的 feature 依赖表，inline 保存 feature namespace/key/version，让 LU 脱离 document/package 后仍然可携带和验证。Feature 级行为配置应进入 feature-owned extension、profile policy 或 execution binding，而不是 manifest 的通用 config。
+- **Extension record** 挂在具体 schema 节点上，通过本地 `featureKey` 引用当前 `LogicUnit.features` 中的 feature，并用 `key` 标识该 feature 下的具体 extension kind，承载 payload。Record 本身不声明 optional/required。
 - **Application bundle/profile** 可以作为应用层 feature 集合，例如 `software-runtime`、`verilog-hdl`、`type-system`、`control-flow`、`visual-editor`、`legacy-tsjs-v1`，但不进入 canonical LogicIR object。
 - Feature 和应用层 bundle 是多对多关系：一个 feature 可以被多个 bundle 复用，一个 bundle 也可以组合多个 namespace 下的 feature。
 - 不要把 JS runtime、HDL、类型系统、编辑器布局和兼容迁移塞进一个大 feature。
@@ -57,7 +58,7 @@ LogicIR schema 应该像长期协议一样演进：稳定核心、命名空间�
 - Extension attachment 应优先选择稳定 owner 或关系节点，例如 `LogicUnit`、`LUCore`、`LUI`、`Port`、`Connection`、`Closure`、requirement service、service-level fulfillment 或 unit fulfillment。不要为了给 helper 子结构加 metadata 而让 `PinSet`、sequential `steps`、composition leaf/value 或 `kindOrganization` 内部字段自己支持 extension；owner-level payload 可以用 selectors 指向这些内部位置。
 - Kind-specific metadata 应通过 `LUCore.extensions` 组织。`kindOrganization` 是 core 最小骨架，不是各 target/runtime 私有数据的容器。
 - Projector 不能只声明“支持某 bundle/profile”就默认支持全部能力；必须声明具体 features/capabilities，或解析 bundle manifest 后逐项声明覆盖。
-- 影响语义或正确性的 extension 应为 `required`；只影响展示、布局、注释或可安全降级优化的 extension 可以为 `optional`。
+- 影响语义或正确性的 extension kind 应由 feature/profile contract 声明为 required；只影响展示、布局、注释或可安全降级优化的 extension kind 可以在相应 profile 中声明为 optional。
 
 ## Projection Target Discipline
 

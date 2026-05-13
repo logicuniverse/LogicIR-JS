@@ -19,7 +19,7 @@ export type FeatureIdentity = {
   key: FeatureKey;
 };
 
-export type FeatureUse = {
+export type ProfileFeatureRequirement = {
   feature: FeatureIdentity;
   requirement: 'required' | 'recommended' | 'optional';
   extensionKeys: ExtensionKey[];
@@ -36,7 +36,7 @@ export type StageRequirement = {
 };
 
 export type DiagnosticPolicy = {
-  unsupportedRequiredExtension: 'fail';
+  unsupportedRequiredContract: 'fail';
   unsupportedFeature: 'fail' | 'warn';
   unsafeFallback: 'fail' | 'warn';
 };
@@ -47,7 +47,7 @@ export type BaseProfile = {
   title: string;
   status: 'exploration';
   description: string;
-  features: FeatureUse[];
+  features: ProfileFeatureRequirement[];
   diagnostics: DiagnosticPolicy;
 };
 
@@ -158,7 +158,7 @@ export type FeatureCatalogEntry = {
 };
 
 export const requiredDiagnosticPolicy: DiagnosticPolicy = {
-  unsupportedRequiredExtension: 'fail',
+  unsupportedRequiredContract: 'fail',
   unsupportedFeature: 'fail',
   unsafeFallback: 'fail',
 };
@@ -237,4 +237,3 @@ export const collectStackFeatures = (
   }
   return unique;
 };
-

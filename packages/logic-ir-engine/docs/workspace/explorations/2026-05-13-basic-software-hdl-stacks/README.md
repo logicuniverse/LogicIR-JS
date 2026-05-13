@@ -59,6 +59,12 @@ The `code/` folder mirrors the prose draft as executable TypeScript data:
 These files reference the active core schema version but are not active schema
 definitions.
 
+The code drafts use profile-level feature identities. Concrete LogicIR examples
+should still declare those dependencies through `LogicUnit.features` and use
+local `featureKey` aliases in extension records. External namespace/key
+contracts can be version-pinned when deterministic validation or projection
+needs it.
+
 ## Architecture Assumption
 
 The pack uses this data model:

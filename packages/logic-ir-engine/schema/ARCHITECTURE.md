@@ -33,6 +33,8 @@ It contains the target-neutral core topology:
 - Requirement services and fulfillment relations.
 - Closures.
 - Structural composition.
+- A `LogicUnit.features` manifest that declares the feature dependencies used by
+  that independent LU.
 - Feature-scoped extension records attached to stable owner or relation nodes.
 
 A LogicIR document may be read and written by authoring tools and IR pipeline
@@ -48,10 +50,13 @@ Feature and extension form the horizontal semantic layer.
 
 - **Feature**: a namespaced semantic capability unit, such as a type system,
   software completion policy, Verilog clocking, or distributed routing.
+- **Feature use**: a `LogicUnit`-local manifest entry that inlines a feature's
+  namespace, key, and optional version.
 - **Extension kind**: a feature-owned extension shape, including where it may
-  attach and what content schema it uses.
+  attach, what content schema it uses, and whether that extension kind is
+  required by a profile.
 - **Extension record**: the actual node-local declaration inside a LogicIR
-  document. It references a feature, an extension key, optional/required status,
+  document. It references a `LogicUnit.features` local key, an extension key,
   and content.
 
 Feature definitions specify semantics and compatibility obligations. Extension
@@ -63,15 +68,38 @@ Example:
 Feature:
   logicir.type-system / payload-types
 
+LogicUnit feature manifest:
+  type = { namespace: logicir.type-system, key: core }
+
 Extension record:
   attached to a Port
+  featureKey = type
   key = payload-type
   content = { typeRef: ... }
 ```
 
-Required extensions must be understood by a tool before that tool may preserve,
-transform, project, or execute the affected semantics. Unsupported required
-extensions must produce diagnostics, not silent degradation.
+Feature and profile contracts define which extension kinds are required for a
+pipeline, projection, or execution target. Required extension kinds must be
+understood by a tool before that tool may preserve, transform, project, or
+execute the affected semantics. Unsupported required feature or extension
+contracts must produce diagnostics, not silent degradation.
+
+`FeatureUseKey` is only a local alias. Tools must resolve it through the
+containing `LogicUnit.features` map before capability checking. A package or
+document container may index many LUs, but it must not be the source of an LU's
+semantic feature dependencies.
+
+All core references that point at an external `namespace + key` may also carry
+an optional `version`. The version pins the external feature, target, or
+requirement-service contract when deterministic validation or projection needs
+that stability. Feature-level behavior configuration should be modeled as a
+feature-owned extension, profile policy, or execution binding, not as generic
+core config.
+
+Feature-level dependency and conflict metadata is a known future need. For the
+current draft, profiles explicitly compose the full feature set required by a
+pipeline, projection, or execution target. Later feature catalogs may add
+`requires` and `conflictsWith` metadata once the initial stack shapes are proven.
 
 ## Three Profile Types
 
@@ -273,6 +301,9 @@ LogicIR Document
 Feature
   horizontal semantic capability
 
+Feature Use
+  LogicUnit-local manifest entry for one feature dependency
+
 Extension Record
   feature-owned declaration inside LogicIR
 
@@ -294,4 +325,3 @@ Execution Binding
 Execution Provider
   real-world ability entity
 ```
-

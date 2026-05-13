@@ -39,7 +39,11 @@ The active core draft is `core/v0-draft/types.ts`. Its current shape uses:
 - `steps: LUIId[]` as minimal sequential organization.
 - Structural `exportAnchors`, `externalOutlets`, `exportAnchorFills`, `luiFills`, and structural LUI `compositionSurface`.
 - Inline or external requirement service contracts and explicit closure/upstream fulfillment relations.
-- Feature-scoped extension records on stable owner or relationship nodes.
+- `LogicUnit.features` as the LU-local feature manifest.
+- Feature-scoped extension records on stable owner or relationship nodes,
+  referring to local feature manifest keys.
+- Optional `version` fields for core references that point at external
+  `namespace + key` contracts.
 
 ## Drafting Discipline
 
@@ -47,4 +51,7 @@ Keep the workspace incremental. Do not create placeholder files for design areas
 
 ## Compatibility Rule
 
-LogicIR schema evolves like a long-lived protocol: stable core, namespaced features, explicit extension requirements, explicit capability declaration, and safe failure when a tool, compiler, or execution engine cannot preserve declared semantics.
+LogicIR schema evolves like a long-lived protocol: stable core, namespaced
+features, explicit feature/profile requirements, explicit capability
+declaration, and safe failure when a tool, compiler, or execution engine cannot
+preserve declared semantics.

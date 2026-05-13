@@ -53,8 +53,9 @@ Example stack shapes:
 - A profile name alone is not a capability proof. It must be resolved into
   features, extension kinds, stages, policies, provider contracts, and bindings.
 - Projection compilers, tools, engines, and providers must declare concrete capabilities.
-- Optional/required semantics remain on extension records where they appear on
-  LogicIR nodes.
+- Required and optional extension semantics are profile/feature contract
+  properties. LogicIR extension records carry only local feature key, extension
+  key, and payload data.
 - Execution profile bindings are item-level mapping data from abstract needs to
   providers.
 - `Plugin` is not a profile-level concept. A plugin is only one local packaging

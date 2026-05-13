@@ -115,8 +115,10 @@ Required core support:
 
 Feature handling:
 
-- Required extensions must be understood or rejected.
-- Optional extensions may be ignored only if core semantics remain unchanged.
+- Profile-required feature and extension contracts must be understood or
+  rejected.
+- Optional feature and extension contracts may be ignored only if profile
+  semantics remain unchanged.
 - Type-system extensions may be consumed by the IR pipeline and stripped before
   projection if the projection profile no longer needs them.
 
@@ -180,7 +182,7 @@ Projection rules:
 Diagnostics:
 
 - Missing provider contract.
-- Unsupported required extension.
+- Unsupported profile-required feature or extension contract.
 - Unsupported completion policy.
 - Unsupported retained-current realization.
 - Unsupported dynamic fulfillment policy.
@@ -392,4 +394,3 @@ Before this becomes active schema/profile material:
 - Define minimal diagnostics.
 - Add examples and conformance fixtures.
 - Decide which software features are required versus recommended.
-

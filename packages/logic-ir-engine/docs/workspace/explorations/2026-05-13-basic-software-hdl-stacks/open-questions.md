@@ -32,6 +32,16 @@ active schema/profile files.
 5. Should basic HDL allow any push-notifiable contact without explicit clocked
    lowering?
 
+## Feature Relations
+
+1. Should future feature catalog entries declare `requires` dependencies on
+   other features, or should profiles remain the only source of feature
+   composition?
+2. Should feature catalog entries declare `conflictsWith` for mutually exclusive
+   semantics such as incompatible scheduler or routing policies?
+3. What version selector shape is needed if a feature dependency requires a
+   range rather than a pinned feature version?
+
 ## Provider Contracts
 
 1. What is the minimum data shape for an execution binding?
@@ -58,4 +68,3 @@ active schema/profile files.
    examples?
 4. Which current JS runtime behaviors should remain implementation details
    rather than profile requirements?
-

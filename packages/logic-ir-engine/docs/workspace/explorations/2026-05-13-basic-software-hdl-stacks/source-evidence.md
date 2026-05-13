@@ -22,7 +22,8 @@ for the new schema.
 
 `schema/core/v0-draft/types.ts` provides target-neutral core shape:
 
-- `LogicUnit` with `schemaVersion`, `core`, and `requirements`.
+- `LogicUnit` with `schemaVersion`, a LU-local `features` manifest, `core`,
+  and `requirements`.
 - `LUCore` kinds: `combinational`, `sequential`, `stateful`, `structural`.
 - One `PortSurface` key namespace per owner.
 - Port interaction capabilities:
@@ -34,7 +35,8 @@ for the new schema.
 - Closure cores and forwarded port keys.
 - Structural composition through `exportAnchors`, `externalOutlets`,
   `exportAnchorFills`, `luiFills`, and structural LUI `compositionSurface`.
-- Extension records with `{ feature, key, requirement, payload }`.
+- Extension records with `{ featureKey, key, payload }`, where `featureKey`
+  resolves through the containing `LogicUnit.features` manifest.
 
 ## Current TS/JS Prototype Evidence
 
@@ -138,4 +140,3 @@ proposal material:
 This pack generalizes JS/Python-specific archived material into
 `basic-software` where possible, and keeps Verilog-specific material in
 `basic-hdl`.
-

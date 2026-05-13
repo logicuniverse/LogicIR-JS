@@ -32,27 +32,29 @@ export type RequirementServiceKey = LogicIRKey;
 export type RequirementUnitKey = LogicIRKey;
 export type ExternalRequirementServiceNamespace = string;
 export type ExternalRequirementServiceKey = LogicIRKey;
+export type ExternalRequirementServiceVersion = string;
 export type ExternalTargetNamespace = string;
 export type ExternalTargetKey = LogicIRKey;
+export type ExternalTargetVersion = string;
+export type FeatureUseKey = LogicIRKey;
 export type FeatureNamespace = string;
 export type FeatureKey = LogicIRKey;
+export type FeatureVersion = string;
 export type ExtensionKey = LogicIRKey;
 export type ExtensionPayload = unknown;
 export type CompositionAnchorKey = LogicIRKey;
 export type CompositionOutletKey = LogicIRKey;
 export type CompositionFieldKey = LogicIRKey;
 
-export type ExtensionRequirement = 'optional' | 'required';
-
-export type FeatureRef = {
+export type FeatureUse = {
   namespace: FeatureNamespace;
   key: FeatureKey;
+  version?: FeatureVersion;
 };
 
 export type ExtensionRecord = {
-  feature: FeatureRef;
+  featureKey: FeatureUseKey;
   key: ExtensionKey;
-  requirement: ExtensionRequirement;
   payload: ExtensionPayload;
 };
 
@@ -122,6 +124,7 @@ export type LUITarget =
       kind: 'external';
       namespace: ExternalTargetNamespace;
       key: ExternalTargetKey;
+      version?: ExternalTargetVersion;
     }
   | {
       kind: 'requirement';
@@ -267,6 +270,7 @@ export type ExternalRequirementServiceEntry = {
   kind: 'external';
   namespace: ExternalRequirementServiceNamespace;
   key: ExternalRequirementServiceKey;
+  version?: ExternalRequirementServiceVersion;
 };
 
 export type RequirementService = WithExtensions & {
@@ -388,6 +392,7 @@ export type LUCore =
 
 export type LogicUnit = WithExtensions & {
   schemaVersion: LogicIRCoreSchemaVersion;
+  features: Record<FeatureUseKey, FeatureUse>;
   core: LUCore;
   requirements: RequirementSurface;
 };

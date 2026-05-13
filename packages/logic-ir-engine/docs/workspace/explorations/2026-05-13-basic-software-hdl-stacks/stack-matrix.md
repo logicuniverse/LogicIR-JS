@@ -26,7 +26,7 @@ Both stacks need:
 
 - Core validator.
 - Feature capability checker.
-- Extension required/optional handling.
+- Profile-level required/optional feature and extension contract handling.
 - Target/external requirement contract resolution.
 - Type-system feature path for payload/pin/path compatibility.
 - Diagnostics rather than silent degradation.
@@ -87,4 +87,3 @@ basic-hdl-sim:
   projection: basic-verilog-hdl
   execution: basic-verilog-sim
 ```
-

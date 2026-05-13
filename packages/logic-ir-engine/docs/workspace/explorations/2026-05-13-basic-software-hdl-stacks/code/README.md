@@ -7,6 +7,12 @@ The files intentionally live under `docs/workspace/explorations/` so they can be
 used as later human/AI discussion material before any promotion into active
 `schema/`.
 
+These profile drafts name concrete feature identities. Concrete LogicIR examples
+should declare those identities in `LogicUnit.features` and refer to them from
+extension records with local `featureKey` aliases. Optional feature versions
+belong in the manifest; feature-wide behavior options should be modeled as
+feature-owned extensions or profile data, not generic manifest config.
+
 ## Files
 
 - `architecture-types.ts`: minimal profile/stack/config types derived from
