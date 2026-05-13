@@ -1,0 +1,61 @@
+# Open Questions
+
+These questions should be resolved before promoting any part of this pack into
+active schema/profile files.
+
+## Naming
+
+1. Should the HDL stack be named `basic-hdl` or `basic-verilog-hdl`?
+2. Should software use `basic-software`, `software-core`, or another name?
+3. Should feature namespaces use `logicir.basic-software` and
+   `logicir.basic-hdl`, or should they stay target-specific such as
+   `logicir.verilog-hdl`?
+
+## Profile Boundaries
+
+1. Is `basic-software-plan` a real projection artifact, or can direct
+   interpretation use `ProjectionProfile = identity` and rely mostly on
+   execution profile?
+2. Should generated JS/Python/etc. use the same `basic-software-plan` projection
+   profile plus target emitters, or separate projection profiles per language?
+3. Does HDL simulation need its own execution profile now, or should it wait
+   until Verilog artifact shape stabilizes?
+
+## Feature Requiredness
+
+1. Is `logicir.type-system / core` required for basic software, or only
+   recommended?
+2. Is `logicir.type-system / core` always required for basic HDL?
+3. Which retained-current realization modes are mandatory in basic software?
+4. Should dynamic fulfillment beyond static startup be outside the initial
+   basic software stack?
+5. Should basic HDL allow any push-notifiable contact without explicit clocked
+   lowering?
+
+## Provider Contracts
+
+1. What is the minimum data shape for an execution binding?
+2. Should provider contracts live in execution profiles or in separate provider
+   manifests referenced by execution profiles?
+3. Should local functions, remote services, and generated-code imports share one
+   provider identity shape?
+4. How should provider capability declarations be verified?
+
+## Projection Artifacts
+
+1. What is the minimal software executable plan shape?
+2. What is the minimal Verilog artifact manifest shape?
+3. Should diagnostics be separate artifacts or embedded in projection result
+   envelopes?
+
+## Current Code Alignment
+
+1. Which old runtime hooks are pure observation versus behavior-changing
+   providers?
+2. Should old `Thenable` be renamed to `Continuation` in future software
+   profile docs?
+3. How should old `Composable` migration map to structural anchors/outlets in
+   examples?
+4. Which current JS runtime behaviors should remain implementation details
+   rather than profile requirements?
+

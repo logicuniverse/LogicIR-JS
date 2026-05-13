@@ -12,6 +12,9 @@ discussion material rather than canonical protocol text.
 
 ## Packs
 
+- [2026-05-13 Basic Software And Basic HDL Stacks](2026-05-13-basic-software-hdl-stacks/README.md):
+  draft stack/profile/feature breakdown for the first two target stacks using
+  the latest `schema/ARCHITECTURE.md` model.
 - [2026-05-13 Projection Stack Goal](2026-05-13-projection-stack-goal/README.md):
   consolidation of the current type-system, JS runtime, Python runtime, and
   Verilog HDL projection goal.
