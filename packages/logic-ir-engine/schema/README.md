@@ -9,12 +9,15 @@ This directory contains the new LogicIR schema work. It is separate from `src/ty
 3. `docs/workspace/schema-principles.md` defines schema and projection discipline.
 4. `src/` is legacy implementation reference.
 
+For the current schema ecosystem architecture, see
+[`ARCHITECTURE.md`](ARCHITECTURE.md).
+
 ## Authoring Format
 
 Use TypeScript as the schema authoring source for this package, with strict limits:
 
 - TS files in `schema/` describe protocol data shapes and type-level contracts only.
-- Do not put runtime functions, classes, Promise/Thenable mechanics, subscriptions, stores, projector callbacks, or host-specific execution machinery in core schema.
+- Do not put runtime functions, classes, Promise/Thenable mechanics, subscriptions, stores, projection/execution callbacks, or host-specific execution machinery in core schema.
 - Generated or derived formats may later include JSON Schema, Markdown reference docs, TS declarations, fixtures, or target-specific validation rules.
 - Theory and schema docs remain semantic authority; TS types are the maintainable engineering source for the protocol shape.
 
@@ -22,8 +25,8 @@ Use TypeScript as the schema authoring source for this package, with strict limi
 
 - `core/`: target-neutral LogicIR semantic core.
 - `extensions/`: feature-scoped extension registry and extension-specific schemas.
-- `projection/`: projector capability declarations, diagnostics, and projection contract schemas. Create concrete drafts only after core or feature extension fields exist.
-- `profiles/`: application/tool-layer feature bundle notes. Profiles are not part of the LogicIR object model.
+- `projection/`: projection compiler capability declarations, diagnostics, and projection contract schemas. Create concrete drafts only after core or feature extension fields exist.
+- `profiles/`: single-layer profile contracts and stack notes. Profiles are not part of the LogicIR object model; they describe IR pipeline, projection, or execution compatibility.
 - `migrations/`: mappings from old schemas or implementations to the new schema.
 
 ## Current Core Draft
@@ -44,4 +47,4 @@ Keep the workspace incremental. Do not create placeholder files for design areas
 
 ## Compatibility Rule
 
-LogicIR schema evolves like a long-lived protocol: stable core, namespaced features, explicit extension requirements, explicit capability declaration, and safe failure when a projector cannot preserve declared semantics.
+LogicIR schema evolves like a long-lived protocol: stable core, namespaced features, explicit extension requirements, explicit capability declaration, and safe failure when a tool, compiler, or execution engine cannot preserve declared semantics.

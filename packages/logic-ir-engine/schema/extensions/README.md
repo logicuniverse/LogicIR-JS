@@ -8,11 +8,12 @@ Extension records are concrete node-level declarations under a feature identity.
 
 Use this pattern:
 
-- An application or tool may define a named bundle of features for convenient reference, such as a software runtime bundle or a Verilog HDL bundle.
-- Feature is a projector capability unit with its own `namespace + key`, such as `logicir.software-runtime / dynamic-fulfillment`.
+- A profile may reference named features as part of an IR pipeline, projection, or execution compatibility contract.
+- A stack may compose multiple profiles for an end-to-end workflow, but extension records still belong to features, not directly to profiles or stacks.
+- Feature is a capability unit with its own `namespace + key`, such as `logicir.software-runtime / dynamic-fulfillment`.
 - Extension record carries the local payload for one schema node under a `feature` reference and an extension `key`.
 
-Feature and bundle are not a strict tree: one feature can appear in multiple bundles, and one bundle can reference many features. Extension records belong to features, not directly to bundles. LogicIR core does not define profile membership.
+Feature, profile, and stack are not a strict tree: one feature can appear in multiple profiles, and one stack can compose profiles that reference features from multiple namespaces. Extension records belong to features. LogicIR core does not define profile or stack membership.
 
 Attachment:
 

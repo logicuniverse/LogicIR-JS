@@ -1,6 +1,12 @@
 # LogicIR Projection Contracts
 
-This directory defines projection-facing contracts. A projector is a declared capability set plus a lowering/realization pipeline, not just an unchecked conversion function.
+This directory defines projection-facing contracts. A projection compiler is a
+declared capability set plus a lowering/emission pipeline, not just an unchecked
+conversion function.
+
+Projection profiles cover `LogicIR -> target artifact | executable plan`.
+Execution profiles cover realization after that point. See
+[`../ARCHITECTURE.md`](../ARCHITECTURE.md) for the profile and stack model.
 
 Do not create a concrete capability draft until core or feature-extension fields exist. Projection work should then define capability declarations, diagnostics, and safe-failure behavior against those fields.
 

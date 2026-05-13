@@ -2,7 +2,7 @@
  * LogicIR core schema v0 draft.
  *
  * This file is the TypeScript authoring source for target-neutral protocol data
- * shapes. It must not contain runtime/projector implementation mechanics.
+ * shapes. It must not contain runtime, projection, or execution implementation mechanics.
  */
 
 // --- Protocol / Identity / Extension ---
