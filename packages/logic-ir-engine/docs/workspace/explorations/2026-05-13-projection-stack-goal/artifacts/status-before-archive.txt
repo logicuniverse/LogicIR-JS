@@ -1,0 +1,28 @@
+ M .gitignore
+ M docs/workspace/README.md
+ M docs/workspace/schema-principles.md
+ M docs/workspace/skills/logicir-schema-designer/references/projection-targets.md
+ M docs/workspace/skills/logicir-schema-designer/references/schema-protocol.md
+ M schema/README.md
+ M schema/core/v0-draft/README.md
+ M schema/extensions/README.md
+ M schema/migrations/legacy-tsjs-v1/README.md
+ M schema/profiles/README.md
+ M schema/projection/README.md
+?? docs/workspace/explorations/
+?? schema/core/v0-draft/VALIDATION.md
+?? schema/core/v0-draft/examples.ts
+?? schema/core/v0-draft/validator-smoke.ts
+?? schema/core/v0-draft/validator.ts
+?? schema/extensions/drafts/
+?? schema/projection/CONFORMANCE.md
+?? schema/projection/IMPLEMENTATION-GAPS.md
+?? schema/projection/conformance-fixtures.ts
+?? schema/projection/conformance-smoke.ts
+?? schema/projection/js-runtime-smoke.ts
+?? schema/projection/lowering.ts
+?? schema/projection/preflight-smoke.ts
+?? schema/projection/preflight.ts
+?? schema/projection/python-runtime-smoke.ts
+?? schema/projection/target-plans.ts
+?? schema/projection/types.ts

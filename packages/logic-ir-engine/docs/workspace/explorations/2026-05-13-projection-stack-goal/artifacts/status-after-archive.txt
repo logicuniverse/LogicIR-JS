@@ -1,0 +1,12 @@
+ M .gitignore
+ M docs/workspace/README.md
+ M docs/workspace/schema-principles.md
+ M docs/workspace/skills/logicir-schema-designer/references/projection-targets.md
+ M docs/workspace/skills/logicir-schema-designer/references/schema-protocol.md
+ M schema/README.md
+ M schema/core/v0-draft/README.md
+ M schema/extensions/README.md
+ M schema/migrations/legacy-tsjs-v1/README.md
+ M schema/profiles/README.md
+ M schema/projection/README.md
+?? docs/workspace/explorations/

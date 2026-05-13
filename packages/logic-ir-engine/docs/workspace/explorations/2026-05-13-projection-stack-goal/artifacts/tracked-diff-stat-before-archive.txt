@@ -1,0 +1,12 @@
+ packages/logic-ir-engine/.gitignore                |   1 +
+ packages/logic-ir-engine/docs/workspace/README.md  |   6 +-
+ .../docs/workspace/schema-principles.md            |   7 +-
+ .../references/projection-targets.md               |  37 ++-
+ .../references/schema-protocol.md                  |   4 +-
+ packages/logic-ir-engine/schema/README.md          |  28 ++
+ .../logic-ir-engine/schema/core/v0-draft/README.md |   6 +
+ .../logic-ir-engine/schema/extensions/README.md    |  27 ++
+ .../schema/migrations/legacy-tsjs-v1/README.md     |  22 +-
+ packages/logic-ir-engine/schema/profiles/README.md |   3 +-
+ .../logic-ir-engine/schema/projection/README.md    | 281 +++++++++++++++++++++
+ 11 files changed, 413 insertions(+), 9 deletions(-)
