@@ -18,12 +18,20 @@ Use TypeScript as the schema authoring source for this package, with strict limi
 
 - TS files in `schema/` describe protocol data shapes and type-level contracts only.
 - Do not put runtime functions, classes, Promise/Thenable mechanics, subscriptions, stores, projection/execution callbacks, or host-specific execution machinery in core schema.
+- Prefer plain serializable object/union shapes. Do not use TypeScript generics
+  to express schema structure in active schema files; generic abstractions make
+  generated JSON Schema, docs, and non-TypeScript tooling harder to reason
+  about.
 - Generated or derived formats may later include JSON Schema, Markdown reference docs, TS declarations, fixtures, or target-specific validation rules.
 - Theory and schema docs remain semantic authority; TS types are the maintainable engineering source for the protocol shape.
 
 ## Directory Roles
 
 - `core/`: target-neutral LogicIR semantic core.
+- `architecture/`: serializable feature, profile, stack, capability,
+  tool-capability, provider contract, provider capability, stage, policy, and
+  execution-binding definition schemas. Identity, indexing, package layout, and
+  persistence are catalog/application concerns.
 - `extensions/`: feature-scoped extension registry and extension-specific schemas.
 - `projection/`: projection compiler capability declarations, diagnostics, and projection contract schemas. Create concrete drafts only after core or feature extension fields exist.
 - `profiles/`: single-layer profile contracts and stack notes. Profiles are not part of the LogicIR object model; they describe IR pipeline, projection, or execution compatibility.

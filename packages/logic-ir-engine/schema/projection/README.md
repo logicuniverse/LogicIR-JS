@@ -15,7 +15,9 @@ be introduced as feature-backed projection profiles with explicit diagnostics
 and capability declarations. They must not cause footprint, electrical,
 mechanical, manufacturing, or tool-export details to move into core schema.
 
-Do not create a concrete capability draft until core or feature-extension fields exist. Projection work should then define capability declarations, diagnostics, and safe-failure behavior against those fields.
+Do not create a concrete capability draft until core or feature extension-point
+contracts exist. Projection work should then define capability declarations,
+diagnostics, and safe-failure behavior against those fields.
 
 Current core-facing capability checks should account for:
 
@@ -27,9 +29,8 @@ Current core-facing capability checks should account for:
 - Supported endpoint addressing depth, including `Port.pins` and `EndpointRef.payloadPath`.
 - Supported structural composition features: `exportAnchors`, `externalOutlets`, `compositionSurface.outlets`, `compositionSurface.anchors`, `exportAnchorFills`, and `luiFills`.
 - Supported requirement fulfillment forms: closure fulfillment, upstream unit fulfillment, and upstream shared-service supplier fulfillment.
-- Supported feature identities and extension keys, checked against the
-  required/optional status declared by the selected feature and profile
-  contracts.
+- Supported feature identities and extension points, checked against the
+  required/optional status declared by the selected profile contracts.
 
 Projection must fail with diagnostics when required core semantics or required
-feature/extension contracts exceed the declared capability set.
+feature/extension-point contracts exceed the declared capability set.

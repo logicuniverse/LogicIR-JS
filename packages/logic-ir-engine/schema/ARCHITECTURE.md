@@ -4,19 +4,34 @@ This document defines the working architecture for LogicIR schema, profiles,
 projection, and execution support. It is a development guide for future schema
 work, not a replacement for the theory documents in `docs/`.
 
-## Two Primary Data Artifacts
+## Primary Portable Data
 
 LogicIR development is centered on two portable data artifacts:
 
 - **LogicIR Document**: the mutable logical object. It carries the topology being
   authored, validated, transformed, projected, or executed.
-- **Profile Document**: a read-only compatibility contract for one processing
+- **Architecture Definition**: read-only catalog content such as a feature,
+  profile, stack, provider contract, or capability definition.
+
+A profile definition is a compatibility contract for one processing
   layer. It tells tools what rules, features, stages, target constraints, or
   execution bindings apply.
 
 Generated code, Verilog files, reports, executable plans, providers, compilers,
-and engines are derived artifacts or implementations. They are not the core
+engines, architecture index files, registry entries, and database rows are
+derived artifacts, implementations, or catalog storage. They are not the core
 portable source objects of the LogicIR protocol.
+
+The serializable schema for feature definitions, profile definitions, stack
+definitions, capability definitions, tool capability definitions, provider
+contracts, provider capability declarations, stages, policies, and execution
+bindings lives in [`architecture/v0-draft/types.ts`](architecture/v0-draft/types.ts).
+That schema is content-only: JSON-serializable config/policy/payload-schema
+data, no document wrapper requirement, no factories, helper functions,
+callbacks, providers, runtime implementations, or TypeScript generic schema
+abstractions. Catalog identity, namespace, version, indexing, persistence, file
+layout, and database keys belong to a registry, package, index export, or
+application layer outside the architecture definition schema.
 
 ## North Star, Not Project Plan
 
@@ -74,15 +89,16 @@ Feature and extension form the horizontal semantic layer.
   software completion policy, Verilog clocking, or distributed routing.
 - **Feature use**: a `LogicUnit`-local manifest entry that inlines a feature's
   namespace, key, and optional version.
-- **Extension kind**: a feature-owned extension shape, including where it may
-  attach, what content schema it uses, and whether that extension kind is
-  required by a profile.
+- **Extension point**: one feature-owned attachment contract, including where it
+  attaches and what payload schema it uses.
 - **Extension record**: the actual node-local declaration inside a LogicIR
   document. It references a `LogicUnit.features` local key, an extension key,
   and content.
 
 Feature definitions specify semantics and compatibility obligations. Extension
 records place those semantics onto concrete LogicIR nodes.
+Profile contracts decide which features and extension points are required,
+conditional, recommended, or optional for a concrete processing layer.
 
 Example:
 
@@ -100,8 +116,8 @@ Extension record:
   content = { typeRef: ... }
 ```
 
-Feature and profile contracts define which extension kinds are required for a
-pipeline, projection, or execution target. Required extension kinds must be
+Profile contracts define which feature and extension points are required for a
+pipeline, projection, or execution target. Required extension points must be
 understood by a tool before that tool may preserve, transform, project, or
 execute the affected semantics. Unsupported required feature or extension
 contracts must produce diagnostics, not silent degradation.
@@ -118,10 +134,10 @@ that stability. Feature-level behavior configuration should be modeled as a
 feature-owned extension, profile policy, or execution binding, not as generic
 core config.
 
-Feature-level dependency and conflict metadata is a known future need. For the
-current draft, profiles explicitly compose the full feature set required by a
-pipeline, projection, or execution target. Later feature catalogs may add
-`requires` and `conflictsWith` metadata once the initial stack shapes are proven.
+Feature definitions may declare feature-level `requires` and `conflictsWith`
+metadata. That metadata describes semantic compatibility between features; it
+does not decide whether a feature is required by a specific pipeline,
+projection, or execution target. Requiredness remains a profile contract.
 
 ## Three Profile Types
 
@@ -142,7 +158,7 @@ and adapter insertion tools.
 It declares:
 
 - Accepted core version range.
-- Accepted or required features and extension kinds.
+- Accepted or required features and extension points.
 - Stage order.
 - Required pass capabilities.
 - Validation and diagnostic policy.
@@ -226,12 +242,12 @@ Examples:
 basic-software-interpreter stack
   ir: basic-software-ir
   projection: to-interpreter-plan
-  execution: node-interpreter-execution
+  execution: software-interpreter-execution
 
-basic-software-js-codegen stack
+basic-software-generated stack
   ir: basic-software-ir
-  projection: to-generated-js
-  execution: node-js-execution
+  projection: to-generated-software
+  execution: generated-software-execution
 
 verilog-hdl-build stack
   ir: verilog-hdl-ir
@@ -262,13 +278,15 @@ called LogicIR stages unless they write a new LogicIR document.
 
 Execution support is expressed by profile data and external providers.
 
-- **Execution target**: the run shape, such as interpreter, generated JS,
+- **Execution target**: the run shape, such as interpreter, generated software,
   Verilog simulator, Verilog synthesis, or distributed runtime.
-- **Execution environment**: the host context, such as Node.js, browser, Python,
-  FPGA board, cloud deployment, or a Verilog simulator.
+- **Execution environment**: the host context, such as a software host, browser,
+  server process, FPGA board, cloud deployment, or a Verilog simulator.
 - **Execution binding**: an item-level mapping record in an execution profile. It
-  maps an abstract requirement, external target, state store, transport, or other
-  named need to a concrete provider identity and configuration.
+  maps an abstract requirement, external target, or namespaced named need to a
+  concrete provider identity and configuration. Feature/provider contracts define
+  concrete named needs such as state stores, transports, probes, modules, or
+  clock/reset bindings.
 - **Execution provider**: the real ability entity that satisfies a binding. It
   may be a function, module, linked library, remote service, database, message
   bus, hardware interface, or simulator foreign module.

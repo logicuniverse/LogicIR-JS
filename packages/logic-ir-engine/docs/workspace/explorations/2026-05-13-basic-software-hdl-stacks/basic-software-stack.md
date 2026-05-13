@@ -152,18 +152,21 @@ Required stages:
 
 Required features:
 
-- `logicir.basic-software / invocation`
-- `logicir.basic-software / completion`
-- `logicir.basic-software / retained-current`
-- `logicir.basic-software / fulfillment`
+- `logicir.software-runtime / invocation`
+- `logicir.software-runtime / completion`
+- `logicir.software-runtime / retained-current`
+- `logicir.fulfillment / static-binding`
+- `logicir.value / literals`
+- `logicir.execution / error`
 
 Recommended features:
 
 - `logicir.type-system / core`
-- `logicir.basic-software / value`
-- `logicir.basic-software / error`
-- `logicir.basic-software / lifecycle`
-- `logicir.basic-software / observation`
+- `logicir.software-runtime / lifecycle`
+
+Optional features:
+
+- `logicir.software-runtime / observation`
 
 Projection rules:
 
@@ -341,7 +344,7 @@ Old prototype item:
 
 Architecture mapping:
 
-- `logicir.basic-software / completion`.
+- `logicir.software-runtime / completion`.
 
 Old prototype item:
 
@@ -350,7 +353,7 @@ Old prototype item:
 Architecture mapping:
 
 - core `retainedCurrent: true`.
-- `logicir.basic-software / retained-current` realization.
+- `logicir.software-runtime / retained-current` realization.
 
 Old prototype item:
 
@@ -393,4 +396,5 @@ Before this becomes active schema/profile material:
 - Write provider contract data shapes.
 - Define minimal diagnostics.
 - Add examples and conformance fixtures.
-- Decide which software features are required versus recommended.
+- Keep feature/profile requiredness aligned with
+  [feature-profile-matrix.md](feature-profile-matrix.md).

@@ -78,15 +78,18 @@ Required stages:
 6. `hdl-static-suitability-check`
 7. `normalize-payload-paths`
 8. `validate-module-bindings`
-9. `validate-clock-reset`
-10. `validate-structural-slices`
+9. `static-specialization`
+
+Conditionally required stages:
+
+1. `validate-clock-reset`
+2. `validate-structural-slices`
 
 Recommended stages:
 
 1. `adapter-insertion`
 2. `payload-path-flattening`
-3. `static-specialization`
-4. `strip-authoring-data`
+3. `strip-authoring-data`
 
 Accepted core:
 
@@ -154,25 +157,23 @@ Required stages:
 Required features:
 
 - `logicir.type-system / core`
-- `logicir.basic-hdl / signal`
-- `logicir.basic-hdl / module`
+- `logicir.verilog-hdl / signal`
+- `logicir.verilog-hdl / module`
+- `logicir.verilog-hdl / elaboration`
+- `logicir.diagnostics / unsupported-semantics`
 
 Conditionally required features:
 
-- `logicir.basic-hdl / clocking`
+- `logicir.verilog-hdl / clocking`
   - required for sequential/stateful/register projection.
-- `logicir.basic-hdl / state`
+- `logicir.verilog-hdl / state`
   - required when retained-current or stateful behavior becomes registers.
-- `logicir.basic-hdl / combinational`
+- `logicir.verilog-hdl / combinational`
   - required when behavior is emitted as expressions instead of module
     instances.
-- `logicir.basic-hdl / elaboration`
-  - required for non-trivial structural/static specialization.
-- `logicir.basic-hdl / structural-slices`
+- `logicir.partition / structural-slices`
   - required when structural export anchors are lowered into slice modules or
     partitions.
-- `logicir.basic-hdl / unsupported-semantics`
-  - recommended for explicit diagnostics around software-only semantics.
 
 Projection rules:
 
@@ -316,13 +317,13 @@ HDL mapping:
 
 Archived `verilog-hdl.md` maps well to the basic HDL stack:
 
-- `signal-types` -> `logicir.basic-hdl / signal`
-- `clock-reset` -> `logicir.basic-hdl / clocking`
-- `module-binding` -> `logicir.basic-hdl / module`
-- `combinational-assigns` -> `logicir.basic-hdl / combinational`
-- `state-registers` -> `logicir.basic-hdl / state`
-- `elaboration` -> `logicir.basic-hdl / elaboration`
-- `structural-slices` -> `logicir.basic-hdl / structural-slices`
+- `signal-types` -> `logicir.verilog-hdl / signal`
+- `clock-reset` -> `logicir.verilog-hdl / clocking`
+- `module-binding` -> `logicir.verilog-hdl / module`
+- `combinational-assigns` -> `logicir.verilog-hdl / combinational`
+- `state-registers` -> `logicir.verilog-hdl / state`
+- `elaboration` -> `logicir.verilog-hdl / elaboration`
+- `structural-slices` -> `logicir.partition / structural-slices`
 
 The archived Verilog draft is more detailed than this stack draft and should be
 mined later for concrete extension schemas and diagnostics. It should not be
@@ -362,5 +363,5 @@ Before this becomes active schema/profile material:
 - Define Verilog artifact manifest shape.
 - Define simulator execution profile separately from build projection profile.
 - Define diagnostics and conformance fixtures.
-- Decide how much type-system evidence is mandatory.
-
+- Keep feature/profile requiredness aligned with
+  [feature-profile-matrix.md](feature-profile-matrix.md).

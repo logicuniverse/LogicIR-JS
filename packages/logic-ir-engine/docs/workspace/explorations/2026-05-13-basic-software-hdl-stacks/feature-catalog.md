@@ -2,6 +2,8 @@
 
 This catalog lists feature candidates for the two initial stacks. Feature names
 are working names. They should later become versioned and namespaced if promoted.
+Requiredness is defined by profile contracts; see
+[feature-profile-matrix.md](feature-profile-matrix.md).
 
 ## Shared Features
 
@@ -26,36 +28,9 @@ Purpose:
 - Check structural anchor/outlet compatibility.
 - Provide adapter evidence when exact compatibility is not enough.
 
-Stack usage:
-
-- `basic-software`: recommended, not always required for interpretation if host
-  providers can validate dynamically.
-- `basic-hdl`: usually required because HDL projection needs widths, bit shapes,
-  and static compatibility evidence.
-
-### `logicir.core-validation / v0`
-
-Used by both stacks.
-
-Candidate scope:
-
-- Core version check.
-- Required collection presence.
-- Port interaction validity.
-- Endpoint resolution and payload path overlap.
-- LUI kind matrix.
-- Requirement/fulfillment shape.
-- Closure forwarding.
-- Structural composition integrity.
-- Required extension capability diagnostics.
-
-This may eventually be expressed as an IR pipeline profile stage rather than a
-feature inside LogicIR. It is listed here as a capability because tools must
-declare support.
-
 ## Basic Software Features
 
-### `logicir.basic-software / value`
+### `logicir.value / literals`
 
 Candidate extension keys:
 
@@ -70,7 +45,7 @@ Purpose:
 - Support constants and default inputs seen in the old prototype.
 - Provide initial retained/state values where core only declares topology.
 
-### `logicir.basic-software / completion`
+### `logicir.software-runtime / completion`
 
 Candidate extension keys:
 
@@ -99,7 +74,7 @@ Step await policy =
 This is not JS `Promise` and not Python coroutine. It is a portable software
 completion contract.
 
-### `logicir.basic-software / invocation`
+### `logicir.software-runtime / invocation`
 
 Candidate extension keys:
 
@@ -114,7 +89,7 @@ Purpose:
 - Preserve pull reads, push delivery, packet paths, and primary results.
 - Keep host function/coroutine/thread details out of the stack.
 
-### `logicir.basic-software / retained-current`
+### `logicir.software-runtime / retained-current`
 
 Candidate extension keys:
 
@@ -129,7 +104,7 @@ Purpose:
 - Allow source-store, sink-cache, execution-engine adapter, or provider-backed
   realization.
 
-### `logicir.basic-software / fulfillment`
+### `logicir.fulfillment / static-binding`
 
 Candidate extension keys:
 
@@ -145,7 +120,7 @@ Purpose:
 - Mark late-bound or switchable suppliers as required only when a runtime can
   preserve the semantics.
 
-### `logicir.basic-software / error`
+### `logicir.execution / error`
 
 Candidate extension keys:
 
@@ -158,7 +133,7 @@ Purpose:
 - Decide how provider errors become LogicIR-visible results or side channels.
 - Keep host exception/rejection mechanics out of core.
 
-### `logicir.basic-software / lifecycle`
+### `logicir.software-runtime / lifecycle`
 
 Candidate extension keys:
 
@@ -171,7 +146,7 @@ Purpose:
 - Manage provider resources and execution environments.
 - Keep hooks and resource handles outside core.
 
-### `logicir.basic-software / observation`
+### `logicir.software-runtime / observation`
 
 Candidate extension keys:
 
@@ -186,7 +161,7 @@ Purpose:
 
 ## Basic HDL Features
 
-### `logicir.basic-hdl / signal`
+### `logicir.verilog-hdl / signal`
 
 Candidate extension keys:
 
@@ -200,7 +175,7 @@ Purpose:
 - Convert logical payloads, pins, and payload paths into HDL signals.
 - Define widths, signedness, packing, and flattening.
 
-### `logicir.basic-hdl / module`
+### `logicir.verilog-hdl / module`
 
 Candidate extension keys:
 
@@ -215,7 +190,7 @@ Purpose:
 - Bind external targets or LU-backed instances to Verilog modules.
 - Check module interface compatibility before emission.
 
-### `logicir.basic-hdl / clocking`
+### `logicir.verilog-hdl / clocking`
 
 Candidate extension keys:
 
@@ -228,7 +203,7 @@ Purpose:
 - Realize sequential/stateful topology in Verilog.
 - Keep clock/reset out of core.
 
-### `logicir.basic-hdl / combinational`
+### `logicir.verilog-hdl / combinational`
 
 Candidate extension keys:
 
@@ -241,7 +216,7 @@ Purpose:
 - Realize simple combinational behavior inside emitted HDL modules.
 - Avoid forcing every primitive into an external module.
 
-### `logicir.basic-hdl / state`
+### `logicir.verilog-hdl / state`
 
 Candidate extension keys:
 
@@ -254,7 +229,7 @@ Purpose:
 - Realize retained-current/stateful behavior as registers.
 - Require compatible clock/reset evidence.
 
-### `logicir.basic-hdl / elaboration`
+### `logicir.verilog-hdl / elaboration`
 
 Candidate extension keys:
 
@@ -268,7 +243,7 @@ Purpose:
 - Ensure HDL projection is statically elaborable.
 - Reject runtime-dynamic features before emission.
 
-### `logicir.basic-hdl / structural-slices`
+### `logicir.partition / structural-slices`
 
 Candidate extension keys:
 
@@ -283,7 +258,7 @@ Purpose:
 - Preserve slice identity and connection identity.
 - Keep placement, bus routing, and fan-in policy outside core.
 
-### `logicir.basic-hdl / unsupported-semantics`
+### `logicir.diagnostics / unsupported-semantics`
 
 Candidate extension keys:
 
@@ -295,4 +270,3 @@ Purpose:
 
 - Make unsupported software-like semantics fail with diagnostics instead of
   being silently dropped.
-

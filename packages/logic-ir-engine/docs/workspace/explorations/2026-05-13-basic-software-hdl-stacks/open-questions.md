@@ -3,13 +3,23 @@
 These questions should be resolved before promoting any part of this pack into
 active schema/profile files.
 
+## Resolved Working Assumptions
+
+1. `basic-software` and `basic-hdl` are both feasible as initial primary stacks.
+2. They should share the same target-neutral core and diverge through profiles,
+   feature requirements, projection stages, and execution bindings.
+3. `basic-software` proves runtime interpretation/provider realization.
+4. `basic-hdl` proves static lowering and Verilog-oriented projection rigor.
+5. Circuit/netlist, mechanical assembly, product enclosure, and heterogeneous
+   system realization remain future probes, not current stack targets.
+
 ## Naming
 
 1. Should the HDL stack be named `basic-hdl` or `basic-verilog-hdl`?
 2. Should software use `basic-software`, `software-core`, or another name?
-3. Should feature namespaces use `logicir.basic-software` and
-   `logicir.basic-hdl`, or should they stay target-specific such as
-   `logicir.verilog-hdl`?
+3. Which additional shared feature namespaces should be introduced as the pack
+   grows, beyond `logicir.type-system`, `logicir.value`, `logicir.fulfillment`,
+   `logicir.execution`, `logicir.partition`, and `logicir.diagnostics`?
 
 ## Profile Boundaries
 

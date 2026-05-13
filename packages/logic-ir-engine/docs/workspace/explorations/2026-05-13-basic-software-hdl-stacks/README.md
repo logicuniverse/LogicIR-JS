@@ -14,6 +14,32 @@ The goal is to produce human/AI discussion material for later schema work. These
 files should not be copied into active `schema/` as final profile definitions
 without review.
 
+## Current Feasibility Read
+
+The current draft indicates that both primary stacks are feasible:
+
+- `basic-software` is feasible because the old TS/JS prototype already proves
+  interpreter-style execution, provider fulfillment, retained-current behavior,
+  and continuation-like completion can be realized. The exploration extracts
+  those semantics into features, profiles, and execution bindings instead of
+  treating the old runtime shape as schema authority.
+- `basic-hdl` is feasible because the active core already contains the static
+  topology needed for Verilog projection: LU/LUI boundaries, ports, pins,
+  connections, payload paths, structural composition, external targets, and
+  feature-scoped extensions. HDL-specific width, module binding, clock/reset,
+  register, and elaboration semantics can stay in `logicir.verilog-hdl/*` and
+  shared features.
+
+The useful architectural signal is that the two stacks share the same core but
+diverge cleanly through profiles and feature extensions. Software proves that
+LogicIR can be interpreted or realized by providers. HDL proves that the same
+core can be made static and strict enough for hardware projection.
+
+`basic-software` and `basic-hdl` are stack/profile family names, not feature
+namespaces. Features are reusable semantic units such as `logicir.type-system`,
+`logicir.value`, `logicir.software-runtime`, `logicir.verilog-hdl`,
+`logicir.partition`, and `logicir.diagnostics`.
+
 ## Reference Probes
 
 This exploration keeps `basic-software` and `basic-hdl` as the initial primary
@@ -45,37 +71,19 @@ routing, or tool-export details into core schema.
   pack.
 - [feature-catalog.md](feature-catalog.md): feature candidates shared or owned
   by the two stacks.
+- [feature-profile-matrix.md](feature-profile-matrix.md): per-stack
+  requiredness for feature/profile contracts.
 - [basic-software-stack.md](basic-software-stack.md): full stack draft for
   language-neutral software interpretation/codegen.
 - [basic-hdl-stack.md](basic-hdl-stack.md): full stack draft for basic Verilog
   HDL projection and optional simulation.
 - [stack-matrix.md](stack-matrix.md): side-by-side comparison.
 - [open-questions.md](open-questions.md): decisions to make before promotion.
-- [code/README.md](code/README.md): TypeScript exploration code for stack,
-  profile, feature catalog, registry, and smoke-check drafts.
 
-## Code Drafts
-
-The `code/` folder mirrors the prose draft as executable TypeScript data:
-
-- `architecture-types.ts`: minimal types for profiles, stacks, stages,
-  execution bindings, providers, and feature catalog entries.
-- `features.ts`: shared, `basic-software`, and `basic-hdl` feature catalog.
-- `basic-software.ts`: complete software IR/projection/execution profile draft
-  and stack variants.
-- `basic-hdl.ts`: complete HDL IR profile, Verilog projection profile, optional
-  simulator execution profile, and build/sim stack variants.
-- `stacks.ts`: registry exports for stacks and profiles.
-- `smoke.ts`: assertions that the drafted stacks are wired consistently.
-
-These files reference the active core schema version but are not active schema
-definitions.
-
-The code drafts use profile-level feature identities. Concrete LogicIR examples
-should still declare those dependencies through `LogicUnit.features` and use
-local `featureKey` aliases in extension records. External namespace/key
-contracts can be version-pinned when deterministic validation or projection
-needs it.
+The earlier TypeScript code drafts for this pack were deleted after the active
+architecture schema moved to `schema/architecture/v0-draft/types.ts`. Future
+machine-readable stack/profile drafts should be rewritten from that schema
+rather than recovered from the obsolete exploration code.
 
 ## Architecture Assumption
 

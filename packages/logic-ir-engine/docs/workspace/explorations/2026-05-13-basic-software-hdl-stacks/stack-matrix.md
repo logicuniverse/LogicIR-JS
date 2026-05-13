@@ -4,6 +4,8 @@ This matrix compares the two proposed initial stacks.
 
 | Area | Basic Software | Basic HDL |
 | --- | --- | --- |
+| Feasibility read | Feasible as the first runtime/execution stack | Feasible as the first strict static projection stack |
+| What it proves | LogicIR can be interpreted, provider-bound, and run through software environments | LogicIR core can be constrained, lowered, and emitted as Verilog-oriented hardware artifacts |
 | Working stack | `logicir.stack.basic-software` | `logicir.stack.basic-hdl` |
 | Primary target | Language-neutral software interpretation/codegen | Verilog HDL projection |
 | IR profile | `basic-software-ir` | `basic-hdl-ir` |
@@ -30,6 +32,10 @@ Both stacks need:
 - Target/external requirement contract resolution.
 - Type-system feature path for payload/pin/path compatibility.
 - Diagnostics rather than silent degradation.
+
+The shared requirement set is the important result: neither stack currently
+requires a core schema fork. Stack-specific behavior is carried by profiles,
+feature requirements, projection stages, and execution bindings.
 
 ## Divergence Points
 
