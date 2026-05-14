@@ -22,16 +22,19 @@ engines, architecture index files, registry entries, and database rows are
 derived artifacts, implementations, or catalog storage. They are not the core
 portable source objects of the LogicIR protocol.
 
-The serializable schema for feature definitions, profile definitions, stack
-definitions, capability definitions, tool capability definitions, provider
-contracts, provider capability declarations, stages, policies, and execution
-bindings lives in [`architecture/v0-draft/types.ts`](architecture/v0-draft/types.ts).
-That schema is content-only: JSON-serializable config/policy/payload-schema
-data, no document wrapper requirement, no factories, helper functions,
-callbacks, providers, runtime implementations, or TypeScript generic schema
-abstractions. Catalog identity, namespace, version, indexing, persistence, file
-layout, and database keys belong to a registry, package, index export, or
-application layer outside the architecture definition schema.
+The TypeScript authoring source for feature definitions, profile definitions,
+stack definitions, capability definitions, tool capability definitions,
+provider contracts, provider capability declarations, stages, policies, and
+execution bindings lives in
+[`packages/architecture/src/types.ts`](../packages/architecture/src/types.ts).
+The language-neutral specification surface lives under
+[`architecture/`](architecture/). That schema is content-only:
+JSON-serializable config/policy/payload-schema data, no document wrapper
+requirement, no factories, helper functions, callbacks, providers, runtime
+implementations, or TypeScript generic schema abstractions. Catalog identity,
+namespace, version, indexing, persistence, file layout, and database keys belong
+to a registry, package, index export, or application layer outside the
+architecture definition schema.
 
 ## North Star, Not Project Plan
 

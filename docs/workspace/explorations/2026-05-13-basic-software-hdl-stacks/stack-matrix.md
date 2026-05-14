@@ -20,7 +20,7 @@ This matrix compares the two proposed initial stacks.
 | Structural composition | Can realize structural output or software UI-like trees | Can lower export anchors to modules/slices |
 | Payload path | Runtime addressing and packet path routing | Flattening, packed fields, bus lanes, part-selects |
 | Execution provider | Function/module/remote service/state store/message bus | Optional simulator/testbench/foreign module provider |
-| Current code evidence | Strong: `projector.ts`, `projection.ts`, runtime types | Indirect: core shape plus archived Verilog draft |
+| Legacy/source evidence | Strong: `packages/legacy/engine/src/projector.ts`, `packages/legacy/engine/src/projection.ts`, runtime types | Indirect: core shape plus archived Verilog draft |
 
 ## Shared Profile Requirements
 

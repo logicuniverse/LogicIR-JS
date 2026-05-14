@@ -1,6 +1,7 @@
 # Projection Targets Reference
 
-Use this when assessing how schema or projection changes affect JS/TS runtime and Verilog HDL.
+Use this when assessing how schema, architecture, feature, tool, projection, or
+execution changes affect JS/TS runtime and Verilog HDL.
 
 ## JS/TS Runtime Projection
 
@@ -13,8 +14,10 @@ Common JS/TS feature concerns:
 - host native capabilities.
 - runtime state storage.
 - error and lifecycle events.
+- provider contracts and execution bindings.
+- interpreter plans, generated-code plans, and execution profiles.
 - legacy TS/JS compatibility.
-- plugin or hook systems.
+- provider packaging, hook systems, or local plugin loaders.
 
 Reject designs that make these details mandatory for core LogicIR semantics.
 
@@ -45,6 +48,18 @@ Classify the gap:
 - Requires projection pass: needs lowering, specialization, static elaboration, or decomposition before HDL generation.
 
 Required unsupported behavior must produce diagnostic, not partial HDL.
+
+## Execution Provider Boundary
+
+- Execution target is the run shape.
+- Execution environment is the host context.
+- Execution binding is item-level profile data mapping an abstract need to a
+  provider identity and config.
+- Execution provider is the concrete ability entity, such as a function, module,
+  remote service, database, message bus, hardware interface, or simulator
+  foreign module.
+- `Plugin` is only one packaging/loading strategy for a provider or pass, not a
+  core ecosystem term.
 
 ## Target-Neutral Design Test
 

@@ -57,10 +57,13 @@ routing, or tool-export details into core schema.
 - `schema/ARCHITECTURE.md`: current profile/stack architecture.
 - `packages/core/src/types.ts`: active core schema TS authoring source.
 - `schema/core/v0-draft/README.md`: current core invariants.
-- `src/types/models.ts`: old TS/JS prototype data model, used as evidence only.
-- `src/types/runtime.ts`: old runtime result/completion/provider evidence.
-- `src/projector.ts`: old interpreter/provider configuration evidence.
-- `src/projection.ts`: old execution behavior evidence.
+- `packages/legacy/engine/src/types/models.ts`: old TS/JS prototype data
+  model, used as evidence only.
+- `packages/legacy/engine/src/types/runtime.ts`: old runtime
+  result/completion/provider evidence.
+- `packages/legacy/engine/src/projector.ts`: old interpreter/provider
+  configuration evidence.
+- `packages/legacy/engine/src/projection.ts`: old execution behavior evidence.
 - Archived automatic-run drafts under
   `docs/workspace/explorations/2026-05-13-projection-stack-goal/artifacts/`,
   used only as exploration material.

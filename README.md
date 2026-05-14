@@ -31,6 +31,10 @@ This workspace is organized as a modular LogicIR TS/JS reference monorepo:
 - **[`@logic-universe/logic-ir-legacy-engine`](packages/legacy/engine)**: The old
   JS/TS execution and projection package, retained as migration/reference
   material.
+- **[`packages/legacy/flow-runtime-core`](packages/legacy/flow-runtime-core)** and
+  **[`packages/legacy/flow-core`](packages/legacy/flow-core)**: source-only
+  historical snapshots from the earlier FlowForge-era implementation. They are
+  evidence material, not active workspace packages.
 
 ## III. Development & Tooling
 

@@ -1,4 +1,4 @@
 interface:
-  display_name: "LogicIR Schema Designer"
-  short_description: "Design LogicIR schema and projection protocols"
-  default_prompt: "Use $logicir-schema-designer to design a LogicIR schema or projection change."
+  display_name: "LogicIR Designer"
+  short_description: "Design LogicIR schema, features, profiles, tools, and engines"
+  default_prompt: "Use $logicir-schema-designer to design or review a LogicIR schema, feature, profile, tool, projector, or runtime change."

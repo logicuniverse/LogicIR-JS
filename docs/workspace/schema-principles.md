@@ -5,8 +5,9 @@
 ## 理论优先
 
 - [../essay.md](../essay.md) 是 LogicIR 新 schema 的理论源头。
-- 当前 `src/` 中的 TS/JS 代码是旧版本 prototype/reference，只能作为历史实现、运行时压力和兼容风险的参考。
-- 当前 TS/JS 代码不是新 schema 的权威形状，不能反向决定理论概念。
+- `packages/legacy/engine/src/` 中的 TS/JS 代码是旧版 LogicIR engine prototype/reference，只能作为历史实现、运行时压力和兼容风险的参考。
+- `packages/legacy/flow-runtime-core/` 和 `packages/legacy/flow-core/` 是更早 FlowForge-era source-only 快照，只能作为运行时、编辑操作、lowering 和旧 node/LUI catalog 覆盖面的历史证据。
+- 旧 TS/JS 代码不是新 schema 的权威形状，不能反向决定理论概念。
 - 例如，不能因为旧代码使用 `Composable` 命名，就阻止新 schema 按 essay 采用 `Structural` 作为执行平面上的 LU kind。
 
 ## Target-Neutral Schema

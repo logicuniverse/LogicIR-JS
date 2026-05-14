@@ -31,3 +31,13 @@ discussion material rather than canonical protocol text.
 - Link to source artifacts instead of duplicating large code or reference
   documents.
 - Clearly mark draft status and remaining risk.
+
+## Relationship To AI Tasks
+
+AI-autonomous work belongs in the root-level
+[`ai/tasks/`](../../../ai/tasks/) directory while it is being generated. Each
+autonomous task may write only its own task child directory.
+
+After human review, useful AI task results may be summarized here as an
+exploration pack. `docs/workspace/explorations/` is for curated discussion
+material and follow-up context, not for unrestricted autonomous agent writes.

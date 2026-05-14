@@ -11,8 +11,9 @@
 
 ## 旧代码定位
 
-- 当前 `src/` 中的 TS/JS 代码是旧版本 prototype/reference。
-- 旧代码可以用于理解历史命名、运行时压力、已有 projector 行为和兼容风险。
+- `packages/legacy/engine/src/` 是旧版 LogicIR JS/TS engine prototype/reference。
+- `packages/legacy/flow-runtime-core/` 和 `packages/legacy/flow-core/` 是更早 FlowForge-era source-only 快照。
+- 旧代码可以用于理解历史命名、运行时压力、已有 projector 行为、编辑操作、lowering、旧 node/LUI catalog 覆盖面和兼容风险。
 - 旧代码不能作为新 schema 的权威形状，不能反向决定 essay 中的理论概念。
 - 涉及 schema 的计划必须遵守 [schema-principles.md](schema-principles.md)。
 
@@ -38,6 +39,16 @@
 - 重大 schema、API、运行时语义、投影语义调整必须先在 [plans/](plans/) 中写计划。
 - 计划要说明目标、理论映射、实现范围、兼容影响、测试方式和未决问题。
 - 小型文档修正或明显局部修复可以直接执行，但仍要保持最终说明清楚。
+
+## AI 自动探索隔离
+
+- 人与 AI 共同确认、逐步讨论并审阅过的内容，才可以进入正式项目文件，例如 `packages/`、`schema/`、`examples/`、`fixtures/` 或正式文档。
+- AI 使用 `/goal` 或类似方式全自动完成的大任务，例如一次性生成一个 feature、tool、engine、projector、profile stack 或 runtime prototype，默认只能写入根目录 `ai/tasks/` 下的一个任务子目录。
+- Sandbox 内容是素材，不是项目结果。它可以包含代码、文档、测试、运行记录和结论，但不能被当前正式包 import，也不能作为 schema authority。
+- 每个自动任务只能写入自己的一个 task 子目录；可以读取仓库其他位置和其他 task，但不能写入别的 task 子目录。
+- 多个 agent 可以并行写不同 task。每个 task 必须有独立目录、README、范围说明、状态、验证记录和可迁移成果清单。
+- 将 task 内容晋升为正式项目文件必须经过人工确认。晋升时只迁移经过审阅的最小成果，并重新放入正确的正式目录；不要整包复制 task。
+- 正式目录中的实现可以参考 task 输出，但必须重新满足当前 repo 的 package 边界、schema 边界、测试和文档要求。
 
 ## 交接必须可继续
 

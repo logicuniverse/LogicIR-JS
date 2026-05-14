@@ -67,6 +67,11 @@ limits:
   and helper utilities.
 - `packages/legacy/engine`: old TS/JS runtime and projection implementation,
   retained as migration/reference material.
+- `packages/legacy/flow-runtime-core` and `packages/legacy/flow-core`:
+  source-only historical snapshots from an earlier FlowForge-era codebase,
+  retained as evidence for runtime behavior, editor-core data operations,
+  compiler/lowering, and old node/LUI catalog coverage. They are not active
+  workspace packages and do not define schema authority.
 
 ## Current Core Draft
 

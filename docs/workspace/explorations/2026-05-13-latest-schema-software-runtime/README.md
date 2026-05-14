@@ -9,8 +9,10 @@ current LogicIR core and architecture schemas:
   shape.
 - `packages/architecture/src/types.ts` is the TS authoring source for feature,
   profile, stack, provider contract, and binding definition shapes.
-- Old `src/types/models.ts`, `src/types/runtime.ts`, `src/projector.ts`, and
-  `src/projection.ts` are evidence only.
+- Old `packages/legacy/engine/src/types/models.ts`,
+  `packages/legacy/engine/src/types/runtime.ts`,
+  `packages/legacy/engine/src/projector.ts`, and
+  `packages/legacy/engine/src/projection.ts` are evidence only.
 
 The goal is to create human/AI discussion material for a future software runtime
 profile. Nothing here should be promoted without review.

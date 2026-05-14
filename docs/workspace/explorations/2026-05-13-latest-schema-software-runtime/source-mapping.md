@@ -5,14 +5,15 @@ files are evidence, not schema authority.
 
 ## Source Files
 
-- `src/types/models.ts`: old LU/LUI/port/net model.
-- `src/types/runtime.ts`: old `Result`, `ReturnResult`, provider, state store,
-  session, and plugin/runtime types.
-- `src/projector.ts`: old runtime entry point and provider lookup mechanism.
-- `src/projection.ts`: old pull read, push dispatch, retained-current store,
-  sequential await, closure, and composition behavior.
-- `src/utils.ts`: old result constructors, thenable wrapper, runtime port
-  indexing, and payload path helpers.
+- `packages/legacy/engine/src/types/models.ts`: old LU/LUI/port/net model.
+- `packages/legacy/engine/src/types/runtime.ts`: old `Result`,
+  `ReturnResult`, provider, state store, session, and plugin/runtime types.
+- `packages/legacy/engine/src/projector.ts`: old runtime entry point and
+  provider lookup mechanism.
+- `packages/legacy/engine/src/projection.ts`: old pull read, push dispatch,
+  retained-current store, sequential await, closure, and composition behavior.
+- `packages/legacy/engine/src/utils.ts`: old result constructors, thenable
+  wrapper, runtime port indexing, and payload path helpers.
 
 ## Mapping To Current Core
 
@@ -55,4 +56,3 @@ behavior here:
   and projection material, not part of this basic direct software interpreter.
 - Hook override behavior: old hooks are observation/override features, not core
   runtime semantics.
-

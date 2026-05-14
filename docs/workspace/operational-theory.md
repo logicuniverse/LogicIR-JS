@@ -11,7 +11,7 @@
    - `08-evidence-and-limits.md`
    - `03-engineering-origin.md`
    - `07-what-logicir-enables.md`
-3. 当前 `src/` TS/JS 代码是旧版本 prototype/reference，只能作为实现证据和兼容风险参考。
+3. `packages/legacy/engine/src/` 是旧版 LogicIR JS/TS engine prototype/reference，只能作为实现证据和兼容风险参考。`packages/legacy/flow-runtime-core/` 和 `packages/legacy/flow-core/` 是更早 FlowForge-era source-only 快照，只作为运行时、编辑操作、lowering 和旧 LUI/node 覆盖面的历史证据。
 
 ## Core Claim
 
@@ -155,11 +155,12 @@ LogicIR schema 按长期协议演进：
 
 ## Current Implementation Reading Guide
 
-读取当前代码时按以下方式使用：
+读取旧实现代码时按以下方式使用：
 
-- `models.ts` 说明旧 V1 把 schema、runtime convenience 和 projection 便利混在一起。
+- `packages/legacy/engine/src/types/models.ts` 说明旧 V1 把 schema、runtime convenience 和 projection 便利混在一起。
 - `PortKind.Pull/Push` 可作为旧版 boundary/contact 实现参考，但新 schema 应区分 unit-level X 轴和 port-level contact capability。
 - `Property` 是旧实现中 retained-current contact 的证据：它把可读取当前值、变化通知和最新值缓存绑在一起。新 core 可以表达 retained-current 语义，但 JS store/subscription/cache 机制仍属于 runtime feature 或 projector implementation。
 - `SequentialStep` 是 sequential kind organization 的早期形态；`isAwaited` 偏 JS async projection。
 - `dependencies`、`Provider`、`SovereignSource`、`AbstractLUT`、`closures` 是 Z 轴旧近似实现。
-- `runtime.ts` 中的 `Thenable`、`subscribe`、`StateStore`、`LUProjectorPlugin` 属于 JS runtime projection，不应进入 core schema。
+- `packages/legacy/engine/src/types/runtime.ts` 中的 `Thenable`、`subscribe`、`StateStore`、`LUProjectorPlugin` 属于 JS runtime projection，不应进入 core schema。
+- `packages/legacy/flow-runtime-core/` 和 `packages/legacy/flow-core/` 可用于补充运行时、编辑操作、旧 node/LUI catalog、node function/provider 和 lowering 证据，但不是当前 schema 权威。

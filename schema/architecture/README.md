@@ -10,7 +10,10 @@ compilers, runtimes, provider registries, and profile resolvers.
 
 Current draft:
 
-- [`v0-draft/types.ts`](v0-draft/types.ts)
+- TypeScript authoring source:
+  [`packages/architecture/src/types.ts`](../../packages/architecture/src/types.ts)
+- Specification notes:
+  [`v0-draft/README.md`](v0-draft/README.md)
 
 Rules:
 

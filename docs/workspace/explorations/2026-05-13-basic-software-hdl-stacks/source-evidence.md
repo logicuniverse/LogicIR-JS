@@ -42,8 +42,8 @@ for the new schema.
 
 ### Old Model Shape
 
-`src/types/models.ts` shows the old prototype mixing schema and runtime
-convenience:
+`packages/legacy/engine/src/types/models.ts` shows the old prototype mixing
+schema and runtime convenience:
 
 - `PortKind.Pull`, `PortKind.Push`, and `PortKind.Property`.
 - `Property` is evidence for retained-current contact semantics.
@@ -59,7 +59,7 @@ convenience:
 
 ### Runtime Result And Completion
 
-`src/types/runtime.ts` defines:
+`packages/legacy/engine/src/types/runtime.ts` defines:
 
 - `Result = Ok | Error`.
 - `Option = Some | Nothing`.
@@ -75,7 +75,7 @@ provider packaging.
 
 ### Interpreter Provider Configuration
 
-`src/projector.ts` shows:
+`packages/legacy/engine/src/projector.ts` shows:
 
 - `createLUProjector(entryId, lus, plugins, getKVStore)`.
 - `plugins` provide native service projectors and injection providers.
@@ -98,7 +98,7 @@ getServiceProjector / inject / getKVStore
 
 ### Execution Behavior
 
-`src/projection.ts` shows:
+`packages/legacy/engine/src/projection.ts` shows:
 
 - Pull reads gather source values from port state, constants, and computed
   combinational LUI returns.
