@@ -3,7 +3,7 @@
 Status: exploration material, not active schema.
 
 This pack drafts two initial LogicIR stacks using the architecture in
-`schema/ARCHITECTURE.md`:
+`docs/workspace/logicir-architecture.md`:
 
 - `basic-software`: a language-neutral software stack based on the semantic
   intersection visible in the current TS/JS prototype.
@@ -54,7 +54,7 @@ routing, or tool-export details into core schema.
 
 ## Source Inputs
 
-- `schema/ARCHITECTURE.md`: current profile/stack architecture.
+- `docs/workspace/logicir-architecture.md`: current profile/stack architecture.
 - `packages/core/src/types.ts`: active core schema TS authoring source.
 - `schema/core/v0-draft/README.md`: current core invariants.
 - `packages/legacy/engine/src/types/models.ts`: old TS/JS prototype data

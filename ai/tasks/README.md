@@ -14,6 +14,10 @@ Each autonomous task must create and work inside exactly one child directory:
 ai/tasks/YYYY-MM-DD-<task>/
 ```
 
+Start new tasks from the template in [`../templates/task/`](../templates/task/).
+Copy the template contents into the new task directory, then fill them in during
+the task.
+
 During that task, the agent may:
 
 - Read any repository file needed for context.
@@ -33,12 +37,16 @@ During that task, the agent must not:
 Each task directory should contain:
 
 - `README.md`: objective, scope, status, and how to read the task directory.
-- `source-map.md` or equivalent notes when existing code or documents were used
-  as evidence.
-- Code, drafts, generated artifacts, or experiments under clear subdirectories.
-- Verification notes with commands run, results, and known gaps.
-- A promotion checklist describing which pieces may be moved into formal project
-  directories after human review.
+- `source-map.md`: existing code, docs, and legacy evidence used.
+- `design-notes.md`: theory mapping, boundaries, alternatives, risks, and open
+  questions.
+- `implementation/`: code experiments, prototypes, or draft package shapes.
+- `fixtures/`: task-local fixtures.
+- `docs/`: task-local documentation drafts.
+- `reports/`: generated reports, diagnostics, or logs.
+- `verification.md`: commands run, results, and known gaps.
+- `promotion-checklist.md`: smallest reviewed pieces that may be moved into
+  formal project directories after human review.
 
 ## Promotion
 

@@ -6,7 +6,7 @@ for the new schema.
 
 ## Active Architecture Evidence
 
-`schema/ARCHITECTURE.md` defines:
+`docs/workspace/logicir-architecture.md` defines:
 
 - LogicIR document as the mutable logic object.
 - Three single-layer profile types:

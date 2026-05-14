@@ -9,6 +9,7 @@
 - [shared-rules.md](shared-rules.md): 人与 AI 都要遵守的共同规则。
 - [operational-theory.md](operational-theory.md): 从完整 essay 提取出的工程执行版理论。
 - [schema-principles.md](schema-principles.md): 新 schema 的理论来源、旧实现定位和 projection target 约束。
+- [logicir-architecture.md](logicir-architecture.md): LogicIR document、feature、profile、stack、projection 和 execution 的生态架构说明。
 - [plans/](plans/): 设计计划目录。重大 schema、API、运行时语义或投影语义调整先在这里写清楚。
 - [handoffs/](handoffs/): 交接目录。用于让后续的人或 AI 不依赖聊天上下文继续工作。
 - [explorations/](explorations/): 探索材料目录。用于保存经过整理的阶段性草案、成果地图和开放问题，不作为最终规范源。

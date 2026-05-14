@@ -47,6 +47,7 @@ compatibility, target-neutral core design, and clean package boundaries.
    - Keep examples and fixtures under `examples/` and `fixtures/`.
    - Keep fully autonomous work inside one `ai/tasks/YYYY-MM-DD-<task>/`
      directory until human review.
+   - Start autonomous tasks from `ai/templates/task/` when available.
 5. Check projection and execution targets:
    - Always assess JS/TS runtime impact.
    - Always assess Verilog HDL impact.

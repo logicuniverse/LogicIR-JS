@@ -1,8 +1,9 @@
-# LogicIR Schema Architecture
+# LogicIR Ecosystem Architecture
 
 This document defines the working architecture for LogicIR schema, profiles,
 projection, and execution support. It is a development guide for future schema
-work, not a replacement for the theory documents in `docs/`.
+work, not a generated schema artifact and not a replacement for the theory
+documents in `docs/`.
 
 ## Primary Portable Data
 
@@ -26,9 +27,10 @@ The TypeScript authoring source for feature definitions, profile definitions,
 stack definitions, capability definitions, tool capability definitions,
 provider contracts, provider capability declarations, stages, policies, and
 execution bindings lives in
-[`packages/architecture/src/types.ts`](../packages/architecture/src/types.ts).
+[`packages/architecture/src/types.ts`](../../packages/architecture/src/types.ts).
 The language-neutral specification surface lives under
-[`architecture/`](architecture/). That schema is content-only:
+[`schema/architecture/`](../../schema/architecture/). That schema is
+content-only:
 JSON-serializable config/policy/payload-schema data, no document wrapper
 requirement, no factories, helper functions, callbacks, providers, runtime
 implementations, or TypeScript generic schema abstractions. Catalog identity,

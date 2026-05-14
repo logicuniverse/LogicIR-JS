@@ -1,14 +1,10 @@
-# LogicIR Feature Schemas
+# LogicIR Feature Artifacts
 
-Feature schemas define namespaced semantic capabilities that attach additional
-contracts to LogicIR core nodes through extension records.
+This directory contains published feature artifact routes.
 
-Feature schemas are not core schema. They may be required by profiles, projection
-targets, validators, or execution environments, but unsupported required feature
-contracts must be diagnosed rather than silently ignored.
+Current feature routes:
 
-Current drafts:
+- [`type-system/`](type-system/): target-neutral algebraic type-system feature.
 
-- [`type-system/v0-draft`](type-system/v0-draft): target-neutral algebraic
-  payload and compatibility types.
+Feature authoring sources live under `packages/features/*/src`.
 

@@ -1,21 +1,20 @@
-# LogicIR Type System Feature
+# LogicIR Type-System Feature Artifacts
 
-The type-system feature defines target-neutral algebraic type expressions for
-LogicIR payloads, payload paths, requirement contracts, and structural
-composition compatibility.
+Authoring source:
+
+- [`packages/features/type-system/src`](../../../packages/features/type-system/src)
+
+Current specification route:
+
+- [`v0-draft/README.md`](v0-draft/README.md)
+
+Generated JSON Schema or rendered reference output has not been checked in yet.
 
 Registry identity for the current draft:
 
 ```text
 namespace: logicir.type-system
 key: core
-version: 0.0.0-draft
+version: 0.1.0
 ```
-
-Current draft:
-
-- [`v0-draft/types.ts`](v0-draft/types.ts): serializable type expression and
-  extension payload shapes.
-- [`v0-draft/feature.ts`](v0-draft/feature.ts): architecture feature definition
-  for the extension points owned by this feature.
 

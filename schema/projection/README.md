@@ -1,36 +1,17 @@
-# LogicIR Projection Contracts
+# LogicIR Projection Artifacts
 
-This directory defines projection-facing contracts. A projection compiler is a
-declared capability set plus a lowering/emission pipeline, not just an unchecked
-conversion function.
+This directory is reserved for generated or curated projection-facing artifacts:
+capability declarations, diagnostics schemas, projection contracts, and emitted
+reference docs.
 
-Projection profiles cover `LogicIR -> target artifact | executable plan`.
-Execution profiles cover realization after that point. See
-[`../ARCHITECTURE.md`](../ARCHITECTURE.md) for the profile and stack model.
+Projection profile and capability content shapes are authored in:
 
-Projection targets are not limited to software and HDL in principle. Future
-reference routes may include circuit/netlist, mechanical assembly, product
-enclosure, or mixed hardware/software realization artifacts. Those routes should
-be introduced as feature-backed projection profiles with explicit diagnostics
-and capability declarations. They must not cause footprint, electrical,
-mechanical, manufacturing, or tool-export details to move into core schema.
+- [`packages/architecture/src/types.ts`](../../packages/architecture/src/types.ts)
 
-Do not create a concrete capability draft until core or feature extension-point
-contracts exist. Projection work should then define capability declarations,
-diagnostics, and safe-failure behavior against those fields.
+Projection discipline and target constraints are documented in:
 
-Current core-facing capability checks should account for:
+- [`docs/workspace/logicir-architecture.md`](../../docs/workspace/logicir-architecture.md)
+- [`docs/workspace/schema-principles.md`](../../docs/workspace/schema-principles.md)
 
-- Supported core schema version.
-- Supported feature manifest resolution from `ExtensionRecord.featureKey` to
-  `LogicUnit.features` entries.
-- Supported LU kinds and the allowed LUI kind set inside each LU kind.
-- Supported port contact capabilities: `pullReadable`, `pushNotifiable`, and `retainedCurrent`.
-- Supported endpoint addressing depth, including `Port.pins` and `EndpointRef.payloadPath`.
-- Supported structural composition features: `exportAnchors`, `externalOutlets`, `compositionSurface.outlets`, `compositionSurface.anchors`, `exportAnchorFills`, and `luiFills`.
-- Supported requirement fulfillment forms: closure fulfillment, upstream unit fulfillment, and upstream shared-service supplier fulfillment.
-- Supported feature identities and extension points, checked against the
-  required/optional status declared by the selected profile contracts.
+No concrete generated projection artifacts are checked in here yet.
 
-Projection must fail with diagnostics when required core semantics or required
-feature/extension-point contracts exceed the declared capability set.
