@@ -48,6 +48,11 @@ compatibility, target-neutral core design, and clean package boundaries.
    - Keep fully autonomous work inside one `ai/tasks/YYYY-MM-DD-<task>/`
      directory until human review.
    - Start autonomous tasks from `ai/templates/task/` when available.
+   - Autonomous task output must include runnable verification evidence. JS/TS
+     work runs the relevant type check, build, test, or smoke path. Verilog HDL
+     work activates `E:\oss-cad-suite\environment.ps1` and calls `iverilog`
+     directly. If either path is claimed but cannot run, record the concrete
+     blocker and do not call that path verified.
 5. Check projection and execution targets:
    - Always assess JS/TS runtime impact.
    - Always assess Verilog HDL impact.

@@ -24,7 +24,9 @@ Out of scope:
 ## Status
 
 - `draft`: work in progress.
-- `ready-for-review`: task output is complete enough for human review.
+- `ready-for-review`: task output is complete enough for human review and the
+  required JS/TS and/or Verilog HDL verification paths have been run or blocked
+  with concrete recorded reasons.
 - `reviewed`: a human has reviewed the task and identified promotable pieces.
 - `closed`: no further work is expected in this sandbox.
 

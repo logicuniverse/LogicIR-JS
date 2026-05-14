@@ -31,6 +31,11 @@ Move only the smallest reviewed pieces into formal project locations.
 
 - `yarn build`
 - `yarn test`
+- JS/TS smoke or fixture command, when the promoted piece affects software
+  runtime, tools, projectors, compilers, examples, or fixtures:
+- Verilog HDL smoke command, when the promoted piece affects HDL features,
+  projectors, examples, or fixtures:
+  `. E:\oss-cad-suite\environment.ps1; iverilog <files>`
 - Additional checks:
 
 ## Do Not Promote
