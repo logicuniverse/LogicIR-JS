@@ -46,6 +46,8 @@ Recommended order:
 
 - `source-map.md`: source files, docs, and legacy evidence used.
 - `design-notes.md`: design decisions, boundaries, alternatives, and risks.
+- `package.json`: required when this task contains runnable JS/TS code; define
+  task-local verification scripts here.
 - `implementation/`: code experiments, prototypes, or draft package shapes.
 - `fixtures/`: local fixtures used by this task.
 - `docs/`: local documentation drafts.
@@ -63,3 +65,15 @@ Formal project directories such as `packages/`, `schema/`, `docs/`, `dev/`,
 `examples/`, and `fixtures/` may be referenced as read-only inputs. Changes for
 those locations must be listed in `promotion-checklist.md` and applied only
 after human review.
+
+Task-local code and fixtures may use relative paths to read or import external
+repository files as read-only inputs. This applies to JS/TS, Verilog HDL,
+Python, generated artifacts, fixtures, and docs. The direction is one-way:
+sandbox code may reference formal project files, but formal project files must
+not import or depend on sandbox code.
+
+If this task contains runnable JS/TS code, it should include its own
+`package.json` at the task root with scripts such as `typecheck`, `test`,
+`build`, or `smoke`. The task may depend on formal workspace packages as
+read-only dependencies, but verification should be runnable from inside the task
+sandbox instead of requiring formal packages to import task-local code.

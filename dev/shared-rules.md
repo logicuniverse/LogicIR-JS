@@ -1,4 +1,4 @@
-# Shared Rules
+# 共同规则
 
 这些规则适用于人与 AI 在本仓库中共同推进 LogicIR 实现同步的工作。
 
@@ -24,8 +24,9 @@
 - AI 使用 `/goal` 或类似方式全自动完成的大任务，例如一次性生成一个 feature、tool、engine、projector、profile stack 或 runtime prototype，默认只能写入根目录 `ai/tasks/` 下的一个任务子目录。
 - Sandbox 内容是素材，不是项目结果。它可以包含代码、文档、测试、运行记录和结论，但不能被正式 workspace package import，也不能作为 schema authority。
 - 每个自动任务只能写入自己的一个 task 子目录；可以读取仓库其他位置和其他 task，但不能写入别的 task 子目录。
+- Sandbox 隔离是写入隔离，不是读取隔离。Task-local 代码可以通过相对路径读取或引用外部仓库文件作为 read-only input，包括 JS/TS、Verilog HDL、Python、fixture、文档和生成产物；正式项目文件不能反向 import 或依赖 task-local 代码。
 - 多个 agent 可以并行写不同 task。每个 task 必须有独立目录、README、范围说明、状态、验证记录和可迁移成果清单。
-- 每个 task 必须留下可运行验证证据。涉及 JS/TS 的任务要运行相关 type check、build、test 或 smoke；涉及 Verilog HDL 的任务要激活 `E:\oss-cad-suite\environment.ps1` 并直接调用 `iverilog`。如果任务同时声称支持 JS/TS 和 HDL，两条路径都要跑通；不能跑时必须记录具体 blocker，不能标为已验证。
+- 每个 task 必须留下可运行验证证据。涉及可运行 JS/TS 代码的任务应在 task 根目录提供自己的 `package.json` 和本地验证脚本，并运行相关 type check、build、test 或 smoke；涉及 Verilog HDL 的任务要激活 `E:\oss-cad-suite\environment.ps1` 并直接调用 `iverilog`。如果任务同时声称支持 JS/TS 和 HDL，两条路径都要跑通；不能跑时必须记录具体 blocker，不能标为已验证。
 - 将 task 内容晋升为正式项目文件必须经过人工确认。晋升时只迁移经过审阅的最小成果，并重新放入正确的正式目录；不要整包复制 task。
 - 正式目录中的实现可以参考 task 输出，但必须重新满足当前 repo 的 package 边界、schema 边界、测试和文档要求。
 

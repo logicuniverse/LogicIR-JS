@@ -1,4 +1,4 @@
-# Schema Principles
+# Schema 原则
 
 这个文档记录后续制定 LogicIR schema 时必须遵守的设计原则。它用于约束 schema 计划，不替代 [docs/essay.md](../docs/essay.md) 的理论正文。
 
@@ -10,7 +10,7 @@
 - 旧 TS/JS 代码不是新 schema 的权威形状，不能反向决定理论概念。
 - 例如，不能因为旧代码使用 `Composable` 命名，就阻止新 schema 按 essay 采用 `Structural` 作为执行平面上的 LU kind。
 
-## Target-Neutral Schema
+## 目标中立 Schema
 
 - 新 schema 必须表达 LogicIR 的拓扑、边界语义、Requirement/Fulfillment、Closure、Projection/Runtime 分离。
 - 新 schema 不能只服务 JS runtime，也不能把某一个 projector 的实现便利当成 schema 的核心语义。
@@ -22,7 +22,7 @@
 - Core 的 port surface 使用单一 `PortKey` namespace；`input` / `output` 是 port boundary，不是两套独立 key 空间。
 - Core sequential organization 只保存 `steps: LUIId[]`。更细的 control-flow、guard、branch、return、go-back、async 或调度语义必须走 feature extension 或 projection lowering。
 
-## Long-Lived Protocol Model
+## 长期协议模型
 
 LogicIR schema 应该像长期协议一样演进：稳定核心、命名空间扩展、显式能力声明，以及无法保持语义时的安全失败。
 
@@ -34,7 +34,7 @@ LogicIR schema 应该像长期协议一样演进：稳定核心、命名空间�
 - Feature 必须定义 extension kind 的 payload schema 和字段必选性；profile 必须区分 required、conditional-required、recommended 和 optional feature/extension contract。
 - 旧工具或旧 projector 遇到不支持的 required 或 conditional-required extension contract 时，不能假装支持，也不能静默丢失语义。
 
-## Core/Feature/Projection Boundary
+## Core/Feature/Projection 边界
 
 - Core schema 定义 LogicIR 是否仍是同一个逻辑拓扑的必要语义。
 - Feature/extension 定义某类 target、host、runtime、tooling 或领域所需的附加约束。
@@ -45,7 +45,7 @@ LogicIR schema 应该像长期协议一样演进：稳定核心、命名空间�
 - JS/TS runtime feature 可以定义 async、subscription、host native、runtime state、error/lifecycle 等软件实现细节。
 - Verilog HDL feature 可以定义 module boundary、clock/reset、combinational block、sequential block、generate/elaboration-time 结构和静态绑定约束。
 
-## Feature / Extension Strategy
+## Feature / Extension 策略
 
 后续扩展采用 feature-centered 结构：feature 是横切语义能力单元，extension 是挂在具体节点上的 payload。Profile 是 architecture 层的单层兼容契约，stack 是用户可选的 profile 组合；LogicIR core 不定义 profile 或 stack。
 
@@ -63,14 +63,14 @@ LogicIR schema 应该像长期协议一样演进：稳定核心、命名空间�
 - Projector 不能只声明“支持某 stack/profile”就默认支持全部能力；必须声明具体 features/capabilities，或解析 profile/stack 后逐项声明覆盖。
 - 影响语义或正确性的 extension kind 应由 profile contract 声明为 required 或 conditional-required；只影响展示、布局、注释或可安全降级优化的 extension kind 可以在相应 profile 中声明为 recommended 或 optional。
 
-## Projection Target Discipline
+## Projection Target 纪律
 
 - 每个 schema 计划必须显式评估 JS/TS runtime projection impact。
 - 每个 schema 计划必须显式评估 Verilog HDL projection impact。
 - 如有必要，计划可以继续扩展到其他宿主语言、运行时、分布式系统或硬件目标。
 - 如果某个 LogicIR 概念无法直接投影到 Verilog HDL，计划必须说明原因：语义限制、实现暂缓，还是需要额外 projection pass。
 
-## Verilog HDL Considerations
+## Verilog HDL 考量
 
 Verilog HDL 不是事后附加目标。制定 schema 时必须考虑它是否能表达为硬件友好的结构，包括但不限于：
 

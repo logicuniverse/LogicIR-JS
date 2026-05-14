@@ -1,111 +1,64 @@
-# LogicIR Ecosystem Architecture
+# LogicIR 生态架构
 
-This document defines the working architecture for LogicIR schema, profiles,
-projection, and execution support. It is a development guide for future schema
-work, not a generated schema artifact and not a replacement for the theory
-documents in `docs/`.
+这份文档定义 LogicIR schema、profile、projection 和 execution support 的当前工作架构。它是后续 schema 工作的开发指南，不是生成的 schema artifact，也不替代 `docs/` 中的理论文档。
 
-## Primary Portable Data
+## 主要可移植数据
 
-LogicIR development is centered on two portable data artifacts:
+LogicIR 开发围绕两个可移植数据对象展开：
 
-- **LogicIR Document**: the mutable logical object. It carries the topology being
-  authored, validated, transformed, projected, or executed.
-- **Architecture Definition**: read-only catalog content such as a feature,
-  profile, stack, provider contract, or capability definition.
+- **LogicIR Document**: 可变的逻辑对象，承载正在 authoring、validation、transformation、projection 或 execution 的拓扑。
+- **Architecture Definition**: 只读 catalog 内容，例如 feature、profile、stack、provider contract 或 capability definition。
 
-A profile definition is a compatibility contract for one processing
-  layer. It tells tools what rules, features, stages, target constraints, or
-  execution bindings apply.
+Profile definition 是某一个 processing layer 的兼容契约。它告诉工具当前层适用哪些规则、feature、stage、target constraint 或 execution binding。
 
-Generated code, Verilog files, reports, executable plans, providers, compilers,
-engines, architecture index files, registry entries, and database rows are
-derived artifacts, implementations, or catalog storage. They are not the core
-portable source objects of the LogicIR protocol.
+Generated code、Verilog 文件、report、executable plan、provider、compiler、engine、architecture index file、registry entry 和 database row 都是派生产物、实现或 catalog storage。它们不是 LogicIR protocol 的核心可移植源对象。
 
-The TypeScript authoring source for feature definitions, profile definitions,
-stack definitions, capability definitions, tool capability definitions,
-provider contracts, provider capability declarations, stages, policies, and
-execution bindings lives in
-[`packages/architecture/src/types.ts`](../packages/architecture/src/types.ts).
-The language-neutral specification surface lives under
-[`schema/architecture/`](../schema/architecture/). That schema is
-content-only:
-JSON-serializable config/policy/payload-schema data, no document wrapper
-requirement, no factories, helper functions, callbacks, providers, runtime
-implementations, or TypeScript generic schema abstractions. Catalog identity,
-namespace, version, indexing, persistence, file layout, and database keys belong
-to a registry, package, index export, or application layer outside the
-architecture definition schema.
+Feature definition、profile definition、stack definition、capability definition、tool capability definition、provider contract、provider capability declaration、stage、policy 和 execution binding 的 TypeScript authoring source 位于 [`packages/architecture/src/types.ts`](../packages/architecture/src/types.ts)。
 
-## North Star, Not Project Plan
+语言无关的 specification surface 位于 [`schema/architecture/`](../schema/architecture/)。这里的 schema 是 content-only：只包含 JSON-serializable config、policy 和 payload-schema data；不要求 document wrapper；不包含 factory、helper function、callback、provider、runtime implementation 或 TypeScript generic schema abstraction。Catalog identity、namespace、version、indexing、persistence、file layout 和 database key 属于 architecture definition schema 之外的 registry、package、index export 或 application layer。
 
-The long-term north star is heterogeneous system realization: a LogicIR document
-can describe the logical topology of a system, while profiles, features,
-extensions, and providers realize different parts as software, HDL/FPGA/ASIC
-logic, circuit/netlist artifacts, external services, mechanical assemblies,
-product enclosures, or other domain artifacts.
+## 北极星，不是项目计划
 
-This is an architectural pressure test, not a current project plan. It should
-keep the core broad enough to represent stable logical topology, but it must not
-pull target-domain details into core. Physical footprints, pin maps, electrical
-rules, board constraints, mechanical dimensions, materials, enclosure geometry,
-manufacturing constraints, placement, routing, and tool-specific export formats
-belong in namespaced features, extension records, projection profiles, and
-execution or realization bindings.
+长期北极星是 heterogeneous system realization：一个 LogicIR document 可以描述系统的逻辑拓扑，而 profile、feature、extension 和 provider 可以把不同部分 realization 成 software、HDL/FPGA/ASIC logic、circuit/netlist artifact、external service、mechanical assembly、product enclosure 或其它 domain artifact。
 
-Current primary stacks remain software and Verilog HDL. Circuit/netlist,
-mechanical design, and product enclosure routes are reference probes and future
-extension paths. They are useful for checking whether the architecture stays
-target-neutral and extensible, but they should not drive core schema changes
-unless they reveal a missing target-neutral topology relation.
+这只是架构压力测试，不是当前项目计划。它要求 core 足够宽，能表示稳定逻辑拓扑；但不能把 target-domain detail 拉进 core。Physical footprint、pin map、electrical rule、board constraint、mechanical dimension、material、enclosure geometry、manufacturing constraint、placement、routing 和 tool-specific export format 都应放在 namespaced feature、extension record、projection profile、execution/realization binding 中。
 
-## LogicIR Document
+当前主要 stack 仍然是 software 和 Verilog HDL。Circuit/netlist、mechanical design 和 product enclosure 路线是参考 probe 和未来 extension path。它们有助于检查 architecture 是否保持 target-neutral 和可扩展，但不应驱动 core schema 改动，除非它们揭示了缺失的 target-neutral topology relation。
 
-A LogicIR document answers:
+## LogicIR 文档（LogicIR Document）
+
+LogicIR document 回答：
 
 ```text
 What is the logic?
 ```
 
-It contains the target-neutral core topology:
+它包含 target-neutral core topology：
 
-- `LogicUnit`, `LUCore`, and `LUI`.
-- Ports, endpoints, pins, and connections.
-- Requirement services and fulfillment relations.
-- Closures.
-- Structural composition.
-- A `LogicUnit.features` manifest that declares the feature dependencies used by
-  that independent LU.
-- Feature-scoped extension records attached to stable owner or relation nodes.
+- `LogicUnit`、`LUCore` 和 `LUI`。
+- Port、endpoint、pin 和 connection。
+- Requirement service 和 fulfillment relation。
+- Closure。
+- Structural composition。
+- `LogicUnit.features` manifest，用来声明这个独立 LU 使用的 feature dependency。
+- 附着在稳定 owner 或 relation node 上的 feature-scoped extension record。
 
-A LogicIR document may be read and written by authoring tools and IR pipeline
-tools. Projection compilers and execution engines usually consume it read-only.
+LogicIR document 可以被 authoring tool 和 IR pipeline tool 读写。Projection compiler 和 execution engine 通常只读消费它。
 
-LogicIR core must not contain runtime functions, host callbacks, state store
-handles, JS/Python async mechanics, Verilog clock/reset mechanics, provider
-registries, or profile references.
+LogicIR core 不应包含 runtime function、host callback、state store handle、JS/Python async 机制、Verilog clock/reset 机制、provider registry 或 profile reference。
 
-## Feature And Extension
+## Feature 和 Extension
 
-Feature and extension form the horizontal semantic layer.
+Feature 和 extension 构成横向语义层。
 
-- **Feature**: a namespaced semantic capability unit, such as a type system,
-  software completion policy, Verilog clocking, or distributed routing.
-- **Feature use**: a `LogicUnit`-local manifest entry that inlines a feature's
-  namespace, key, and optional version.
-- **Extension point**: one feature-owned attachment contract, including where it
-  attaches and what payload schema it uses.
-- **Extension record**: the actual node-local declaration inside a LogicIR
-  document. It references a `LogicUnit.features` local key, an extension key,
-  and payload.
+- **Feature**: namespaced semantic capability unit，例如 type system、software completion policy、Verilog clocking 或 distributed routing。
+- **Feature use**: `LogicUnit` 本地 manifest entry，inline 保存 feature 的 namespace、key 和可选 version。
+- **Extension point**: 某个 feature 拥有的 attachment contract，包含 attach 到哪里，以及使用什么 payload schema。
+- **Extension record**: LogicIR document 内部实际挂在节点上的声明。它引用 `LogicUnit.features` 的本地 key、一个 extension key 和 payload。
 
-Feature definitions specify semantics and compatibility obligations. Extension
-records place those semantics onto concrete LogicIR nodes.
-Profile contracts decide which features and extension points are required,
-conditional, recommended, or optional for a concrete processing layer.
+Feature definition 定义语义和兼容义务。Extension record 把这些语义放到具体 LogicIR node 上。Profile contract 决定某个具体 processing layer 中哪些 feature 和 extension point 是 required、conditional、recommended 或 optional。
 
-Example:
+示例：
 
 ```text
 Feature:
@@ -121,118 +74,95 @@ Extension record:
   payload = { typeRef: ... }
 ```
 
-Profile contracts define which feature and extension points are required for a
-pipeline, projection, or execution target. Required extension points must be
-understood by a tool before that tool may preserve, transform, project, or
-execute the affected semantics. Unsupported required feature or extension
-contracts must produce diagnostics, not silent degradation.
+Profile contract 定义某个 pipeline、projection 或 execution target 需要哪些 feature 和 extension point。Required extension point 必须先被工具理解，工具才可以 preserve、transform、project 或 execute 受影响语义。不支持 required feature 或 extension contract 时必须产生 diagnostic，不能静默降级。
 
-`FeatureUseKey` is only a local alias. Tools must resolve it through the
-containing `LogicUnit.features` map before capability checking. A package or
-document container may index many LUs, but it must not be the source of an LU's
-semantic feature dependencies.
+`FeatureUseKey` 只是本地别名。Tool 必须通过所在 `LogicUnit.features` map 把它解析为具体 feature identity 后，才能做 capability check。Package 或 document container 可以索引很多 LU，但不能成为某个 LU 语义 feature dependency 的来源。
 
-All core references that point at an external `namespace + key` may also carry
-an optional `version`. The version pins the external feature, target, or
-requirement-service contract when deterministic validation or projection needs
-that stability. Feature-level behavior configuration should be modeled as a
-feature-owned extension, profile policy, or execution binding, not as generic
-core config.
+所有指向外部 `namespace + key` 的 core reference 都可以携带可选 `version`。当 deterministic validation 或 projection 需要稳定性时，version 用来 pin 外部 feature、target 或 requirement-service contract。Feature-level behavior configuration 应建模为 feature-owned extension、profile policy 或 execution binding，而不是 generic core config。
 
-Feature definitions may declare feature-level `requires` and `conflictsWith`
-metadata. That metadata describes semantic compatibility between features; it
-does not decide whether a feature is required by a specific pipeline,
-projection, or execution target. Requiredness remains a profile contract.
+Feature definition 可以声明 feature-level `requires` 和 `conflictsWith` metadata。这些 metadata 描述 feature 之间的语义兼容性；它们不决定某个 feature 是否被具体 pipeline、projection 或 execution target required。Requiredness 仍然是 profile contract。
 
-## Three Profile Types
+## 三类 Profile
 
-Profiles are single-layer compatibility contracts. A tool may implement one
-profile type without implementing the others.
+Profile 是单层兼容契约。一个 tool 可以只实现其中一类 profile，而不实现其它 profile。
 
-### IR Pipeline Profile
+### IR Pipeline Profile（IR 管线 Profile）
 
-An IR pipeline profile governs transformations that remain in LogicIR form:
+IR pipeline profile 管理仍然保持 LogicIR 形态的 transformation：
 
 ```text
 LogicIR -> LogicIR
 ```
 
-It is implemented by validators, resolvers, normalizers, type checkers, lowerers,
-and adapter insertion tools.
+它由 validator、resolver、normalizer、type checker、lowerer 和 adapter insertion tool 实现。
 
-It declares:
+它声明：
 
-- Accepted core version range.
-- Accepted or required features and extension points.
-- Stage order.
-- Required pass capabilities.
-- Validation and diagnostic policy.
-- Feature lowering policy.
-- Strip or retain policy for authoring-only or analysis-only data.
+- 接受的 core version range。
+- 接受或要求的 feature 和 extension point。
+- Stage order。
+- Required pass capability。
+- Validation 和 diagnostic policy。
+- Feature lowering policy。
+- Authoring-only 或 analysis-only data 的 strip/retain policy。
 
-Example names:
+示例名称：
 
 - `basic-software-ir`
 - `verilog-hdl-ir`
 - `authoring-to-canonical`
 
-### Projection Profile
+### Projection Profile（投影 Profile）
 
-A projection profile governs leaving LogicIR form:
+Projection profile 管理离开 LogicIR 形态的过程：
 
 ```text
 LogicIR -> target artifact | executable plan
 ```
 
-It is implemented by projection compilers, code generators, HDL emitters, report
-generators, and interpreter-plan generators.
+它由 projection compiler、code generator、HDL emitter、report generator 和 interpreter-plan generator 实现。
 
-It declares:
+它声明：
 
-- Required input LogicIR shape.
-- Projection target.
-- Artifact or plan kind.
-- Projection stages.
-- Target constraints.
-- Required feature support.
-- Unsupported semantics policy.
-- Diagnostics policy.
+- Required input LogicIR shape。
+- Projection target。
+- Artifact 或 plan kind。
+- Projection stage。
+- Target constraint。
+- Required feature support。
+- Unsupported semantics policy。
+- Diagnostics policy。
 
-Example names:
+示例名称：
 
 - `to-interpreter-plan`
 - `to-generated-js`
 - `to-verilog-hdl`
 - `to-analysis-report`
 
-### Execution Profile
+### Execution Profile（执行 Profile）
 
-An execution profile governs how a LogicIR document, artifact, or executable plan
-is actually run or consumed:
+Execution profile 管理 LogicIR document、artifact 或 executable plan 如何被实际运行或消费：
 
 ```text
 LogicIR | executable plan | artifact -> execution
 ```
 
-It is implemented by interpreters, runtime engines, generated-code hosts,
-simulators, deployment environments, and provider registries.
+它由 interpreter、runtime engine、generated-code host、simulator、deployment environment 和 provider registry 实现。
 
-It declares:
+它声明：
 
-- Execution target.
-- Execution environment constraints.
-- Provider contracts.
-- Execution bindings.
-- State, scheduler, transport, service, lifecycle, and diagnostics policies.
+- Execution target。
+- Execution environment constraint。
+- Provider contract。
+- Execution binding。
+- State、scheduler、transport、service、lifecycle 和 diagnostics policy。
 
-Execution profiles do not define LogicIR transformation stages unless they
-explicitly produce a new LogicIR artifact. They configure realization.
+Execution profile 不定义 LogicIR transformation stage，除非它明确产生新的 LogicIR artifact。它配置 realization。
 
 ## Stack
 
-A stack is an end-to-end composition selected by a user or application. It
-references profiles; it is not itself a replacement for profile-level
-compatibility checks.
+Stack 是用户或应用选择的端到端组合。它引用 profile；它本身不能替代 profile-level compatibility check。
 
 ```text
 Stack =
@@ -241,7 +171,7 @@ Stack =
   + optional Execution Profile
 ```
 
-Examples:
+示例：
 
 ```text
 basic-software-interpreter stack
@@ -265,108 +195,86 @@ verilog-hdl-sim stack
   execution: iverilog-sim-execution
 ```
 
-Users normally choose a stack. Tools implement profiles. Profile resolvers expand
-stacks into concrete profile requirements.
+用户通常选择 stack。Tool 实现 profile。Profile resolver 把 stack 展开成具体 profile requirement。
 
-## Pipeline, Stage, And Pass
+## Pipeline、Stage 和 Pass
 
-- **Pipeline**: an ordered processing flow declared or referenced by a profile.
-- **Stage**: a logical slot in a pipeline, such as validate, resolve, normalize,
-  lower, or emit.
-- **Pass**: a concrete implementation of a stage.
+- **Pipeline**: profile 声明或引用的有序 processing flow。
+- **Stage**: pipeline 中的逻辑 slot，例如 validate、resolve、normalize、lower 或 emit。
+- **Pass**: stage 的具体实现。
 
-IR pipeline stages produce LogicIR. Projection stages produce target artifacts or
-executable plans. Execution profiles configure realization and should not be
-called LogicIR stages unless they write a new LogicIR document.
+IR pipeline stage 产生 LogicIR。Projection stage 产生 target artifact 或 executable plan。Execution profile 配置 realization；除非它写出新的 LogicIR document，否则不应被称为 LogicIR stage。
 
-## Execution Terms
+## Execution 术语
 
-Execution support is expressed by profile data and external providers.
+Execution support 由 profile data 和外部 provider 表达。
 
-- **Execution target**: the run shape, such as interpreter, generated software,
-  Verilog simulator, Verilog synthesis, or distributed runtime.
-- **Execution environment**: the host context, such as a software host, browser,
-  server process, FPGA board, cloud deployment, or a Verilog simulator.
-- **Execution binding**: an item-level mapping record in an execution profile. It
-  maps an abstract requirement, external target, or namespaced named need to a
-  concrete provider identity and configuration. Feature/provider contracts define
-  concrete named needs such as state stores, transports, probes, modules, or
-  clock/reset bindings.
-- **Execution provider**: the real ability entity that satisfies a binding. It
-  may be a function, module, linked library, remote service, database, message
-  bus, hardware interface, or simulator foreign module.
-- **Provider contract**: the interface and semantic obligations a provider must
-  satisfy.
-- **Provider capability**: what a provider declares it can actually support.
+- **Execution target**: 运行形态，例如 interpreter、generated software、Verilog simulator、Verilog synthesis 或 distributed runtime。
+- **Execution environment**: host context，例如 software host、browser、server process、FPGA board、cloud deployment 或 Verilog simulator。
+- **Execution binding**: execution profile 中的 item-level mapping record。它把 abstract requirement、external target 或 namespaced named need 映射到具体 provider identity 和 configuration。Feature/provider contract 定义 state store、transport、probe、module 或 clock/reset binding 等具体 named need。
+- **Execution provider**: 满足 binding 的真实能力实体。它可以是 function、module、linked library、remote service、database、message bus、hardware interface 或 simulator foreign module。
+- **Provider contract**: provider 必须满足的 interface 和 semantic obligation。
+- **Provider capability**: provider 声明自己实际支持什么。
 
-`Plugin` is not a core ecosystem term. A plugin is only one local packaging or
-loading strategy for an execution provider or pass provider.
+`Plugin` 不是 core 生态术语。Plugin 只是 execution provider 或 pass provider 的一种 local packaging/loading strategy。
 
-## Tool Roles
+## Tool 角色
 
-- **IR authoring tool**: reads profiles and reads/writes LogicIR.
-- **IR pipeline tool**: implements an IR pipeline profile and reads/writes
-  LogicIR.
-- **Projection compiler**: implements a projection profile, reads LogicIR, and
-  writes an artifact or executable plan.
-- **Execution engine**: implements an execution profile and runs LogicIR, a plan,
-  or a target artifact.
-- **Execution provider**: satisfies provider contracts referenced by an execution
-  profile.
-- **Profile resolver**: expands a stack or profile into concrete features,
-  stages, policies, and bindings.
-- **Capability checker**: checks LogicIR extension records and profile
-  requirements against tool, pass, compiler, engine, and provider capabilities.
+- **IR authoring tool**: 读取 profile，并读写 LogicIR。
+- **IR pipeline tool**: 实现 IR pipeline profile，并读写 LogicIR。
+- **Projection compiler**: 实现 projection profile，读取 LogicIR，写出 artifact 或 executable plan。
+- **Execution engine**: 实现 execution profile，并运行 LogicIR、plan 或 target artifact。
+- **Execution provider**: 满足 execution profile 引用的 provider contract。
+- **Profile resolver**: 把 stack 或 profile 展开为具体 feature、stage、policy 和 binding。
+- **Capability checker**: 检查 LogicIR extension record 和 profile requirement 是否被 tool、pass、compiler、engine 和 provider capability 覆盖。
 
-## Compatibility Rule
+## 兼容规则
 
-The compatibility chain is:
+兼容链条是：
 
 ```text
-User selects Stack.
-Stack references Profiles.
-Tools implement Profiles.
-Profiles reference Features.
-LogicIR contains Extension Records.
-Execution Profiles contain Bindings.
-Providers satisfy Bindings.
-Capability Checker verifies coverage.
+用户选择 Stack。
+Stack 引用 Profile。
+Tool 实现 Profile。
+Profile 引用 Feature。
+LogicIR 包含 Extension Record。
+Execution Profile 包含 Binding。
+Provider 满足 Binding。
+Capability Checker 验证覆盖。
 ```
 
-A tool must not claim compatibility by profile name alone unless that profile has
-been resolved into concrete features, stages, policies, and provider contracts
-and the tool's declared capabilities cover them.
+除非 profile 已经被解析为具体 feature、stage、policy 和 provider contract，并且 tool 声明的 capability 覆盖它们，否则 tool 不能只靠 profile 名称声称兼容。
 
-## Boundary Summary
+## 边界汇总
 
 ```text
 LogicIR Document
-  mutable logic object
+  可变逻辑对象
 
 Feature
-  horizontal semantic capability
+  横向语义能力
 
 Feature Use
-  LogicUnit-local manifest entry for one feature dependency
+  LogicUnit 本地 manifest 中的一条 feature dependency
 
 Extension Record
-  feature-owned declaration inside LogicIR
+  LogicIR 内部由 feature 拥有的声明
 
 IR Pipeline Profile
-  LogicIR -> LogicIR compatibility contract
+  LogicIR -> LogicIR 的兼容契约
 
 Projection Profile
-  LogicIR -> artifact/plan compatibility contract
+  LogicIR -> artifact/plan 的兼容契约
 
 Execution Profile
-  realization compatibility contract
+  realization 兼容契约
 
 Stack
-  end-to-end profile composition
+  端到端 profile 组合
 
 Execution Binding
-  item-level mapping data in an execution profile
+  execution profile 中的 item-level mapping data
 
 Execution Provider
-  real-world ability entity
+  真实能力实体
 ```

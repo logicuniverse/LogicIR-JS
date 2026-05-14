@@ -29,6 +29,12 @@ List exact files and why each was used:
 | --- | --- |
 |  |  |
 
+Task-local code may reference these sources through relative paths as read-only
+inputs, including JS/TS imports, Verilog HDL include/file arguments, Python
+imports, fixture paths, or generated-artifact inputs. Record each external
+source path here so review can distinguish read-only evidence from promotable
+task output.
+
 ## Source Priority Notes
 
 - Theory and accepted schema docs outrank legacy code.

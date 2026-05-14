@@ -1,202 +1,194 @@
-# LogicIR Roadmap
+# LogicIR 路线图
 
-This roadmap is a project coordination document. It describes the intended
-build-out of LogicIR features, profiles, stacks, tools, projectors, compilers,
-engines, fixtures, and AI task candidates.
+这份路线图是项目协调文档，用来描述 LogicIR 的 feature、profile、stack、
+tool、projector、compiler、engine、fixture 和 AI task 的建设顺序。
 
-It is not schema authority. Accepted data shapes live in `packages/` authoring
-packages and the language-neutral specification surface under `schema/`.
-Concrete implementation work still needs a focused plan under `dev/plans/` or
-an isolated AI task under `ai/tasks/`.
+它不是 schema 权威。已确认的数据结构由 `packages/` 下的 TS 源包维护，
+语言无关的规范和生成产物入口在 `schema/` 下。具体实现仍需要写入
+`dev/plans/` 中的聚焦计划，或者先放进 `ai/tasks/` 下的隔离 AI task。
 
-## Success Lines
+## 验收主线
 
-The near-term project should prove two primary stacks:
+近期项目应该优先证明两个主 stack：
 
-- **basic-software**: LogicIR can be validated, normalized, projected to an
-  interpreter plan or generated JS/TS-oriented artifact, and executed with
-  explicit provider bindings.
-- **basic-hdl**: LogicIR can be validated, normalized, rejected or lowered for
-  unsupported software-only semantics, and projected to Verilog HDL.
+- **basic-software**: LogicIR 可以被验证、规范化、投影到 interpreter plan
+  或 JS/TS 生成产物，并通过显式 provider binding 执行。
+- **basic-hdl**: LogicIR 可以被验证、规范化，对 software-only 语义进行
+  拒绝或 lowering，并投影到 Verilog HDL。
 
-These two stacks are the first compatibility pressure test. Software verifies
-runtime/provider semantics; HDL verifies that core has not absorbed software
-runtime assumptions.
+这两个 stack 是第一轮兼容性压力测试。software 路线验证 runtime/provider
+语义；HDL 路线验证 core 没有吸收软件 runtime 假设。
 
-## Phase 0: Repository And Protocol Grounding
+## 阶段 0：仓库和协议基础
 
-Status: mostly in progress.
+状态：基本已启动。
 
-Needed outcomes:
+需要达成：
 
-- Monorepo boundaries are stable enough for active development.
-- `packages/core` owns accepted TypeScript core shapes.
-- `packages/architecture` owns accepted TypeScript architecture definition
-  shapes.
-- `packages/features/*` owns accepted feature data and extension payload
-  shapes.
-- `schema/` remains the language-neutral specification and generated artifact
-  surface, not the main authoring workspace.
-- `ai/tasks/` remains the only write area for fully autonomous task output
-  before human promotion.
-- The default development environment supports HDL verification through
-  [OSS CAD Suite](https://github.com/YosysHQ/oss-cad-suite-build). The local
-  Windows install is expected at `E:\oss-cad-suite`; activate it with
-  `E:\oss-cad-suite\environment.ps1` before running HDL verification. HDL
-  smoke tests should call `iverilog` directly; `where.exe iverilog` in
-  PowerShell or `where iverilog` in `cmd` is only a PATH troubleshooting check.
+- Monorepo 边界足够稳定，可以承载后续开发。
+- `packages/core` 维护已确认的 TypeScript core 数据结构。
+- `packages/architecture` 维护已确认的 TypeScript architecture definition
+  数据结构。
+- `packages/features/*` 维护已确认的 feature 数据和 extension payload
+  数据结构。
+- `schema/` 只作为语言无关规范和生成产物入口，不作为主要 authoring
+  工作区。
+- `ai/tasks/` 是全自动 AI task 在人工确认前唯一允许写入的区域。
+- 默认开发环境支持通过
+  [OSS CAD Suite](https://github.com/YosysHQ/oss-cad-suite-build) 做 HDL
+  验证。本机 Windows 安装路径约定为 `E:\oss-cad-suite`；运行 HDL 验证前
+  先激活 `E:\oss-cad-suite\environment.ps1`。HDL smoke test 应直接调用
+  `iverilog`；PowerShell 中的 `where.exe iverilog` 或 `cmd` 中的
+  `where iverilog` 只作为 PATH 排查手段。
 
-Current formal packages:
+当前正式包：
 
 - `packages/core`
 - `packages/architecture`
 - `packages/features/type-system`
 - `packages/tools/type-system`
 
-Important source-only evidence:
+重要 source-only 证据：
 
 - `packages/legacy/engine`
 - `packages/legacy/flow-runtime-core`
 - `packages/legacy/flow-core`
 
-## Phase 1: Minimal Protocol Toolchain
+## 阶段 1：最小协议工具链
 
-Goal: make LogicIR and architecture definitions mechanically checkable before
-building larger engines.
+目标：在建设更大的 engine 之前，让 LogicIR 和 architecture definition
+可以被机械检查。
 
-Required tools:
+必需 tool：
 
-- Core schema validator: validates LogicIR core shape, local feature manifest
-  resolution, extension attachment positions, endpoint references, and basic
-  graph consistency.
-- Architecture definition validator: validates feature, profile, stack,
-  capability, provider contract, provider capability, stage, policy, and binding
-  definitions.
-- Profile resolver: expands a stack into IR pipeline, projection, and optional
-  execution profile requirements.
-- Capability checker: verifies tools, passes, projectors, engines, and providers
-  against resolved profile requirements.
-- Diagnostic model: shared structured diagnostics for validators, resolvers,
-  projectors, compilers, and engines.
+- Core schema validator：验证 LogicIR core 形状、本地 feature manifest
+  解析、extension attachment 位置、endpoint reference 和基础图一致性。
+- Architecture definition validator：验证 feature、profile、stack、
+  capability、provider contract、provider capability、stage、policy 和
+  binding 定义。
+- Profile resolver：把 stack 展开为 IR pipeline、projection 和可选
+  execution profile 的要求。
+- Capability checker：检查 tool、pass、projector、engine 和 provider
+  是否覆盖 resolved profile requirements。
+- Diagnostic model：为 validator、resolver、projector、compiler 和 engine
+  提供共享结构化 diagnostic。
 
-First acceptance criteria:
+第一轮验收标准：
 
-- A LogicIR fixture can be validated against `packages/core`.
-- A feature definition can declare extension points with attachment kinds and
-  payload schemas.
-- A profile can mark feature and extension point contracts as `required`,
-  `conditional-required`, `recommended`, or `optional`.
-- A stack can resolve to concrete profile requirements.
-- Unsupported required or conditional-required contracts fail with diagnostics.
+- 一个 LogicIR fixture 可以基于 `packages/core` 被验证。
+- 一个 feature definition 可以声明 extension point 的 attachment kind 和
+  payload schema。
+- 一个 profile 可以把 feature 和 extension point contract 标记为
+  `required`、`conditional-required`、`recommended` 或 `optional`。
+- 一个 stack 可以解析为具体 profile requirements。
+- 不支持 required 或 conditional-required contract 时必须产生 diagnostic。
 
-## Phase 2: Feature Catalog
+## 阶段 2：Feature Catalog
 
-Goal: define small, reusable semantic features. Features are not stacks. Both
-software and HDL may reference the same feature when the semantics overlap.
+目标：定义小而可复用的语义 feature。Feature 不是 stack。software 和 HDL
+在语义重叠时可以引用同一个 feature。
 
-### Shared Features
+### 共享 Feature
 
-Initial shared features:
+初始共享 feature：
 
-- `logicir.type-system / core`: payload type references, type declarations,
-  value shape checking, and projection-facing type metadata.
-- `logicir.value / core`: literal values, constant payloads, default values,
-  and value compatibility rules.
-- `logicir.diagnostics / unsupported-semantics`: explicit unsupported semantic
-  markers and rejection policy data for profiles and projectors.
+- `logicir.type-system / core`: payload type reference、type declaration、
+  value shape checking 和 projection-facing type metadata。
+- `logicir.value / core`: literal value、constant payload、default value 和
+  value compatibility rules。
+- `logicir.diagnostics / unsupported-semantics`: 显式 unsupported semantic
+  marker，以及 profile/projector 使用的 rejection policy data。
 
-Likely later shared features:
+后续可能的共享 feature：
 
-- `logicir.control-flow / core`: branch, guard, loop, return, go-back, and
-  lowering metadata that remains outside core sequential `steps`.
-- `logicir.adapter / core`: explicit adapter/lowering traces when automatic
-  adapter insertion becomes reviewable project data.
-- `logicir.observation / core`: probes, traces, assertions, and non-semantic
-  observation points.
+- `logicir.control-flow / core`: branch、guard、loop、return、go-back，以及
+  保持在 core sequential `steps` 之外的 lowering metadata。
+- `logicir.adapter / core`: automatic adapter insertion 变成可审阅项目数据后，
+  用于记录显式 adapter/lowering trace。
+- `logicir.observation / core`: probe、trace、assertion 和非语义 observation
+  point。
 
-### Software-Oriented Features
+### 面向 Software 的 Feature
 
-Initial software features:
+初始 software feature：
 
-- `logicir.software.completion / core`: completion, failure, cancellation, and
-  thenable-compatible await semantics as projection/runtime contracts.
-- `logicir.software.invocation / core`: callable/service invocation semantics,
-  argument and result mapping, and provider contract linkage.
-- `logicir.software.retained-current / core`: retained-current state surfaces,
-  current value reads, update notification, and state-store contract linkage.
-- `logicir.software.fulfillment / core`: provider fulfillment shape, static
-  startup binding, and explicit contracts for dynamic or switchable providers.
-- `logicir.software.error / core`: error propagation, recoverability, and
-  diagnostic/result mapping.
+- `logicir.software.completion / core`: completion、failure、cancellation 和
+  thenable-compatible await 语义，作为 projection/runtime contract。
+- `logicir.software.invocation / core`: callable/service invocation 语义、
+  argument/result mapping 和 provider contract linkage。
+- `logicir.software.retained-current / core`: retained-current state surface、
+  current value read、update notification 和 state-store contract linkage。
+- `logicir.software.fulfillment / core`: provider fulfillment shape、static
+  startup binding，以及 dynamic/switchable provider 的显式 contract。
+- `logicir.software.error / core`: error propagation、recoverability 和
+  diagnostic/result mapping。
 
-Likely later software features:
+后续可能的 software feature：
 
-- `logicir.software.lifecycle / core`: startup, shutdown, resource lifetime,
-  hooks, and teardown policy.
-- `logicir.software.scheduling / core`: scheduling policy, task queues,
-  concurrency limits, and backpressure.
-- `logicir.software.transport / core`: service boundary, remote invocation,
-  message bus, serialization, and distributed runtime hints.
+- `logicir.software.lifecycle / core`: startup、shutdown、resource lifetime、
+  hook 和 teardown policy。
+- `logicir.software.scheduling / core`: scheduling policy、task queue、
+  concurrency limit 和 backpressure。
+- `logicir.software.transport / core`: service boundary、remote invocation、
+  message bus、serialization 和 distributed runtime hint。
 
-### HDL-Oriented Features
+### 面向 HDL 的 Feature
 
-Initial HDL features:
+初始 HDL feature：
 
-- `logicir.hdl.signal / core`: bit/vector signals, signedness, packed shapes,
-  and port signal metadata.
-- `logicir.hdl.module / core`: module boundary, instance naming, parameter
-  mapping, and static structural constraints.
-- `logicir.hdl.clocking / core`: clock/reset domains and sequential process
-  binding.
-- `logicir.hdl.state / core`: registers, retained hardware state, initial
-  values, and reset behavior.
-- `logicir.hdl.combinational / core`: combinational block constraints and
-  continuous assignment constraints.
-- `logicir.hdl.elaboration / core`: generate-time structure, parameters, and
-  static binding constraints.
-- `logicir.hdl.structural-slices / core`: structural export anchors and
-  slice-oriented hardware projection rules.
+- `logicir.hdl.signal / core`: bit/vector signal、signedness、packed shape 和
+  port signal metadata。
+- `logicir.hdl.module / core`: module boundary、instance naming、parameter
+  mapping 和 static structural constraint。
+- `logicir.hdl.clocking / core`: clock/reset domain 和 sequential process
+  binding。
+- `logicir.hdl.state / core`: register、retained hardware state、initial value
+  和 reset behavior。
+- `logicir.hdl.combinational / core`: combinational block constraint 和
+  continuous assignment constraint。
+- `logicir.hdl.elaboration / core`: generate-time structure、parameter 和
+  static binding constraint。
+- `logicir.hdl.structural-slices / core`: structural export anchor 和
+  slice-oriented hardware projection rule。
 
-Likely later HDL features:
+后续可能的 HDL feature：
 
-- `logicir.hdl.simulation / core`: testbench hooks, probes, waveform metadata,
-  and simulator integration.
-- `logicir.hdl.synthesis / core`: synthesis constraints, target family hints,
-  and synthesis diagnostics.
+- `logicir.hdl.simulation / core`: testbench hook、probe、waveform metadata 和
+  simulator integration。
+- `logicir.hdl.synthesis / core`: synthesis constraint、target family hint 和
+  synthesis diagnostic。
 
-## Phase 3: Profiles
+## 阶段 3：Profile
 
-Profiles are single-layer compatibility contracts. Tools implement profiles;
-users normally select stacks.
+Profile 是单层兼容契约。Tool 实现 profile；用户通常选择 stack。
 
-Required IR pipeline profiles:
+必需 IR pipeline profile：
 
-- `basic-software-ir`: validates core, resolves feature manifests, checks
-  software feature contracts, supports type/value checking when present, and
-  lowers only semantics declared by the selected profile.
-- `basic-hdl-ir`: validates core, resolves feature manifests, checks HDL
-  contracts, requires HDL-compatible type/signal information, and rejects or
-  lowers unsupported software semantics.
+- `basic-software-ir`: 验证 core，解析 feature manifest，检查 software
+  feature contract，在存在 type/value 信息时支持检查，并且只 lowering
+  selected profile 明确声明的语义。
+- `basic-hdl-ir`: 验证 core，解析 feature manifest，检查 HDL contract，
+  要求 HDL-compatible type/signal 信息，并拒绝或 lowering unsupported
+  software semantics。
 
-Required projection profiles:
+必需 projection profile：
 
-- `to-interpreter-plan`: projects LogicIR into an executable interpreter plan
-  while preserving provider and execution binding requirements.
-- `to-generated-js`: projects LogicIR into JS/TS-oriented generated artifacts.
-- `to-verilog-hdl`: projects LogicIR into Verilog HDL artifacts and diagnostics.
-- `to-analysis-report`: projects LogicIR into reports useful for validation,
-  capability gaps, and unsupported semantics review.
+- `to-interpreter-plan`: 把 LogicIR 投影成 executable interpreter plan，同时
+  保留 provider 和 execution binding 要求。
+- `to-generated-js`: 把 LogicIR 投影成 JS/TS-oriented generated artifact。
+- `to-verilog-hdl`: 把 LogicIR 投影成 Verilog HDL artifact 和 diagnostic。
+- `to-analysis-report`: 把 LogicIR 投影成用于 validation、capability gap 和
+  unsupported semantics review 的 report。
 
-Required execution profiles:
+必需 execution profile：
 
-- `software-interpreter-execution`: runs LogicIR or an interpreter plan in a
-  JS/TS runtime with explicit providers.
-- `generated-software-execution`: runs generated software artifacts with the
-  selected provider bindings.
-- `verilog-sim-execution`: consumes generated Verilog through a simulator
-  environment.
+- `software-interpreter-execution`: 在 JS/TS runtime 中通过显式 provider 运行
+  LogicIR 或 interpreter plan。
+- `generated-software-execution`: 用 selected provider binding 运行 generated
+  software artifact。
+- `verilog-sim-execution`: 通过 simulator environment 消费 generated Verilog。
 
-Potential later profiles:
+后续可能的 profile：
 
 - `authoring-to-canonical`
 - `distributed-software-ir`
@@ -204,12 +196,11 @@ Potential later profiles:
 - `to-python`
 - `to-mechanical-report`
 
-## Phase 4: Stacks
+## 阶段 4：Stack
 
-Stacks compose profiles into user-facing workflows. They are not capability
-proofs by themselves.
+Stack 把 profile 组合成用户可选 workflow。Stack 本身不是 capability proof。
 
-First stacks:
+第一批 stack：
 
 - `basic-software-interpreter`
   - IR profile: `basic-software-ir`
@@ -228,105 +219,104 @@ First stacks:
   - Projection profile: `to-verilog-hdl`
   - Execution profile: `verilog-sim-execution`
 
-Later stack probes:
+后续 stack probe：
 
 - `software-distributed`
 - `hdl-synthesis`
 - `logicir-analysis-report`
 - `logicir-netlist-probe`
 
-## Phase 5: Tools
+## 阶段 5：Tool
 
-Tools are accepted implementations under `packages/tools/*`. A tool must
-declare capabilities rather than claiming support by stack name alone.
+Tool 是 `packages/tools/*` 下的正式实现。Tool 必须声明 capability，不能只靠
+stack 名称声称支持。
 
-Near-term tools:
+近期 tool：
 
-- `tools/core-validator`: LogicIR core validation and reference resolution.
-- `tools/architecture-validator`: architecture definition validation.
-- `tools/profile-resolver`: stack/profile expansion.
-- `tools/capability-checker`: profile requirement coverage checks.
-- `tools/type-system`: type registry and type checking. Already started.
-- `tools/fixture-runner`: runs validation/projection/execution fixtures.
+- `tools/core-validator`: LogicIR core validation 和 reference resolution。
+- `tools/architecture-validator`: architecture definition validation。
+- `tools/profile-resolver`: stack/profile expansion。
+- `tools/capability-checker`: profile requirement coverage check。
+- `tools/type-system`: type registry 和 type checking。已启动。
+- `tools/fixture-runner`: 运行 validation/projection/execution fixture。
 
-Later tools:
+后续 tool：
 
-- `tools/migration`: schema migration and compat checks.
-- `tools/lint`: authoring and style diagnostics.
-- `tools/report`: human-readable capability and projection reports.
-- `tools/adapter-lowering`: explicit adapter insertion or lowering analysis.
+- `tools/migration`: schema migration 和 compat check。
+- `tools/lint`: authoring 和 style diagnostic。
+- `tools/report`: 面向人的 capability 和 projection report。
+- `tools/adapter-lowering`: 显式 adapter insertion 或 lowering analysis。
 
-## Phase 6: Projectors And Compilers
+## 阶段 6：Projector 和 Compiler
 
-Projectors consume validated LogicIR plus resolved profiles and produce target
-artifacts or executable plans.
+Projector 消费已验证的 LogicIR 和 resolved profile，产生 target artifact 或
+executable plan。
 
-Near-term projectors:
+近期 projector：
 
-- `projectors/interpreter-plan`: LogicIR to software interpreter plan.
-- `projectors/js`: LogicIR to JS/TS-oriented generated artifact.
-- `projectors/verilog`: LogicIR to Verilog HDL.
-- `projectors/report`: LogicIR to analysis/capability report.
+- `projectors/interpreter-plan`: LogicIR 到 software interpreter plan。
+- `projectors/js`: LogicIR 到 JS/TS-oriented generated artifact。
+- `projectors/verilog`: LogicIR 到 Verilog HDL。
+- `projectors/report`: LogicIR 到 analysis/capability report。
 
-Projector requirements:
+Projector 要求：
 
-- Declare supported core versions.
-- Declare supported features and extension points.
-- Declare supported LU kinds and fulfillment forms.
-- Reject unsupported required or conditional-required contracts.
-- Preserve diagnostics for semantic loss or unsupported target constructs.
+- 声明支持的 core version。
+- 声明支持的 feature 和 extension point。
+- 声明支持的 LU kind 和 fulfillment form。
+- 拒绝 unsupported required 或 conditional-required contract。
+- 保留 semantic loss 或 unsupported target construct 的 diagnostic。
 
-## Phase 7: Engines And Providers
+## 阶段 7：Engine 和 Provider
 
-Execution is realization, not core LogicIR transformation, unless it explicitly
-writes a new LogicIR artifact.
+Execution 是 realization，不是 core LogicIR transformation，除非它明确写出新的
+LogicIR artifact。
 
-Near-term engines:
+近期 engine：
 
-- `engines/software`: JS/TS interpreter/runtime for LogicIR or interpreter
-  plans.
-- `engines/generated-software-host`: host helpers for generated JS/TS-oriented
-  artifacts.
-- `engines/verilog-sim`: simulator-facing execution wrapper for generated HDL.
+- `engines/software`: 面向 LogicIR 或 interpreter plan 的 JS/TS
+  interpreter/runtime。
+- `engines/generated-software-host`: generated JS/TS-oriented artifact 的 host
+  helper。
+- `engines/verilog-sim`: generated HDL 的 simulator-facing execution wrapper。
 
-Near-term provider contracts:
+近期 provider contract：
 
-- State store provider.
-- Invocation/function provider.
-- Requirement service provider.
-- Scheduler provider.
-- Diagnostics provider.
-- HDL clock/reset binding provider.
-- HDL simulation probe provider.
+- State store provider。
+- Invocation/function provider。
+- Requirement service provider。
+- Scheduler provider。
+- Diagnostics provider。
+- HDL clock/reset binding provider。
+- HDL simulation probe provider。
 
-Provider rule:
+Provider 规则：
 
-- `Plugin` is not a core term. A plugin is only one packaging/loading strategy
-  for a provider or pass provider.
+- `Plugin` 不是 core 生态术语。Plugin 只是 provider 或 pass provider 的一种
+  package/loading strategy。
 
-## Phase 8: Fixtures And Examples
+## 阶段 8：Fixture 和 Example
 
-Fixtures should prove compatibility and prevent the roadmap from becoming only
-conceptual.
+Fixture 应证明兼容性，避免 roadmap 只停留在概念层。
 
-Required fixture groups:
+必需 fixture 组：
 
-- Minimal combinational LU.
-- Minimal sequential LU.
-- Minimal stateful retained-current LU.
-- Structural LU with export anchors and outlet fills.
-- Requirement fulfillment with closure.
-- Requirement fulfillment through upstream lineage.
-- Payload path connection and single-driver overlap checks.
-- Type-system payload examples.
-- basic-software interpreter example.
-- basic-software generated artifact example.
-- basic-hdl combinational module.
-- basic-hdl sequential/state module.
-- basic-hdl unsupported-semantics rejection.
-- Verilog syntax/simulation smoke checks using `iverilog` from OSS CAD Suite.
+- Minimal combinational LU。
+- Minimal sequential LU。
+- Minimal stateful retained-current LU。
+- Structural LU with export anchors and outlet fills。
+- Requirement fulfillment with closure。
+- Requirement fulfillment through upstream lineage。
+- Payload path connection and single-driver overlap checks。
+- Type-system payload examples。
+- basic-software interpreter example。
+- basic-software generated artifact example。
+- basic-hdl combinational module。
+- basic-hdl sequential/state module。
+- basic-hdl unsupported-semantics rejection。
+- 使用 OSS CAD Suite 的 `iverilog` 做 Verilog syntax/simulation smoke check。
 
-Example directories should remain small and reviewable:
+Example 目录应保持小而可审阅：
 
 - `examples/basic-software`
 - `examples/basic-hdl`
@@ -334,37 +324,35 @@ Example directories should remain small and reviewable:
 - `fixtures/profiles`
 - `fixtures/features`
 
-## AI Task Candidates
+## AI Task 候选
 
-Fully autonomous AI tasks should each write to one child directory under
-`ai/tasks/`. Useful candidates:
+全自动 AI task 应各自写入 `ai/tasks/` 下的一个子目录。适合的候选任务：
 
-- Prototype `tools/profile-resolver` from current architecture schema.
-- Prototype `tools/capability-checker` with feature/profile fixtures.
-- Explore `logicir.software.completion / core` extension payloads.
-- Explore `logicir.software.retained-current / core` state-store contracts.
-- Explore `logicir.hdl.signal / core` and `logicir.hdl.module / core`.
-- Prototype `projectors/interpreter-plan`.
-- Prototype `projectors/verilog` on a tiny HDL fixture set.
-- Extract reusable node/LUI catalog evidence from `packages/legacy/flow-core`.
+- 基于当前 architecture schema 原型化 `tools/profile-resolver`。
+- 用 feature/profile fixture 原型化 `tools/capability-checker`。
+- 探索 `logicir.software.completion / core` 的 extension payload。
+- 探索 `logicir.software.retained-current / core` 的 state-store contract。
+- 探索 `logicir.hdl.signal / core` 和 `logicir.hdl.module / core`。
+- 原型化 `projectors/interpreter-plan`。
+- 基于很小的 HDL fixture set 原型化 `projectors/verilog`。
+- 从 `packages/legacy/flow-core` 提取可复用的 node/LUI catalog 证据。
 
-Promotion rule:
+晋升规则：
 
-- AI task output is source material only. Human promotion should migrate the
-  smallest reviewed piece into `packages/`, `schema/`, `examples/`, `fixtures/`,
-  or `dev/`, then re-run validation in the formal project context.
+- AI task output 只是素材。人工 promotion 时只迁移经过审阅的最小成果到
+  `packages/`、`schema/`、`examples/`、`fixtures/` 或 `dev/`，然后在正式
+  project context 中重新验证。
 
-## Not Yet Project Plan
+## 暂不作为项目计划
 
-The following are north-star probes, not near-term required work:
+以下只是 north-star probe，不是近期必做：
 
-- Circuit/netlist projection.
-- PCB or board-level realization.
-- Mechanical assemblies and product enclosures.
-- Python runtime/projection.
-- Distributed runtime beyond basic provider and transport seams.
-- Visual editor productization.
+- Circuit/netlist projection。
+- PCB 或 board-level realization。
+- Mechanical assembly 和 product enclosure。
+- Python runtime/projection。
+- 超出 basic provider 和 transport seam 的 distributed runtime。
+- Visual editor productization。
 
-They are useful for architectural pressure testing, but they should not drive
-core schema changes unless they reveal a missing target-neutral topology
-relation.
+这些方向适合做 architecture pressure test，但除非它们揭示了缺失的
+target-neutral topology relation，否则不应驱动 core schema 改动。

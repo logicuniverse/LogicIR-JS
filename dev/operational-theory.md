@@ -1,26 +1,26 @@
-# Operational Theory Extract
+# 工程化理论摘录
 
 这份文档把 [docs/essay.md](../docs/essay.md) 中对工程实现有直接约束力的部分提取出来。它不是新的理论来源；它是给 schema、projection、runtime 和工具设计使用的执行版理论。
 
-## Source Priority
+## 来源优先级
 
 1. 完整理论源头是 [docs/essay.md](../docs/essay.md)。
 2. 这份文档是 essay 的工程执行版摘录；如果两者冲突，以
    [docs/essay.md](../docs/essay.md) 为准。
 3. `packages/legacy/engine/src/` 是旧版 LogicIR JS/TS engine prototype/reference，只能作为实现证据和兼容风险参考。`packages/legacy/flow-runtime-core/` 和 `packages/legacy/flow-core/` 是更早 FlowForge-era source-only 快照，只作为运行时、编辑操作、lowering 和旧 LUI/node 覆盖面的历史证据。
 
-## Core Claim
+## 核心主张
 
 LogicIR 的工程目标不是把代码换一种语法重写，而是把逻辑拓扑作为可检查、可变换、可投影的源对象。代码、运行时、HDL、工具视图和其它宿主产物都是 projection 或 realization，不是 LogicIR 本身。
 
-## Logic Unit Model
+## Logic Unit 模型
 
 - **LU** 是在某个边界和尺度上可完整描述的有界逻辑拓扑。
 - **LUI** 是某个 LU 在更大拓扑中的局部显现。
 - LU 不是不可分原子；它可以递归包含更小的 LUIs、连接、需求和履约关系。
 - LUI 的 target 说明它显现什么，但 target 不等于 Z 轴的 requirement fulfillment。
 
-## Execution Plane: X/Y
+## 执行平面：X/Y
 
 X 轴描述边界如何被推进：
 
@@ -45,7 +45,7 @@ Y 轴描述当前层如何跨时间存在：
 
 当前 core schema 的执行平面形状是：`LUCore.kindOrganization.kind` 是 LU kind 的唯一来源；`LUCore` 按该 kind 形成 discriminated union；每个 core 仍使用一个 `luis` map，但允许的 LUI kind 由外层 LU kind 约束。Sequential core 的最小组织数据是 `steps: LUIId[]`，只表达有序推进的 LUI 序列；分支、guard、return、go-back、async/await 策略或可寻址 control-flow node 都不是 core sequential step 结构，应该由 feature extension 或 projection lowering 表达。
 
-## Requirement Fulfillment: Z
+## 需求履约：Z
 
 Z 轴区分“声明需求”和“满足需求”：
 
@@ -65,7 +65,7 @@ Requirement fulfillment 不能被普通数据流、命名查找、参数传递�
 - Closure 可以按 same-key 方式 forward 内部普通 ports，让数据或信号与外部拓扑连接。
 - Closure 可以打开或限制供内部 requirement 继续解析的 supply environment。
 
-## LogicIR Representation Obligations
+## LogicIR 表示义务
 
 新 schema 至少必须能显式表达：
 
@@ -81,7 +81,7 @@ Requirement fulfillment 不能被普通数据流、命名查找、参数传递�
 
 这些是结构义务，不是固定字段名。schema 可以演进，但不能丢失这些可检查关系。
 
-## Endpoint Addressing
+## Endpoint 寻址
 
 Endpoint refs 应支持 port-level 以及 payload-level 寻址：
 
@@ -97,7 +97,7 @@ Endpoint refs 应支持 port-level 以及 payload-level 寻址：
 - 如果深层 payload 需要独立拓扑、不同 boundary/interaction 或独立身份，应引入中间 LUI，而不是把 pin 层变成完整子图。
 - `payloadPath` 只做寻址和路径映射，不做计算、fan-in、merge、pack/unpack 语义；这些需要 LUI 或 profile 声明为 required / conditional-required 的 feature extension。
 
-## Structural Spatial Slices and Distributed Projection
+## Structural 空间切片和分布式投影
 
 Structural composition 可以用 anchor 和 outlet 两个原语理解。`CompositionAnchor` 有 `shape` 和 `required`，表示可以接收 composition value 的锚点；outlet 在 core 中只是可放入某个 anchor 的结构出口 key，因此 `compositionSurface.outlets` 是 set-like key array。Structural LU/closure 的 `exportAnchors` 是当前结构对外提供的隐式 single anchors，因此只保存 `required`；`externalOutlets` 是当前结构内部可引用、但由父级 composition context 供应的 outlets。一个 structural LU 被实例化成 LUI 后，这些 external outlets 在父级视角解析为 `compositionSurface.anchors`，由父级填充；structural LUI 的 `compositionSurface.outlets` 则是该 LUI 提供给父级放入当前 LU/closure anchor 的 outlets。
 
@@ -129,7 +129,7 @@ Core 的 structural outlet 目前只是 key：`compositionSurface.outlets: Compo
 
 具体 feature/profile/stack 边界、capability 检查和兼容失败规则由 [schema-principles.md](schema-principles.md) 维护；本节只保留 theory 到工程结构的映射。
 
-## Projection Targets
+## 投影目标（Projection Target）
 
 新 schema 不能只服务 JS/TS runtime。每个 schema 计划必须显式评估：
 
@@ -138,7 +138,7 @@ Core 的 structural outlet 目前只是 key：`compositionSurface.outlets: Compo
 
 Verilog HDL 不要求 LogicIR 退化成 HDL schema；它要求核心拓扑和边界语义不要被软件 runtime 假设锁死。
 
-## Current Implementation Reading Guide
+## 当前实现阅读指南
 
 读取旧实现代码时按以下方式使用：
 

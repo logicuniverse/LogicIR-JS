@@ -1,4 +1,4 @@
-# LogicIR Development Docs
+# LogicIR 开发文档
 
 这个目录是 LogicIR 项目的内部开发文档区，用来沉淀工程化理论、设计计划和人+AI 协作规则。
 

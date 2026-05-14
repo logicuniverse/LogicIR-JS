@@ -15,11 +15,14 @@ a task `ready-for-review` only because the files look plausible.
 
 When the task contains TypeScript:
 
+- Include a task-root `package.json` with task-local verification scripts,
+  unless the TypeScript is documentation-only pseudocode.
 - Run a local type check against task-local code when possible.
 - Run the relevant JS/TS build, test, or smoke command when the task implements
   runtime behavior, tools, projectors, compilers, examples, or fixtures.
-- If task code references formal packages, use imports as read-only dependency
-  evidence and do not modify those packages.
+- If task code references formal packages or other external repository files
+  through relative paths, use those references as read-only dependency evidence
+  and do not modify those files.
 
 When the task contains or generates Verilog HDL:
 
@@ -28,6 +31,16 @@ When the task contains or generates Verilog HDL:
 - Run `iverilog` directly for syntax or simulation smoke checks.
 - Record the exact generated HDL files, testbench files, and output artifact
   paths used by `iverilog`.
+- If HDL verification references external repository `.v`, `.sv`, include, or
+  fixture files through relative paths, record them as read-only inputs in
+  `source-map.md`.
+
+When the task contains Python or another future runtime/projection language:
+
+- Keep runnable code and verification entry points inside the task sandbox.
+- Relative-path references to external repository sources are allowed as
+  read-only inputs and must be recorded in `source-map.md`.
+- Do not require formal packages to import task-local code.
 
 When the task claims both JS/TS and Verilog HDL support:
 
