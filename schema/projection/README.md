@@ -10,8 +10,7 @@ Projection profile and capability content shapes are authored in:
 
 Projection discipline and target constraints are documented in:
 
-- [`docs/workspace/logicir-architecture.md`](../../docs/workspace/logicir-architecture.md)
-- [`docs/workspace/schema-principles.md`](../../docs/workspace/schema-principles.md)
+- [`dev/logicir-architecture.md`](../../dev/logicir-architecture.md)
+- [`dev/schema-principles.md`](../../dev/schema-principles.md)
 
 No concrete generated projection artifacts are checked in here yet.
-

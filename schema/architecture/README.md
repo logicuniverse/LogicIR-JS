@@ -15,5 +15,4 @@ Until they exist, this directory should remain a thin route to the source
 package and draft notes.
 
 For the broader ecosystem model, see
-[`docs/workspace/logicir-architecture.md`](../../docs/workspace/logicir-architecture.md).
-
+[`dev/logicir-architecture.md`](../../dev/logicir-architecture.md).

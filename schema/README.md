@@ -13,11 +13,11 @@ Authoring sources live in workspace packages:
 - [`packages/features/type-system/src`](../packages/features/type-system/src):
   target-neutral algebraic type-system feature data.
 
-Design rationale and collaboration rules live in `docs/workspace/`, not here:
+Design rationale and collaboration rules live in `dev/`, not here:
 
-- [`docs/workspace/operational-theory.md`](../docs/workspace/operational-theory.md)
-- [`docs/workspace/schema-principles.md`](../docs/workspace/schema-principles.md)
-- [`docs/workspace/logicir-architecture.md`](../docs/workspace/logicir-architecture.md)
+- [`dev/operational-theory.md`](../dev/operational-theory.md)
+- [`dev/schema-principles.md`](../dev/schema-principles.md)
+- [`dev/logicir-architecture.md`](../dev/logicir-architecture.md)
 
 ## Current Artifacts
 
@@ -34,4 +34,3 @@ Design rationale and collaboration rules live in `docs/workspace/`, not here:
 If generated artifacts exist, put the generated files and their normative
 documentation here. If no generated artifacts exist yet, keep only a route file
 to the source package and a short status note.
-

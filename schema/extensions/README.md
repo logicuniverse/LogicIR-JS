@@ -9,8 +9,7 @@ source:
 
 General extension design rules live in:
 
-- [`docs/workspace/schema-principles.md`](../../docs/workspace/schema-principles.md)
-- [`docs/workspace/logicir-architecture.md`](../../docs/workspace/logicir-architecture.md)
+- [`dev/schema-principles.md`](../../dev/schema-principles.md)
+- [`dev/logicir-architecture.md`](../../dev/logicir-architecture.md)
 
 No standalone generated extension artifacts are checked in here yet.
-

@@ -36,6 +36,15 @@ This workspace is organized as a modular LogicIR TS/JS reference monorepo:
   historical snapshots from the earlier FlowForge-era implementation. They are
   evidence material, not active workspace packages.
 
+Repository-level surfaces:
+
+- **[`docs/`](docs)**: reader-facing theory and user documentation.
+- **[`dev/`](dev)**: internal development theory extracts, plans, handoffs,
+  shared rules, and local AI skill sources.
+- **[`schema/`](schema)**: language-neutral schema artifact routes and curated
+  specification notes.
+- **[`ai/`](ai)**: write-isolated AI task sandboxes and task templates.
+
 ## III. Development & Tooling
 
 To ensure absolute determinism in the development environment, this project is optimized for **Yarn Classic (1.22.x)** and utilizes **`ultra-runner`** for high-performance task execution.

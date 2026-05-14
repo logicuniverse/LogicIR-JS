@@ -6,6 +6,9 @@ Use it for work produced by `/goal` or by parallel agents when the task is not
 being reviewed step by step by a human. Sandbox output is exploration material,
 not an accepted project result.
 
+Existing task directories may contain earlier exploration packs that were moved
+here from development docs. They remain AI task material until human promotion.
+
 ## Write Boundary
 
 Each autonomous task must create and work inside exactly one child directory:

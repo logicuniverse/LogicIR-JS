@@ -9,8 +9,8 @@ Record the sources used by this autonomous task.
   authoring source.
 - `packages/features/*/src/`: accepted feature schema sources.
 - `schema/`: language-neutral specification surface.
-- `docs/workspace/operational-theory.md`: engineering theory extract.
-- `docs/workspace/schema-principles.md`: schema and projection discipline.
+- `dev/operational-theory.md`: engineering theory extract.
+- `dev/schema-principles.md`: schema and projection discipline.
 
 ## Legacy Evidence
 
@@ -33,4 +33,3 @@ List exact files and why each was used:
 - Current packages outrank exploration drafts.
 - Legacy code is evidence, not schema authority.
 - This task's own output is sandbox material until human promotion.
-
