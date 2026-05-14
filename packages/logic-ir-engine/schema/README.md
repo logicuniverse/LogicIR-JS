@@ -32,6 +32,8 @@ Use TypeScript as the schema authoring source for this package, with strict limi
   tool-capability, provider contract, provider capability, stage, policy, and
   execution-binding definition schemas. Identity, indexing, package layout, and
   persistence are catalog/application concerns.
+- `features/`: concrete feature schemas, such as the target-neutral algebraic
+  type-system feature.
 - `extensions/`: feature-scoped extension registry and extension-specific schemas.
 - `projection/`: projection compiler capability declarations, diagnostics, and projection contract schemas. Create concrete drafts only after core or feature extension fields exist.
 - `profiles/`: single-layer profile contracts and stack notes. Profiles are not part of the LogicIR object model; they describe IR pipeline, projection, or execution compatibility.
