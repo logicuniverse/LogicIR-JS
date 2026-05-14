@@ -12,7 +12,7 @@
     "dev": "ultra --no-pretty -r dev",
     "build": "ultra --no-pretty -r build",
     "test": "ultra --no-pretty -r test",
-    "format": "prettier --write \"packages/*/src/**/*.{ts,tsx,js,json,md}\""
+    "format": "prettier --write \"packages/**/src/**/*.{ts,tsx,js,json,md}\""
   },
   "keywords": [
     "LogicUniverse",
@@ -31,11 +31,20 @@
   },
   "packageManager": "yarn@1.22.19",
   "workspaces": [
-    "packages/*"
+    "packages/core",
+    "packages/architecture",
+    "packages/features/*",
+    "packages/tools/*",
+    "packages/engines/*",
+    "packages/projectors/*",
+    "packages/legacy/*"
   ],
   "devDependencies": {
+    "@tsconfig/recommended": "^1.0.2",
     "prettier": "^3.6.2",
     "ts-essentials": "^10.1.1",
+    "tslib": "^2.5.0",
+    "typescript": "^5.0.3",
     "ultra-runner": "^3.10.5"
   }
 }

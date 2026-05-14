@@ -18,11 +18,19 @@ By moving beyond the **1D Turing Tape**, LogicIR-JS provides a high-fidelity exe
 
 ## II. Monorepo Architecture
 
-This workspace is organized as a modular collective of logic units under `packages/`:
+This workspace is organized as a modular LogicIR TS/JS reference monorepo:
 
-- **[`@logic-universe/logic-ir-engine`](packages/logic-ir-engine)**: The core execution plane. It manages pulse-governed Logic Unit Instances (LUIs) and topological hooks.
-- _(Planned)_ `@logic-universe/logic-ir-parser`: Schema-driven serialization for LogicIR data structures.
-- _(Planned)_ `@logic-universe/logic-ir-compiler`: Optimization pipeline for folding fractal logic layers.
+- **[`@logic-universe/logic-ir-core`](packages/core)**: LogicIR core protocol
+  TypeScript authoring source.
+- **[`@logic-universe/logic-ir-architecture`](packages/architecture)**:
+  feature, profile, stack, tool, provider, and capability schema source.
+- **[`@logic-universe/logic-ir-feature-type-system`](packages/features/type-system)**:
+  target-neutral algebraic type-system feature schema.
+- **[`@logic-universe/logic-ir-tool-type-system`](packages/tools/type-system)**:
+  TypeScript type-system checker and LogicIR extension helpers.
+- **[`@logic-universe/logic-ir-legacy-engine`](packages/legacy/engine)**: The old
+  JS/TS execution and projection package, retained as migration/reference
+  material.
 
 ## III. Development & Tooling
 

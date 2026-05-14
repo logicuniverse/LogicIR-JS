@@ -1,0 +1,23 @@
+{
+  "name": "@logic-universe/logic-ir-tool-type-system",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "author": "Zhang Yang",
+  "type": "module",
+  "module": "dist/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "default": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch --preserveWatchOutput",
+    "test": "tsc --target ES2020 --module CommonJS --moduleResolution node --strict --outDir ../../../tmp/type-system-smoke src/index.ts tests/smoke.ts && node ../../../tmp/type-system-smoke/tests/smoke.js"
+  }
+}

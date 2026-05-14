@@ -1,0 +1,23 @@
+{
+  "name": "@logic-universe/logic-ir-core",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "author": "Zhang Yang",
+  "type": "module",
+  "module": "dist/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "default": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch --preserveWatchOutput",
+    "test": "tsc -p tsconfig.json --noEmit"
+  }
+}
