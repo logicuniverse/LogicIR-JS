@@ -15,6 +15,9 @@ discussion material rather than canonical protocol text.
 - [2026-05-13 Basic Software And Basic HDL Stacks](2026-05-13-basic-software-hdl-stacks/README.md):
   draft stack/profile/feature breakdown for the first two target stacks using
   the latest `schema/ARCHITECTURE.md` model.
+- [2026-05-13 Latest Schema Software Runtime](2026-05-13-latest-schema-software-runtime/README.md):
+  current-core/current-architecture software runtime replay of the old JS/TS
+  runtime behavior, kept as executable exploration material.
 - [2026-05-13 Projection Stack Goal](2026-05-13-projection-stack-goal/README.md):
   consolidation of the current type-system, JS runtime, Python runtime, and
   Verilog HDL projection goal.
