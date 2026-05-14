@@ -10,6 +10,18 @@ ai/tasks/YYYY-MM-DD-<task>/
 
 State the concrete task in one or two sentences.
 
+## Round Target
+
+Use this section when the task is one end-to-end implementation round from
+`dev/roadmap.md`.
+
+- Stack:
+- Round:
+- End-to-end chain:
+- Required fixture:
+- Required verification command:
+- Expected promotable output:
+
 ## Scope
 
 In scope:

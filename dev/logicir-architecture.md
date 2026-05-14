@@ -174,10 +174,19 @@ Stack =
 示例：
 
 ```text
+当前优先目标：
+
 basic-software-interpreter stack
   ir: basic-software-ir
   projection: to-interpreter-plan
   execution: software-interpreter-execution
+
+basic-hdl-sim stack
+  ir: verilog-hdl-ir
+  projection: to-verilog-hdl
+  execution: iverilog-sim-execution
+
+暂缓：
 
 basic-software-generated stack
   ir: basic-software-ir
@@ -188,11 +197,6 @@ verilog-hdl-build stack
   ir: verilog-hdl-ir
   projection: to-verilog-hdl
   execution: none
-
-verilog-hdl-sim stack
-  ir: verilog-hdl-ir
-  projection: to-verilog-hdl
-  execution: iverilog-sim-execution
 ```
 
 用户通常选择 stack。Tool 实现 profile。Profile resolver 把 stack 展开成具体 profile requirement。

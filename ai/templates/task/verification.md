@@ -13,6 +13,13 @@ Record all checks performed for this task.
 Every autonomous AI task must leave runnable verification evidence. Do not mark
 a task `ready-for-review` only because the files look plausible.
 
+When the task is a roadmap round:
+
+- Verify the full chain declared in `README.md` under `Round Target`.
+- Record the exact fixture, generated plan/artifact, runtime command, and final
+  observed result.
+- Do not mark the round complete if it only validates an intermediate file.
+
 When the task contains TypeScript:
 
 - Include a task-root `package.json` with task-local verification scripts,

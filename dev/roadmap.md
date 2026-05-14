@@ -19,6 +19,35 @@ tool、projector、compiler、engine、fixture 和 AI task 的建设顺序。
 这两个 stack 是第一轮兼容性压力测试。software 路线验证 runtime/provider
 语义；HDL 路线验证 core 没有吸收软件 runtime 假设。
 
+近期优先级：
+
+1. **最高优先级：`basic-software-interpreter`**
+   - 目标链路：`LogicIR -> interpreter execution plan -> software engine run`。
+   - 用它还原或升级 legacy engine 中已经证明有用的旧代码和运行经验，例如
+     provider、state store、retained-current、thenable completion 和 projection
+     plan。
+   - 不把 legacy 结构原样搬回 core；旧代码只作为 feature、profile、
+     projector、engine 和 provider 边界的实现证据。
+2. **第二优先级：`basic-hdl-sim`**
+   - 目标链路：`LogicIR -> Verilog HDL -> iverilog simulation`。
+   - 用它约束 core 不被 JS runtime 假设污染，并证明 HDL projection 可行。
+3. **暂缓：`basic-software-generated`**
+   - 等 interpreter plan 跑通后再做 generated artifact、bundle、host
+     integration 和 source-map 之类复杂问题。
+4. **暂缓或作为 HDL sim 子集：`basic-hdl-build`**
+   - 只生成 Verilog 的价值不如 simulation 闭环。Synthesis/build 更晚再处理。
+
+开发节奏：
+
+- 每一轮都必须端到端打通，而不是先堆完整 feature catalog、profile 或 engine。
+- 每一轮只增加少量语义，保持可 review、可 promotion。
+- 每一轮至少包含：LogicIR fixture、最小 profile/stack 声明、validator/resolver
+  检查、projection 或 execution plan、runtime/`iverilog` 验证、diagnostic 记录。
+- 每一轮都可以作为一个 `/goal` AI task，在 `ai/tasks/YYYY-MM-DD-<round>/`
+  中独立完成；task 结束时必须留下 `package.json`、fixture、verification 和
+  promotion checklist。
+- 不为下一轮提前实现复杂抽象。下一轮开始前再根据上一轮验证结果决定是否扩展。
+
 ## 阶段 0：仓库和协议基础
 
 状态：基本已启动。
@@ -200,12 +229,19 @@ Profile 是单层兼容契约。Tool 实现 profile；用户通常选择 stack�
 
 Stack 把 profile 组合成用户可选 workflow。Stack 本身不是 capability proof。
 
-第一批 stack：
+当前目标 stack：
 
 - `basic-software-interpreter`
   - IR profile: `basic-software-ir`
   - Projection profile: `to-interpreter-plan`
   - Execution profile: `software-interpreter-execution`
+- `basic-hdl-sim`
+  - IR profile: `basic-hdl-ir`
+  - Projection profile: `to-verilog-hdl`
+  - Execution profile: `verilog-sim-execution`
+
+暂缓 stack：
+
 - `basic-software-generated`
   - IR profile: `basic-software-ir`
   - Projection profile: `to-generated-js`
@@ -214,10 +250,6 @@ Stack 把 profile 组合成用户可选 workflow。Stack 本身不是 capability
   - IR profile: `basic-hdl-ir`
   - Projection profile: `to-verilog-hdl`
   - Execution profile: none
-- `basic-hdl-sim`
-  - IR profile: `basic-hdl-ir`
-  - Projection profile: `to-verilog-hdl`
-  - Execution profile: `verilog-sim-execution`
 
 后续 stack probe：
 
@@ -328,13 +360,75 @@ Example 目录应保持小而可审阅：
 
 全自动 AI task 应各自写入 `ai/tasks/` 下的一个子目录。适合的候选任务：
 
+### `basic-software-interpreter` Round
+
+这些 round 按顺序推进。每个 round 都必须端到端跑通：
+
+1. **Round S1: pure invocation**
+   - 目标：一个最小 LogicIR fixture 调用 provider function，输入映射到输出。
+   - 必需内容：最小 `basic-software-interpreter` stack/profile 数据、最小
+     profile resolver、interpreter execution plan、software engine smoke。
+   - legacy 参考：`Provider`、`Projection`、旧 runtime invocation 相关代码。
+   - 验收：从 task 目录运行 JS/TS smoke，得到确定输出；不引入 type-system
+     requiredness。
+2. **Round S2: retained-current**
+   - 目标：加入 current value/state store 语义，还原旧 `Property` /
+     `StateStore` 的核心行为。
+   - 必需内容：retained-current feature/extension 草案、state store provider
+     contract、读写 current value fixture。
+   - 验收：写入状态、读取 current、更新后再次读取都通过 task-local smoke。
+3. **Round S3: completion / await**
+   - 目标：加入 thenable-compatible completion，覆盖 resolve/reject。
+   - 必需内容：completion feature/extension 草案、async provider fixture、plan
+     中的 completion policy。
+   - 验收：异步 resolve 得到正确输出；reject 产生结构化 diagnostic。
+4. **Round S4: fulfillment / closure**
+   - 目标：加入最小 Z 轴 fulfillment，包括本地 closure fulfillment 和最小
+     upstream provider 解析。
+   - 必需内容：requirement fixture、closure fixture、provider binding fixture。
+   - 验收：requirement 可被 closure/provider 满足；缺失 provider 返回 diagnostic。
+5. **Round S5: error / diagnostic**
+   - 目标：统一 provider missing、plan invalid、unsupported semantics 和 runtime
+     failure 的 diagnostic。
+   - 必需内容：diagnostic model 草案、失败 fixture、report 输出。
+   - 验收：失败路径返回结构化 diagnostic，不依赖未捕获 throw。
+
+`basic-software-interpreter` 的 MVP 不把 `logicir.type-system / core` 作为
+required。Type-system 可以作为 recommended 或 optional 出现在 profile 中，
+但第一轮端到端闭环不应被它阻塞。
+
+### `basic-hdl-sim` Round
+
+这些 round 可以和 software round 并行探索，但优先级低于
+`basic-software-interpreter`：
+
+1. **Round H1: combinational module**
+   - 目标：最小 LogicIR combinational fixture 投影成 Verilog module。
+   - 必需内容：最小 `basic-hdl-sim` stack/profile 数据、Verilog projector
+     smoke、testbench。
+   - 验收：激活 `E:\oss-cad-suite\environment.ps1` 后直接运行 `iverilog`，
+     syntax/simulation smoke 通过。
+2. **Round H2: signal width / simple type**
+   - 目标：加入 bit width、vector、signedness 等 HDL 必需信号信息。
+   - 必需内容：signal feature/extension 草案、width fixture。
+   - 验收：生成 Verilog 宽度正确，`iverilog` smoke 通过。
+3. **Round H3: sequential state**
+   - 目标：加入 clock/reset/register。
+   - 必需内容：clocking/state feature 草案、sequential fixture、testbench。
+   - 验收：仿真中 reset 和 register update 行为正确。
+4. **Round H4: unsupported-semantics rejection**
+   - 目标：显式拒绝 software-only feature。
+   - 必需内容：unsupported-semantics diagnostic fixture。
+   - 验收：projector 不静默降级，返回结构化 diagnostic。
+5. **Round H5: structural module composition**
+   - 目标：module instance、wire 和 simple hierarchy。
+   - 必需内容：module composition fixture。
+   - 验收：生成层级 Verilog，`iverilog` smoke 通过。
+
+### 其它候选任务
+
 - 基于当前 architecture schema 原型化 `tools/profile-resolver`。
 - 用 feature/profile fixture 原型化 `tools/capability-checker`。
-- 探索 `logicir.software.completion / core` 的 extension payload。
-- 探索 `logicir.software.retained-current / core` 的 state-store contract。
-- 探索 `logicir.hdl.signal / core` 和 `logicir.hdl.module / core`。
-- 原型化 `projectors/interpreter-plan`。
-- 基于很小的 HDL fixture set 原型化 `projectors/verilog`。
 - 从 `packages/legacy/flow-core` 提取可复用的 node/LUI catalog 证据。
 
 晋升规则：

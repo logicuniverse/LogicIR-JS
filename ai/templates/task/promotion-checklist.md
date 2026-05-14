@@ -7,6 +7,8 @@ Human review is required before any task output becomes project content.
 - Reviewer:
 - Review date:
 - Decision: `promote-partial` / `needs-rework` / `archive-only`
+- Roadmap round:
+- End-to-end verification reviewed: yes / no
 
 ## Promotable Pieces
 

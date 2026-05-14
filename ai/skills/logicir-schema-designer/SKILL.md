@@ -59,6 +59,9 @@ compatibility, target-neutral core design, and clean package boundaries.
      path. Verilog HDL work activates `E:\oss-cad-suite\environment.ps1` and
      calls `iverilog` directly. If either path is claimed but cannot run, record
      the concrete blocker and do not call that path verified.
+   - Roadmap round tasks must prove an end-to-end chain from fixture to final
+     runtime, engine, or `iverilog` result. Do not call a round complete when it
+     only generates an intermediate schema, plan, or artifact.
 5. Check projection and execution targets:
    - Always assess JS/TS runtime impact.
    - Always assess Verilog HDL impact.
