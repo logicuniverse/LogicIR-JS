@@ -5,6 +5,8 @@ edits into readable exploration material. The intermediate patch capture was
 used only to build this extract and is not kept as a long-term artifact. Some
 edits describe useful development-doc policy; other edits only make sense if the
 archived automatic-run schema/projection files are reviewed and reintroduced.
+Paths from `docs/workspace/` and old `schema/extensions` routes are preserved
+below as historical patch evidence, not as current repository structure.
 
 ## Edit Inventory
 
@@ -37,17 +39,17 @@ not need to remain as a long-term artifact.
 | `schema/README.md` | Index of generated companion artifacts. See Archived Draft Index Material. | No, not until archived files are reviewed and restored. |
 | `schema/core/v0-draft/README.md` | File list for core examples/validator drafts. See Archived Draft Index Material. | No, not while these files live only in exploration artifacts. |
 | `schema/extensions/README.md` | File list and validator-status summary for extension drafts. See Archived Draft Index Material and Type-System/Runtime evidence in `results-map.md`. | No, not while extension draft files are archived. |
-| `schema/migrations/legacy-tsjs-v1/README.md` | Old prototype to new schema mapping: Pull/Push/Property/SequentialStep/Composable/provider patterns. See Useful Legacy Migration Notes. | Yes, after review; it is migration guidance rather than active code. |
+| `schema/migrations/legacy-tsjs-v1/README.md` | Old prototype to new schema mapping: Pull/Push/Property/SequentialStep/Composable/provider patterns. See Useful Legacy Migration Notes. | Yes, after review; it is migration guidance rather than formal package code. |
 | `schema/profiles/README.md` | Split `software-runtime` into `js-runtime` and `python-runtime` bundle names. See Directly Useful Workspace Policy. | Yes, if profile wording is updated alongside feature-policy docs. |
-| `schema/projection/README.md` | Projection stack roadmap and completion criteria, plus detailed status claims tied to archived drafts. See Projection Roadmap Material. | Roadmap yes as a reviewed plan; detailed active README status no. |
+| `schema/projection/README.md` | Projection stack roadmap and completion criteria, plus detailed status claims tied to archived drafts. See Projection Roadmap Material. | Roadmap yes as a reviewed plan; detailed formal README status no. |
 
 Coverage decision:
 
 - All useful policy, migration, index, and roadmap content has been extracted
   into this document or into `results-map.md`.
 - Exact patch mechanics are no longer needed after this file is reviewed.
-- Hunk-level text that only listed archived files as active project files is
-  intentionally not preserved as active documentation.
+- Hunk-level text that only listed archived files as accepted project files is
+  intentionally not preserved as formal documentation.
 
 ## Directly Useful Development-Doc Policy
 
@@ -157,8 +159,8 @@ Recommended later action:
 
 ## Archived Draft Index Material
 
-Several patch hunks added file lists to active `schema/` READMEs. Those lists
-are no longer correct for active `schema/`, because the uncommitted files have
+Several patch hunks added file lists to formal `schema/` READMEs. Those lists
+are no longer correct for formal `schema/`, because the uncommitted files have
 been archived under `artifacts/unsubmitted-working-tree/schema/`.
 
 Still useful as exploration index:
@@ -176,9 +178,9 @@ Still useful as exploration index:
 Recommended later action:
 
 - Do not apply README file-list hunks until corresponding files are reviewed
-  and restored to active `schema/`.
+  and restored to formal `schema/`.
 - If only the index is useful, keep it in this exploration pack instead of
-  active schema docs.
+  formal schema docs.
 
 ## Projection Roadmap Material
 
@@ -247,6 +249,6 @@ These patch parts should not be applied as-is:
    and policy-level.
 2. Review legacy migration mapping next; it is conceptually useful and low
    risk.
-3. Convert the projection roadmap into a plan, not active README text.
+3. Convert the projection roadmap into a plan, not formal README text.
 4. Reintroduce archived code only one layer at a time, starting with core
    examples/validator or type-system payload validation.

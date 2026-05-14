@@ -55,5 +55,9 @@ Recommended order:
 ## Write Boundary
 
 This task may read the repository, but it may write only inside this task
-directory. Do not import this task from active packages.
+directory. Do not import this task from formal packages.
 
+Formal project directories such as `packages/`, `schema/`, `docs/`, `dev/`,
+`examples/`, and `fixtures/` may be referenced as read-only inputs. Changes for
+those locations must be listed in `promotion-checklist.md` and applied only
+after human review.

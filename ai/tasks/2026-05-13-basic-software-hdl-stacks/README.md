@@ -1,6 +1,6 @@
 # Basic Software And Basic HDL Stack Exploration
 
-Status: exploration material, not active schema.
+Status: AI task material, not accepted project source.
 
 This pack drafts two initial LogicIR stacks using the architecture in
 `dev/logicir-architecture.md`:
@@ -11,8 +11,8 @@ This pack drafts two initial LogicIR stacks using the architecture in
   projection constraints.
 
 The goal is to produce human/AI discussion material for later schema work. These
-files should not be copied into active `schema/` as final profile definitions
-without review.
+files should not be copied into formal `packages/`, `schema/`, `examples/`, or
+`fixtures/` locations as final profile definitions without review.
 
 ## Current Feasibility Read
 
@@ -23,7 +23,7 @@ The current draft indicates that both primary stacks are feasible:
   and continuation-like completion can be realized. The exploration extracts
   those semantics into features, profiles, and execution bindings instead of
   treating the old runtime shape as schema authority.
-- `basic-hdl` is feasible because the active core already contains the static
+- `basic-hdl` is feasible because the current core already contains the static
   topology needed for Verilog projection: LU/LUI boundaries, ports, pins,
   connections, payload paths, structural composition, external targets, and
   feature-scoped extensions. HDL-specific width, module binding, clock/reset,
@@ -55,8 +55,9 @@ routing, or tool-export details into core schema.
 ## Source Inputs
 
 - `dev/logicir-architecture.md`: current profile/stack architecture.
-- `packages/core/src/types.ts`: active core schema TS authoring source.
-- `schema/core/v0-draft/README.md`: current core invariants.
+- `packages/core/src/types.ts`: current core schema TS authoring source.
+- `schema/core/v0-draft/README.md`: curated core v0 draft specification notes,
+  not the TS authoring source.
 - `packages/legacy/engine/src/types/models.ts`: old TS/JS prototype data
   model, used as evidence only.
 - `packages/legacy/engine/src/types/runtime.ts`: old runtime
@@ -83,8 +84,8 @@ routing, or tool-export details into core schema.
 - [stack-matrix.md](stack-matrix.md): side-by-side comparison.
 - [open-questions.md](open-questions.md): decisions to make before promotion.
 
-The earlier TypeScript code drafts for this pack were deleted after the active
-architecture schema moved to `packages/architecture/src/types.ts`. Future
+The earlier TypeScript code drafts for this pack were deleted after the current
+architecture schema source moved to `packages/architecture/src/types.ts`. Future
 machine-readable stack/profile drafts should be rewritten from that schema
 rather than recovered from the obsolete exploration code.
 

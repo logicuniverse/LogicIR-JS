@@ -1,7 +1,7 @@
 # Open Questions
 
 These questions should be resolved before promoting any part of this pack into
-active schema/profile files.
+formal package/schema/profile files.
 
 ## Resolved Working Assumptions
 

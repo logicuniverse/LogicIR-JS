@@ -6,7 +6,6 @@ Use this when a task asks what must be represented in LogicIR core schema.
 
 - Full theory source: `docs/essay.md`.
 - Operational repo extract: `dev/operational-theory.md`.
-- Original chapter sources: `D:\Projects\logicuniverse\origin-lab\essay\04-tri-axial-model.md`, `06-logicir.md`, `08-evidence-and-limits.md`.
 
 ## LogicIR Role
 

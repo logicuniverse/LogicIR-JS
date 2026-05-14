@@ -49,7 +49,7 @@ LogicIR schema 应该像长期协议一样演进：稳定核心、命名空间�
 
 后续扩展采用 feature-centered 结构：feature 是横切语义能力单元，extension 是挂在具体节点上的 payload。Profile 是 architecture 层的单层兼容契约，stack 是用户可选的 profile 组合；LogicIR core 不定义 profile 或 stack。
 
-- **Feature / Capability** 表示可单独声明、验证和投影的能力单元。Feature 自身有稳定身份，通常是 `namespace + key`，例如 `logicir.software-runtime / async-policy`、`logicir.verilog-hdl / clock-reset`、`logicir.type-system / payload-types`。
+- **Feature / Capability** 表示可单独声明、验证和投影的能力单元。Feature 自身有稳定身份，通常是 `namespace + key`，例如 `logicir.type-system / core`。具体字段语义放在该 feature 下的 extension key 中，例如 `payload-type`、`clock-reset` 或 `completion-policy`。
 - **LogicUnit feature manifest** 是 LU-local 的 feature 依赖表，inline 保存 feature namespace/key/version，让 LU 脱离 document/package 后仍然可携带和验证。Feature 级行为配置应进入 feature-owned extension、profile policy 或 execution binding，而不是 manifest 的通用 config。
 - **Extension record** 挂在具体 schema 节点上，通过本地 `featureKey` 引用当前 `LogicUnit.features` 中的 feature，并用 `key` 标识该 feature 下的具体 extension kind，承载 payload。Record 本身不声明 optional/required。
 - **Profile** 声明一个处理层需要哪些 features、extension points、stages、policies、diagnostics、target constraints、provider contracts 或 execution bindings。

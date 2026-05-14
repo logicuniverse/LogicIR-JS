@@ -39,7 +39,8 @@ Feature/extension boundary:
 Architecture/profile boundary:
 
 - Profiles:
-- Requiredness:
+- Requiredness: `required`, `conditional-required`, `recommended`, or
+  `optional`.
 - Provider contracts or bindings:
 
 Implementation boundary:
@@ -56,4 +57,3 @@ Implementation boundary:
 ## Risks And Open Questions
 
 - 
-

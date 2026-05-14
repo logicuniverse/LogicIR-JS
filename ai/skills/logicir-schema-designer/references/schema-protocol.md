@@ -21,12 +21,15 @@ Treat LogicIR schema like a long-lived protocol:
 
 Core schema contains target-neutral logical topology semantics. Put a field in core only if removing or changing it changes whether the LogicIR object is the same logical topology.
 
-Feature extensions contain target, host, runtime, tool, or domain constraints. Examples:
+Feature extensions contain target, host, runtime, tool, or domain constraints.
+Feature identity is the semantic capability unit; concrete payload kinds are
+extension points under that feature. Examples:
 
-- `logicir.software-runtime / async-policy`.
-- `logicir.verilog-hdl / clock-reset`.
-- `logicir.distributed-runtime / placement`.
-- `logicir.verification / assertions`.
+- Feature `logicir.type-system / core`, extension point `payload-type`.
+- Feature `logicir.software-runtime / core`, extension point `completion-policy`.
+- Feature `logicir.verilog-hdl / core`, extension point `clock-reset`.
+- Feature `logicir.distributed-runtime / core`, extension point `placement`.
+- Feature `logicir.verification / assertions`, extension point `assertion`.
 
 Profile and stack definitions are architecture content, not part of the
 canonical LogicIR object model. Profiles are single-layer compatibility

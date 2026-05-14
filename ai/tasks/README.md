@@ -7,7 +7,9 @@ being reviewed step by step by a human. Sandbox output is exploration material,
 not an accepted project result.
 
 Existing task directories may contain earlier exploration packs that were moved
-here from development docs. They remain AI task material until human promotion.
+here from older development-doc locations. Treat them as AI task material until
+human promotion. Historical paths inside archived task material may be preserved
+as evidence; do not read them as current project routes.
 
 ## Write Boundary
 
@@ -32,7 +34,9 @@ During that task, the agent must not:
 - Write to another task directory.
 - Write to `packages/`, `schema/`, `docs/`, `examples/`, `fixtures/`, or other
   formal project directories.
-- Import task output from active workspace packages.
+- Write to `dev/` unless a human explicitly asks for a reviewed documentation
+  change outside the autonomous task.
+- Import task output from formal workspace packages.
 - Treat task files as schema authority or accepted implementation.
 
 ## Required Contents
@@ -56,3 +60,6 @@ Each task directory should contain:
 Human review is required before any task output becomes project content.
 Promotion should move only the smallest reviewed pieces into their proper
 formal locations. Do not copy a whole task directory into the project.
+
+After promotion, the promoted piece must satisfy the normal package, schema,
+documentation, fixture, and verification rules for its formal location.

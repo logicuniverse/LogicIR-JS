@@ -1,11 +1,11 @@
 # Verification Snapshot
 
 This page records the verification gates used by the archived automatic-run
-draft. The last known full run passed before the draft was moved out of active
+draft. The last known full run passed before the draft was moved out of formal
 `schema/` paths. The archived files under
-`artifacts/unsubmitted-working-tree/` are not active project files, so these
+`artifacts/unsubmitted-working-tree/` are not accepted project files, so these
 commands are replay instructions for a future review branch, not commands that
-currently run against `schema/` unchanged.
+currently run against the formal tree unchanged.
 
 ## Strict TypeScript Draft Gate
 
@@ -51,15 +51,16 @@ Meaning:
 ## Last Known Result
 
 Before the exploration consolidation, while the automatic-run files still lived
-under active `schema/`, the strict TS gate, CommonJS smoke compile, all listed
+under formal `schema/`, the strict TS gate, CommonJS smoke compile, all listed
 smoke executions, and `yarn build` passed.
 
 ## Caveats
 
 - The automatic-run draft files are archived under
-  `artifacts/unsubmitted-working-tree/`. Do not assume active `schema/`
+  `artifacts/unsubmitted-working-tree/`. Do not assume formal `schema/`
   contains them.
 - These gates prove draft consistency, not complete target runtime or HDL
   compiler completeness.
-- Re-run the gates after reintroducing any archived file into active
-  `schema/core`, `schema/extensions/drafts`, or `schema/projection`.
+- Re-run the relevant gates after reintroducing any archived file or idea into
+  formal `packages/`, `schema/`, `examples/`, `fixtures/`, or tool/runtime
+  packages.

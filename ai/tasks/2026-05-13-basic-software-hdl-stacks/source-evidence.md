@@ -4,7 +4,7 @@ This file records the concrete evidence used to draft `basic-software` and
 `basic-hdl`. Current TS/JS code is historical prototype evidence, not authority
 for the new schema.
 
-## Active Architecture Evidence
+## Current Architecture Evidence
 
 `dev/logicir-architecture.md` defines:
 
@@ -18,7 +18,7 @@ for the new schema.
 - Execution provider as the concrete capability entity.
 - Plugin as an implementation detail, not a core ecosystem term.
 
-## Active Core Evidence
+## Current Core Evidence
 
 `packages/core/src/types.ts` provides target-neutral core shape:
 
@@ -123,18 +123,18 @@ New architecture mapping:
 
 ## Archived Draft Evidence
 
-The archived automatic-run drafts are not active schema, but they provide useful
-proposal material:
+The archived automatic-run drafts are not accepted schema, but they provide
+useful proposal material:
 
-- `schema/extensions/drafts/type-system.md`:
+- `ai/tasks/2026-05-13-projection-stack-goal/artifacts/unsubmitted-working-tree/schema/extensions/drafts/type-system.md`:
   payload types, path schemas, port/requirement/composition compatibility.
-- `schema/extensions/drafts/js-runtime.md`:
+- `ai/tasks/2026-05-13-projection-stack-goal/artifacts/unsubmitted-working-tree/schema/extensions/drafts/js-runtime.md`:
   async/completion, retained-current realization, dynamic fulfillment,
   lifecycle, error policy.
-- `schema/extensions/drafts/verilog-hdl.md`:
+- `ai/tasks/2026-05-13-projection-stack-goal/artifacts/unsubmitted-working-tree/schema/extensions/drafts/verilog-hdl.md`:
   signal types, clock/reset, module binding, combinational assigns,
   state registers, elaboration, structural slices.
-- `schema/projection/CONFORMANCE.md`:
+- `ai/tasks/2026-05-13-projection-stack-goal/artifacts/unsubmitted-working-tree/schema/projection/CONFORMANCE.md`:
   candidate fixture coverage and diagnostics matrix.
 
 This pack generalizes JS/Python-specific archived material into

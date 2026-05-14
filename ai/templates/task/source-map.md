@@ -8,7 +8,9 @@ Record the sources used by this autonomous task.
 - `packages/architecture/src/`: current architecture/profile/stack/provider TS
   authoring source.
 - `packages/features/*/src/`: accepted feature schema sources.
-- `schema/`: language-neutral specification surface.
+- `schema/`: language-neutral generated or curated specification surface; not
+  the primary TS authoring source.
+- `docs/`: reader-facing theory and user documentation.
 - `dev/operational-theory.md`: engineering theory extract.
 - `dev/schema-principles.md`: schema and projection discipline.
 
@@ -31,5 +33,7 @@ List exact files and why each was used:
 
 - Theory and accepted schema docs outrank legacy code.
 - Current packages outrank exploration drafts.
+- `schema/` route files and generated/curated artifacts should be reconciled
+  with the corresponding package source before promotion.
 - Legacy code is evidence, not schema authority.
 - This task's own output is sandbox material until human promotion.

@@ -1,6 +1,6 @@
 # Basic HDL Stack Draft
 
-Status: exploration draft.
+Status: AI task draft.
 
 Working stack name: `logicir.stack.basic-hdl`.
 
@@ -91,9 +91,10 @@ Recommended stages:
 2. `payload-path-flattening`
 3. `strip-authoring-data`
 
-Accepted core:
+Core source and spec notes:
 
-- `schema/core/v0-draft` as exploration target.
+- `packages/core/src/types.ts` as current TS authoring source.
+- `schema/core/v0-draft/README.md` as curated specification notes.
 
 Required core support:
 
@@ -355,7 +356,7 @@ The stack should eventually project:
 
 ## Promotion Criteria
 
-Before this becomes active schema/profile material:
+Before this becomes formal package/schema/profile material:
 
 - Decide whether the stack name should be `basic-hdl` or `basic-verilog-hdl`.
 - Define stable HDL feature namespace and extension keys.

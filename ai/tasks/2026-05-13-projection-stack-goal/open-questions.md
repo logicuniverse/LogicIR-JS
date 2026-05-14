@@ -58,8 +58,11 @@ Candidates:
 Useful prompt:
 
 ```text
-Audit schema/core/v0-draft/validator.ts against types.ts and VALIDATION.md.
-Find TypeScript-only assumptions that need runtime diagnostics for JSON input.
+Audit the archived validator draft under
+ai/tasks/2026-05-13-projection-stack-goal/artifacts/unsubmitted-working-tree/
+against packages/core/src/types.ts and the current schema spec notes. Find
+TypeScript-only assumptions that need runtime diagnostics for JSON input before
+promotion.
 ```
 
 ## Type-System Compatibility

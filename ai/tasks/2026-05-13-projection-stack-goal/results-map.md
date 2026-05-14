@@ -1,8 +1,8 @@
 # Results Map
 
-This map groups the archived automatic-run artifacts by design layer. Active
-`schema/` files are the committed human-confirmed state; paths below marked
-`artifacts/unsubmitted-working-tree/...` are not active project files.
+This map groups the archived automatic-run artifacts by design layer. Formal
+package and schema files are the committed human-confirmed state; paths below
+marked `artifacts/unsubmitted-working-tree/...` are not accepted project files.
 
 The useful policy and roadmap material from tracked active-file edits has been
 extracted into:
@@ -93,8 +93,8 @@ Important boundary:
 
 - Core does not import JS Promise/subscription/store mechanics, Python
   coroutine/resource mechanics, or HDL clock/reset/module mechanics.
-- Required target behavior must be declared through required extensions and
-  capability checks, not inferred as projector magic.
+- Required or conditional-required target behavior must be declared through
+  profile contracts and capability checks, not inferred as projector magic.
 
 ## Projection Contracts
 
@@ -119,8 +119,9 @@ Current evidence:
 - Capability contracts cover core support, type-system support, JS runtime,
   Python runtime, and Verilog HDL.
 - Conformance has both a Markdown matrix and executable fixture matrix.
-- Unsupported required extensions and unsupported target semantics produce
-  diagnostics rather than being silently dropped.
+- Unsupported required or conditional-required extension contracts and
+  unsupported target semantics produce diagnostics rather than being silently
+  dropped.
 
 ## Type-System Projection Evidence
 
@@ -257,7 +258,8 @@ Current evidence:
 
 - Every target has positive coverage and expected diagnostic coverage.
 - Planner core-validation gates are checked.
-- Unsupported required extension failure is checked across targets.
+- Unsupported required or conditional-required extension contract failure is
+  checked across targets.
 - Current fixtures align the Markdown matrix with executable smoke checks.
 
 Remaining:

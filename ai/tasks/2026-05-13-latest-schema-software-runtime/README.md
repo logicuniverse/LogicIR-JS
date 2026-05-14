@@ -1,6 +1,6 @@
 # Latest Schema Software Runtime Exploration
 
-Status: exploration material, not active schema or production runtime.
+Status: AI task material, not accepted project source or production runtime.
 
 This pack replays the useful behavior of the earlier JS/TS runtime against the
 current LogicIR core and architecture schemas:

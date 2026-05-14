@@ -1,6 +1,6 @@
 # Feature/Profile Matrix
 
-Status: exploration material, not active schema.
+Status: AI task material, not accepted project source.
 
 This matrix is the requiredness source of truth for this exploration pack.
 `feature-catalog.md` defines feature purpose and extension keys; profiles define

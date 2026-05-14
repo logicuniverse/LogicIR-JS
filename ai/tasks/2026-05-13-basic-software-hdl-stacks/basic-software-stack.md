@@ -1,6 +1,6 @@
 # Basic Software Stack Draft
 
-Status: exploration draft.
+Status: AI task draft.
 
 Working stack name: `logicir.stack.basic-software`.
 
@@ -90,9 +90,10 @@ Recommended stages:
 3. `adapter-insertion`
 4. `strip-authoring-data`
 
-Accepted core:
+Core source and spec notes:
 
-- `schema/core/v0-draft` as exploration target.
+- `packages/core/src/types.ts` as current TS authoring source.
+- `schema/core/v0-draft/README.md` as curated specification notes.
 
 Required core support:
 
@@ -115,8 +116,8 @@ Required core support:
 
 Feature handling:
 
-- Profile-required feature and extension contracts must be understood or
-  rejected.
+- Required and conditional-required feature or extension contracts must be
+  understood or rejected.
 - Optional feature and extension contracts may be ignored only if profile
   semantics remain unchanged.
 - Type-system extensions may be consumed by the IR pipeline and stripped before
@@ -185,7 +186,7 @@ Projection rules:
 Diagnostics:
 
 - Missing provider contract.
-- Unsupported profile-required feature or extension contract.
+- Unsupported required or conditional-required feature or extension contract.
 - Unsupported completion policy.
 - Unsupported retained-current realization.
 - Unsupported dynamic fulfillment policy.
@@ -388,7 +389,7 @@ The stack should eventually validate and execute:
 
 ## Promotion Criteria
 
-Before this becomes active schema/profile material:
+Before this becomes formal package/schema/profile material:
 
 - Define stable feature identities and extension keys.
 - Decide whether `basic-software-plan` is a real artifact or an execution

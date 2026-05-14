@@ -98,7 +98,7 @@ Feature and extension form the horizontal semantic layer.
   attaches and what payload schema it uses.
 - **Extension record**: the actual node-local declaration inside a LogicIR
   document. It references a `LogicUnit.features` local key, an extension key,
-  and content.
+  and payload.
 
 Feature definitions specify semantics and compatibility obligations. Extension
 records place those semantics onto concrete LogicIR nodes.
@@ -109,7 +109,7 @@ Example:
 
 ```text
 Feature:
-  logicir.type-system / payload-types
+  logicir.type-system / core
 
 LogicUnit feature manifest:
   type = { namespace: logicir.type-system, key: core }
@@ -118,7 +118,7 @@ Extension record:
   attached to a Port
   featureKey = type
   key = payload-type
-  content = { typeRef: ... }
+  payload = { typeRef: ... }
 ```
 
 Profile contracts define which feature and extension points are required for a

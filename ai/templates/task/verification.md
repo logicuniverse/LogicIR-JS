@@ -20,8 +20,10 @@ When the task proposes promotion:
 
 - Record the expected formal verification after promotion, usually `yarn build`
   and `yarn test`.
+- Record any documentation link checks, fixture checks, or target-specific
+  commands needed for the formal destination.
+- Confirm no task-local code is imported by formal packages before promotion.
 
 ## Known Gaps
 
 - 
-

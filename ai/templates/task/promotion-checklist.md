@@ -20,6 +20,7 @@ Move only the smallest reviewed pieces into formal project locations.
 
 - Package exports:
 - Schema docs:
+- Dev docs or plans:
 - Fixtures:
 - Examples:
 - Tests:
@@ -38,3 +39,6 @@ List task files or ideas that should remain sandbox-only:
 
 - 
 
+Do not promote generated reports, exploratory logs, broad task README material,
+or whole sandbox directories unless a human explicitly decides they are the
+formal artifact.

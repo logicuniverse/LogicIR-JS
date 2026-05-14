@@ -8,13 +8,21 @@
 
 ## I. About LogicIR-JS
 
-This repository is the official implementation of **LogicIR** (Logic Intermediate Representation) for the JS ecosystem. It transforms abstract logic topologies into functional entities, governed by the three orthogonal axes of digital reality:
+This repository is the TypeScript/JavaScript reference workspace for
+**LogicIR** (Logic Intermediate Representation). LogicIR treats logical
+topology as portable data that can be validated, transformed, projected, and
+executed through declared profiles and capabilities.
 
-- **X (Interaction: Push/Pull)**: Data reconciliation at the boundary.
-- **Y (Manifestation: Time/Space)**: Operational existence and temporal evolution.
-- **Z (Sovereignty: Provide/Inject)**: Vertical conduit for logic essence and dependency injection.
+- **X (Interaction: Push/Pull)**: unit-level boundary drive; port-level contact
+  capabilities are modeled separately.
+- **Y (Manifestation: Time/Space)**: whether logic is current mapping,
+  progression, resident state, or structural manifestation.
+- **Z (Requirement/Fulfillment)**: explicit declaration and satisfaction of
+  required logic through closures or upstream supply.
 
-By moving beyond the **1D Turing Tape**, LogicIR-JS provides a high-fidelity execution plane for the next generation of deterministic systems.
+The current workspace keeps the core target-neutral while using features,
+profiles, stacks, tools, projectors, engines, and providers to realize concrete
+software and Verilog HDL paths.
 
 ## II. Monorepo Architecture
 
@@ -39,11 +47,13 @@ This workspace is organized as a modular LogicIR TS/JS reference monorepo:
 Repository-level surfaces:
 
 - **[`docs/`](docs)**: reader-facing theory and user documentation.
-- **[`dev/`](dev)**: internal development theory extracts, plans, handoffs,
-  shared rules, and local AI skill sources.
+- **[`dev/`](dev)**: internal development theory extracts, plans, shared rules,
+  and local AI skill sources.
 - **[`schema/`](schema)**: language-neutral schema artifact routes and curated
   specification notes.
 - **[`ai/`](ai)**: write-isolated AI task sandboxes and task templates.
+- **[`examples/`](examples)** and **[`fixtures/`](fixtures)**: reviewed examples
+  and reusable machine-checkable inputs when they are promoted.
 
 ## III. Development & Tooling
 
@@ -58,7 +68,7 @@ To ensure absolute determinism in the development environment, this project is o
 
 ```bash
 # 1. Clone and install dependencies
-git clone https://github.com/logicuniverse/logicuniverse.git
+git clone https://github.com/logicuniverse/logicuniverse.git LogicIR-JS
 cd LogicIR-JS
 yarn install
 

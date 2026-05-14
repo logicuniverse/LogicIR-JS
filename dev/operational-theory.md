@@ -1,16 +1,12 @@
 # Operational Theory Extract
 
-这份文档把 [docs/essay.md](../docs/essay.md) 和 `D:\Projects\logicuniverse\origin-lab\essay\` 中对工程实现有直接约束力的部分提取出来。它不是新的理论来源；它是给 schema、projection、runtime 和工具设计使用的执行版理论。
+这份文档把 [docs/essay.md](../docs/essay.md) 中对工程实现有直接约束力的部分提取出来。它不是新的理论来源；它是给 schema、projection、runtime 和工具设计使用的执行版理论。
 
 ## Source Priority
 
 1. 完整理论源头是 [docs/essay.md](../docs/essay.md)。
-2. 原始分章节来源在 `D:\Projects\logicuniverse\origin-lab\essay\`，优先参考：
-   - `04-tri-axial-model.md`
-   - `06-logicir.md`
-   - `08-evidence-and-limits.md`
-   - `03-engineering-origin.md`
-   - `07-what-logicir-enables.md`
+2. 这份文档是 essay 的工程执行版摘录；如果两者冲突，以
+   [docs/essay.md](../docs/essay.md) 为准。
 3. `packages/legacy/engine/src/` 是旧版 LogicIR JS/TS engine prototype/reference，只能作为实现证据和兼容风险参考。`packages/legacy/flow-runtime-core/` 和 `packages/legacy/flow-core/` 是更早 FlowForge-era source-only 快照，只作为运行时、编辑操作、lowering 和旧 LUI/node 覆盖面的历史证据。
 
 ## Core Claim
@@ -128,10 +124,10 @@ Core 的 structural outlet 目前只是 key：`compositionSurface.outlets: Compo
 - **Feature/extension** 保存某个 target、host、runtime、tooling 或领域的附加约束。每个 `LogicUnit` 通过本地 `features` manifest 声明自己使用的 feature，extension record 通过本地 `featureKey` 引用该 manifest。
 - **Profile/stack** 不是 LogicIR object model 的一部分；它属于 architecture 层兼容契约。Profile 描述单个 IR pipeline、projection 或 execution 层的要求，stack 组合这些 profile 形成用户可选工作流。
 - **Projection** 是能力声明和 lowering/realization pipeline，不只是一个转换函数。
-- Projector 必须声明支持的 core version、features、LU kinds、fulfillment forms 和 target constraints。Stack/profile 必须解析成具体 features、stages、policies 和 provider contracts 后才能用于能力判断。
-- 不支持 selected profile 中 required 或 conditional-required 的 feature/extension contract，或者无法保持声明语义时，projector 必须安全失败并返回 diagnostic。
 
 当前 core schema 把 extension attachment 控制在稳定 owner 或关系节点上：`LogicUnit`、`LUCore`、`LUI`、`Port`、`Connection`、`Closure`、requirement service、service-level fulfillment 和 unit fulfillment。`kindOrganization` 内部字段、sequential `steps`、composition leaves/values、pin children 等 helper 结构不直接挂 extension；相关 metadata 由 owner-level extension payload 通过 selectors 指到内部位置。Extension record 的 `featureKey` 必须在当前 `LogicUnit.features` manifest 中解析，document/package 只是容器，不是 LU 语义依赖的来源。
+
+具体 feature/profile/stack 边界、capability 检查和兼容失败规则由 [schema-principles.md](schema-principles.md) 维护；本节只保留 theory 到工程结构的映射。
 
 ## Projection Targets
 
@@ -141,17 +137,6 @@ Core 的 structural outlet 目前只是 key：`compositionSurface.outlets: Compo
 - **Verilog HDL impact**: module boundary、ports/directions、connections、combinational logic、sequential logic、state、clock/reset、generate/elaboration-time structure、static binding constraints。
 
 Verilog HDL 不要求 LogicIR 退化成 HDL schema；它要求核心拓扑和边界语义不要被软件 runtime 假设锁死。
-
-## Compatibility Discipline
-
-LogicIR schema 按长期协议演进：
-
-- Core schema 稳定后默认只做 additive changes。
-- 破坏性核心语义变化走 major version。
-- Feature 和 extension 必须命名空间化。
-- Feature 定义 extension kind 的 payload schema 和字段必选性；profile 定义该 pipeline/projection/execution 中哪些 feature/extension contract 是 required、conditional-required、recommended 或 optional。
-- LogicIR extension record 不携带 record-level required/optional 字段；旧工具遇到不支持的 required 或 conditional-required extension contract 必须失败。
-- 需要破坏性迁移时必须说明 migration 或 compat layer。
 
 ## Current Implementation Reading Guide
 

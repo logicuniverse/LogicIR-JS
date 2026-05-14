@@ -5,7 +5,7 @@ This pack consolidates the partially completed goal:
 > Complete the type-system, JS/Python runtime, and Verilog HDL projection work,
 > while continuing to refine it until genuinely complete.
 
-The goal is not complete. This pack is an exploration handoff and conversation
+The goal is not complete. This pack is an AI task record and conversation
 substrate. It records what the unconfirmed automatic goal run produced, what
 that material appears to prove, what it does not yet prove, and how future
 human/AI sessions should continue.
@@ -13,23 +13,25 @@ human/AI sessions should continue.
 Important status rule:
 
 - Files already confirmed by the human and committed to git may remain in the
-  active `schema/` tree.
+  formal project tree.
 - Files generated automatically during the paused goal run and not committed
   are archived under `artifacts/unsubmitted-working-tree/` and must be treated
   only as exploration material.
-- Do not copy archived files back into active schema/projection paths unless a
-  later human/AI session reviews, narrows, and explicitly reintroduces them.
+- Do not copy archived files back into formal package/schema/projection paths
+  unless a later human/AI session reviews, narrows, and explicitly reintroduces
+  them.
 
 ## Current Status
 
-- Confirmed active schema files remain in `schema/` at the current git `HEAD`.
+- Human-confirmed package and schema files remain in formal project directories
+  at the current git `HEAD`.
 - The automatic run produced additional core examples, validator drafts,
   feature drafts, projection contracts, lowerings, smoke files, and conformance
   files. Those files are archived under
   `artifacts/unsubmitted-working-tree/schema/`.
 - The automatic run also produced temporary CommonJS smoke artifacts. Those are
   archived under `artifacts/unsubmitted-working-tree/tmp/`.
-- Tracked active-file edits from the automatic run were reviewed and their
+- Tracked formal-file edits from the automatic run were reviewed and their
   useful content was extracted into
   [tracked-patch-extract.md](tracked-patch-extract.md). The intermediate patch
   capture is not kept as a long-term artifact.
@@ -50,10 +52,10 @@ Important status rule:
 
 1. Canonical theory remains `docs/essay.md` and the operational extracts in
    `dev/`.
-2. Active schema/projection files under `schema/` are only the committed,
+2. Formal package and schema/projection files are only the committed,
    human-confirmed state at `HEAD`.
 3. Uncommitted automatic-run products live under this pack's `artifacts/`
-   directory and are discussion material, not active schema.
+   directory and are discussion material, not accepted schema.
 
 ## Git Evidence
 
@@ -66,7 +68,7 @@ Recent committed evidence on `develop`:
 
 Archived automatic-run evidence includes validator, feature, projection,
 lowering, smoke, and conformance files under
-`artifacts/unsubmitted-working-tree/schema/`, plus the tracked active-file
+`artifacts/unsubmitted-working-tree/schema/`, plus the tracked formal-file
 ideas extracted in [tracked-patch-extract.md](tracked-patch-extract.md).
 
 ## How To Use This Pack
@@ -84,7 +86,7 @@ Recommended next-session flow:
 3. Read [decision-log.md](decision-log.md) before changing names, feature
    boundaries, or target semantics.
 4. Read [tracked-patch-extract.md](tracked-patch-extract.md) before deciding
-   whether any tracked-document idea should be promoted into active docs.
+   whether any tracked-document idea should be promoted into formal docs.
 5. If a prompt depends on automatic-run code, inspect the archived file under
    `artifacts/unsubmitted-working-tree/` and reintroduce only the reviewed
    subset needed for that prompt.
