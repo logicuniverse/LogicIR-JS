@@ -427,6 +427,29 @@ required。Type-system 可以作为 recommended 或 optional 出现在 profile �
 
 ### 其它候选任务
 
+- `legacy-coverage-map`
+  - 目标：系统盘点 `packages/legacy/engine`、`packages/legacy/flow-runtime-core`
+    和 `packages/legacy/flow-core` 的旧功能覆盖面，明确哪些已经被
+    `basic-software-interpreter` S1-S5 覆盖，哪些只是部分覆盖，哪些缺失，
+    哪些应明确丢弃或延后。
+  - 必需内容：旧代码 source map、能力分类矩阵、S1-S5 覆盖映射、缺口分组、
+    后续 roadmap round 建议，以及不应进入 core 的 runtime/editor 机制列表。
+  - 建议分类：
+    - runtime core：provider invocation、state store、property/current、
+      thenable completion、emit/subscribe、hooks、session/run bookkeeping。
+    - projection：LU/LUI projection、closure projection、dependency injection、
+      override/transform hooks。
+    - control flow：sequential steps、awaited step、go-back-if、return-if。
+    - structural/editor：composition、edit operations、reconciliation、
+      editor model lowering。
+    - node catalog：stdlib、event、async、state、array/object/string/number、
+      html/react 等旧 node/LUI 覆盖。
+  - 验收：输出一个 task-local coverage report，至少把每个能力标记为
+    `covered-by-s1-s5`、`partially-covered`、`missing`、`defer` 或
+    `drop-intentionally`；每个 `missing` 或 `partially-covered` 项都给出建议的
+    后续 round 或不实现理由。这个任务不要求写 runtime 实现，但必须能通过
+    task-local verification，例如 markdown/table consistency check 或脚本化
+    source-reference check。
 - 基于当前 architecture schema 原型化 `tools/profile-resolver`。
 - 用 feature/profile fixture 原型化 `tools/capability-checker`。
 - 从 `packages/legacy/flow-core` 提取可复用的 node/LUI catalog 证据。

@@ -1,0 +1,406 @@
+{
+  "task": "legacy-coverage-map",
+  "statusEnum": [
+    "covered-by-s1-s5",
+    "partially-covered",
+    "missing",
+    "defer",
+    "drop-intentionally"
+  ],
+  "coverage": [
+    {
+      "id": "runtime.provider-invocation",
+      "category": "runtime core",
+      "capability": "provider invocation",
+      "status": "covered-by-s1-s5",
+      "coveredBy": ["S1"],
+      "sources": [
+        "packages/legacy/engine/src/types/models.ts",
+        "packages/legacy/engine/src/types/runtime.ts",
+        "packages/legacy/engine/src/projector.ts",
+        "packages/legacy/flow-runtime-core/src/runner.ts"
+      ],
+      "notes": "S1 proves one external target is resolved to an explicit provider and invoked through an interpreter plan.",
+      "recommendation": "Promote only the explicit provider binding and object-in/object-out invocation seed after review."
+    },
+    {
+      "id": "runtime.state-store",
+      "category": "runtime core",
+      "capability": "state store get/set/snapshot",
+      "status": "covered-by-s1-s5",
+      "coveredBy": ["S2"],
+      "sources": [
+        "packages/legacy/engine/src/types/runtime.ts",
+        "packages/legacy/flow-runtime-core/src/types/runtime.ts"
+      ],
+      "notes": "S2 proves memory state-store read and write current behavior across executions.",
+      "recommendation": "Use S2 as seed for a formal state-store provider contract."
+    },
+    {
+      "id": "runtime.property-current",
+      "category": "runtime core",
+      "capability": "Property / retained-current contact",
+      "status": "partially-covered",
+      "coveredBy": ["S2"],
+      "sources": [
+        "packages/legacy/engine/src/types/models.ts",
+        "packages/legacy/flow-runtime-core/src/types/models.ts",
+        "packages/legacy/flow-core/src/nodes/stdlib/state/property.ts"
+      ],
+      "notes": "S2 covers current value read/write, but not subscription, async update propagation, packet path, or built-in property node variants.",
+      "recommendation": "Create Round S6 retained-current-notification to cover push notification, subscriptions, packet path, and property node variants."
+    },
+    {
+      "id": "runtime.thenable-completion",
+      "category": "runtime core",
+      "capability": "Thenable completion resolve/reject",
+      "status": "partially-covered",
+      "coveredBy": ["S3", "S5"],
+      "sources": [
+        "packages/legacy/engine/src/types/runtime.ts",
+        "packages/legacy/engine/src/utils.ts",
+        "packages/legacy/flow-runtime-core/src/utils.ts"
+      ],
+      "notes": "S3 covers Promise-style await and reject diagnostic, but not old Result/Option wrappers, nested thenable composition, cancellation, or awaited sequence steps.",
+      "recommendation": "Create Round S7 completion-result-model to reconcile Option/Result, awaited steps, cancellation, and async diagnostic policy."
+    },
+    {
+      "id": "runtime.emit-subscribe",
+      "category": "runtime core",
+      "capability": "emit / subscribe event stream",
+      "status": "missing",
+      "coveredBy": [],
+      "sources": [
+        "packages/legacy/engine/src/types/runtime.ts",
+        "packages/legacy/engine/src/helpers/index.ts",
+        "packages/legacy/flow-runtime-core/src/run-flow.ts",
+        "packages/legacy/flow-core/src/nodes/stdlib/event/index.ts"
+      ],
+      "notes": "S1-S5 do not cover push stream propagation, listener registration, unsubscribe, demux/mux/merge/map-to, or path-level event packets.",
+      "recommendation": "Create Round S8 event-stream to cover emit/subscribe, stream nodes, event packet paths, and listener teardown."
+    },
+    {
+      "id": "runtime.hooks",
+      "category": "runtime core",
+      "capability": "runtime hooks and plugin event taps",
+      "status": "missing",
+      "coveredBy": [],
+      "sources": [
+        "packages/legacy/engine/src/types/hooks.ts",
+        "packages/legacy/engine/src/hooks/index.ts",
+        "packages/legacy/flow-runtime-core/src/types/hooks.ts",
+        "packages/legacy/flow-runtime-core/src/hooks/index.ts"
+      ],
+      "notes": "S1-S5 do not cover transform/override hooks or structured runtime event hooks.",
+      "recommendation": "Defer until core interpreter behavior is promoted. Then decide which hooks become observation feature, execution policy, or plugin-only packaging."
+    },
+    {
+      "id": "runtime.session-bookkeeping",
+      "category": "runtime core",
+      "capability": "session/run id and nested runtime bookkeeping",
+      "status": "missing",
+      "coveredBy": [],
+      "sources": [
+        "packages/legacy/engine/src/types/runtime.ts",
+        "packages/legacy/flow-runtime-core/src/types/runtime.ts"
+      ],
+      "notes": "S1-S5 do not model LU/LUI run ids, outer/inner session stacks, or nested closure/subflow bookkeeping.",
+      "recommendation": "Create Round S9 runtime-session after closure and event semantics are clearer."
+    },
+    {
+      "id": "runtime.plugin-as-core",
+      "category": "runtime core",
+      "capability": "Plugin as core ecosystem concept",
+      "status": "drop-intentionally",
+      "coveredBy": [],
+      "sources": [
+        "packages/legacy/engine/src/types/runtime.ts",
+        "packages/legacy/flow-runtime-core/src/types/runtime.ts",
+        "dev/roadmap.md"
+      ],
+      "notes": "Legacy runtime exposes plugin objects for loading hooks and service/projector overrides. Current architecture says Plugin is packaging/loading strategy, not a core LogicIR ecosystem term.",
+      "recommendation": "Do not migrate Plugin as a LogicIR core concept. Preserve needed behavior as provider capability, pass provider, execution policy, or local package-loading strategy."
+    },
+    {
+      "id": "projection.lu-lui-projection",
+      "category": "projection",
+      "capability": "LU/LUI projection into executable runtime plan",
+      "status": "partially-covered",
+      "coveredBy": ["S1", "S2", "S3", "S4"],
+      "sources": [
+        "packages/legacy/engine/src/projection.ts",
+        "packages/legacy/engine/src/projector.ts"
+      ],
+      "notes": "S1-S4 emit small task-local plans for one semantic slice each, but not a general graph scheduler, recursive LU projection, or multi-LUI topology.",
+      "recommendation": "Create Round S10 multi-lui-plan for topological scheduling, recursive LU targets, and reusable interpreter-plan schema."
+    },
+    {
+      "id": "projection.closure-projection",
+      "category": "projection",
+      "capability": "closure projection",
+      "status": "partially-covered",
+      "coveredBy": ["S4"],
+      "sources": [
+        "packages/legacy/engine/src/projection.ts",
+        "packages/legacy/engine/src/helpers/index.ts"
+      ],
+      "notes": "S4 proves closure fulfillment conceptually, but its closure body is a task-local function, not a projected Closure core.",
+      "recommendation": "Extend S4 with a formal closure-core fixture before promotion."
+    },
+    {
+      "id": "projection.dependency-injection",
+      "category": "projection",
+      "capability": "dependency injection and provider source",
+      "status": "partially-covered",
+      "coveredBy": ["S1", "S4", "S5"],
+      "sources": [
+        "packages/legacy/engine/src/types/models.ts",
+        "packages/legacy/engine/src/projector.ts",
+        "packages/legacy/flow-runtime-core/src/run-flow.ts"
+      ],
+      "notes": "S1/S4 cover explicit provider and upstream provider, but not defaultProvider, fallback closure, source-scoped provider, or dynamic/switchable provider behavior.",
+      "recommendation": "Create Round S11 provider-resolution to cover default provider, source lineage, fallback closure, and dynamic binding policy."
+    },
+    {
+      "id": "projection.override-transform-hooks",
+      "category": "projection",
+      "capability": "override and transform hooks",
+      "status": "missing",
+      "coveredBy": [],
+      "sources": [
+        "packages/legacy/engine/src/hooks/override-lui-manifestation.ts",
+        "packages/legacy/engine/src/hooks/override-closure-projection.ts",
+        "packages/legacy/engine/src/hooks/transform-lui-inputs.ts",
+        "packages/legacy/engine/src/hooks/transform-lui-output.ts"
+      ],
+      "notes": "S1-S5 have no extension point for overriding manifestation/projection or transforming runtime data.",
+      "recommendation": "Defer. These likely belong to execution tooling or observation/adapter features, not core."
+    },
+    {
+      "id": "control.sequential-steps",
+      "category": "control flow",
+      "capability": "sequential step order",
+      "status": "missing",
+      "coveredBy": [],
+      "sources": [
+        "packages/legacy/engine/src/types/models.ts",
+        "packages/legacy/flow-runtime-core/src/types/models.ts",
+        "packages/legacy/flow-core/src/compile/transforms/sequence-steps.ts"
+      ],
+      "notes": "S1-S5 use single combinational/stateful slices and do not execute ordered sequential steps.",
+      "recommendation": "Create Round S12 sequential-basic to cover ordered steps and sequence return."
+    },
+    {
+      "id": "control.awaited-step",
+      "category": "control flow",
+      "capability": "awaited sequential step",
+      "status": "missing",
+      "coveredBy": [],
+      "sources": [
+        "packages/legacy/engine/src/types/models.ts",
+        "packages/legacy/flow-runtime-core/src/run-flow.ts"
+      ],
+      "notes": "S3 covers async provider completion, but not sequence-level awaited step semantics.",
+      "recommendation": "Add to Round S12 or S7 after basic sequential execution exists."
+    },
+    {
+      "id": "control.go-back-if",
+      "category": "control flow",
+      "capability": "go-back-if loop control",
+      "status": "missing",
+      "coveredBy": [],
+      "sources": [
+        "packages/legacy/engine/src/types/models.ts",
+        "packages/legacy/flow-core/src/nodes/reserved/go-back-if.ts"
+      ],
+      "notes": "No loop/back-edge control-flow lowering is covered by S1-S5.",
+      "recommendation": "Create Round S13 control-flow to model guard, branch, go-back, and diagnostics for unsupported cycles."
+    },
+    {
+      "id": "control.return-if",
+      "category": "control flow",
+      "capability": "return-if early return",
+      "status": "missing",
+      "coveredBy": [],
+      "sources": [
+        "packages/legacy/engine/src/types/models.ts",
+        "packages/legacy/flow-core/src/nodes/reserved/return-if.ts"
+      ],
+      "notes": "No early return or guarded return behavior is covered by S1-S5.",
+      "recommendation": "Add to Round S13 control-flow with go-back-if."
+    },
+    {
+      "id": "structural.composition",
+      "category": "structural/editor",
+      "capability": "component/composable composition",
+      "status": "missing",
+      "coveredBy": [],
+      "sources": [
+        "packages/legacy/engine/src/types/models.ts",
+        "packages/legacy/flow-runtime-core/src/types/models.ts",
+        "packages/legacy/flow-core/src/nodes/stdlib/components/index.ts"
+      ],
+      "notes": "S1-S5 do not cover structural composition, component context, root composition, or child fills.",
+      "recommendation": "Create Round S14 structural-composition after interpreter plan supports multi-LUI topology."
+    },
+    {
+      "id": "structural.edit-operations",
+      "category": "structural/editor",
+      "capability": "editor edit operations",
+      "status": "defer",
+      "coveredBy": [],
+      "sources": [
+        "packages/legacy/flow-core/src/edit/operations/node.ts",
+        "packages/legacy/flow-core/src/edit/operations/connection.ts",
+        "packages/legacy/flow-core/src/edit/operations/flow/common.ts",
+        "packages/legacy/flow-core/src/edit/operations/selection.ts"
+      ],
+      "notes": "Edit operations are useful for authoring tooling but not required for software interpreter MVP.",
+      "recommendation": "Defer to a separate authoring/edit-model roadmap after core runtime promotion."
+    },
+    {
+      "id": "structural.reconciliation",
+      "category": "structural/editor",
+      "capability": "editor reconciliation",
+      "status": "defer",
+      "coveredBy": [],
+      "sources": [
+        "packages/legacy/flow-core/src/edit/reconciliation/flow.ts",
+        "packages/legacy/flow-core/src/edit/reconciliation/node.ts"
+      ],
+      "notes": "Reconciliation belongs to authoring/editor implementation, not basic-software-interpreter runtime.",
+      "recommendation": "Defer; extract only after edit model is intentionally designed."
+    },
+    {
+      "id": "structural.editor-lowering",
+      "category": "structural/editor",
+      "capability": "editor model lowering to runtime model",
+      "status": "partially-covered",
+      "coveredBy": [],
+      "sources": [
+        "packages/legacy/flow-core/src/compile/index.ts",
+        "packages/legacy/flow-core/src/compile/transforms/flow.ts",
+        "packages/legacy/flow-core/src/compile/transforms/node.ts",
+        "packages/legacy/flow-core/src/compile/transforms/connection.ts",
+        "packages/legacy/flow-core/src/compile/transforms/sequence-steps.ts"
+      ],
+      "notes": "Not covered by S1-S5, but the need for an explicit projection/lowering step is represented in the architecture. No implementation exists yet.",
+      "recommendation": "Create a later authoring-to-logicir or editor-lowering task, not part of interpreter MVP."
+    },
+    {
+      "id": "node-catalog.stdlib-constants",
+      "category": "node catalog",
+      "capability": "stdlib constants",
+      "status": "missing",
+      "coveredBy": [],
+      "sources": [
+        "packages/legacy/flow-core/src/nodes/stdlib/constants/index.ts",
+        "packages/legacy/flow-core/src/node-functions/stdlib/constants.ts"
+      ],
+      "notes": "S1-S5 do not build a reusable node/LUI catalog or constant provider fixtures.",
+      "recommendation": "Create Round C1 node-catalog-seed for constants and pass-through utilities."
+    },
+    {
+      "id": "node-catalog.stdlib-number-string-operators",
+      "category": "node catalog",
+      "capability": "stdlib number/string/operators",
+      "status": "missing",
+      "coveredBy": [],
+      "sources": [
+        "packages/legacy/flow-core/src/nodes/stdlib/number/index.ts",
+        "packages/legacy/flow-core/src/nodes/stdlib/string/index.ts",
+        "packages/legacy/flow-core/src/nodes/stdlib/operators/index.ts",
+        "packages/legacy/flow-core/src/node-functions/stdlib/number.ts",
+        "packages/legacy/flow-core/src/node-functions/stdlib/string.ts",
+        "packages/legacy/flow-core/src/node-functions/stdlib/operators.ts"
+      ],
+      "notes": "S1 has one ad hoc add provider, but not the old stdlib catalog.",
+      "recommendation": "Create Round C2 stdlib-scalar-catalog after provider invocation is promoted."
+    },
+    {
+      "id": "node-catalog.stdlib-array-object",
+      "category": "node catalog",
+      "capability": "stdlib array/object packaging and destructuring",
+      "status": "missing",
+      "coveredBy": [],
+      "sources": [
+        "packages/legacy/flow-core/src/nodes/stdlib/array/index.ts",
+        "packages/legacy/flow-core/src/nodes/stdlib/object/index.ts",
+        "packages/legacy/flow-core/src/node-functions/stdlib/array.ts",
+        "packages/legacy/flow-core/src/node-functions/stdlib/object.ts"
+      ],
+      "notes": "S1-S5 do not cover payload packing/unpacking, destructuring, or payload path compatibility.",
+      "recommendation": "Create Round C3 payload-structure-catalog tied to payloadPath and type-system work."
+    },
+    {
+      "id": "node-catalog.stdlib-event",
+      "category": "node catalog",
+      "capability": "stdlib event nodes",
+      "status": "missing",
+      "coveredBy": [],
+      "sources": [
+        "packages/legacy/flow-core/src/nodes/stdlib/event/index.ts",
+        "packages/legacy/flow-core/src/node-functions/stdlib/event.ts"
+      ],
+      "notes": "Requires event-stream runtime support, absent from S1-S5.",
+      "recommendation": "Depend on Round S8 event-stream."
+    },
+    {
+      "id": "node-catalog.stdlib-async",
+      "category": "node catalog",
+      "capability": "stdlib async nodes",
+      "status": "partially-covered",
+      "coveredBy": ["S3"],
+      "sources": [
+        "packages/legacy/flow-core/src/nodes/stdlib/async/index.ts",
+        "packages/legacy/flow-core/src/node-functions/stdlib/async.ts"
+      ],
+      "notes": "S3 proves async provider completion, but not await/delay node catalog entries.",
+      "recommendation": "After S7, add catalog fixtures for await and delay."
+    },
+    {
+      "id": "node-catalog.stdlib-state",
+      "category": "node catalog",
+      "capability": "stdlib state/property nodes",
+      "status": "partially-covered",
+      "coveredBy": ["S2"],
+      "sources": [
+        "packages/legacy/flow-core/src/nodes/stdlib/state/index.ts",
+        "packages/legacy/flow-core/src/node-functions/stdlib/state.ts"
+      ],
+      "notes": "S2 covers generic state store read/write, but not property.array/boolean/number/object/string catalog entries.",
+      "recommendation": "After S6, add typed property node catalog fixtures."
+    },
+    {
+      "id": "node-catalog.html-react",
+      "category": "node catalog",
+      "capability": "html/react/component nodes",
+      "status": "defer",
+      "coveredBy": [],
+      "sources": [
+        "packages/legacy/flow-core/src/nodes/html/index.ts",
+        "packages/legacy/flow-core/src/nodes/react-dom/index.ts",
+        "packages/legacy/flow-core/src/node-functions/html/index.ts",
+        "packages/legacy/flow-core/src/node-functions/react-dom/index.ts"
+      ],
+      "notes": "UI rendering nodes are valuable historical evidence but outside basic-software-interpreter MVP and may belong to a separate feature/profile.",
+      "recommendation": "Defer to structural/UI projection roadmap; do not include in core."
+    },
+    {
+      "id": "node-catalog.cel-hono-pi-ai",
+      "category": "node catalog",
+      "capability": "cel/hono/pi-ai domain nodes",
+      "status": "defer",
+      "coveredBy": [],
+      "sources": [
+        "packages/legacy/flow-core/src/nodes/cel/index.ts",
+        "packages/legacy/flow-core/src/nodes/hono/index.ts",
+        "packages/legacy/flow-core/src/nodes/pi-ai/index.ts",
+        "packages/legacy/flow-core/src/node-functions/cel/index.ts",
+        "packages/legacy/flow-core/src/node-functions/pi-ai/index.ts"
+      ],
+      "notes": "Domain nodes should not drive core or basic interpreter design.",
+      "recommendation": "Defer until the provider/catalog packaging model is formalized."
+    }
+  ]
+}

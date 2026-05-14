@@ -4,3 +4,17 @@ tmp
 *.log
 .DS_Store
 .ultra.cache.json
+
+# AI scratch is local temporary exploration. Keep only its README.
+ai/scratch/*
+!ai/scratch/README.md
+
+# AI task sandbox runtime artifacts.
+# Keep task source, reports, fixtures, and reviewable generated text artifacts.
+ai/tasks/**/dist/
+ai/tasks/**/node_modules/
+ai/tasks/**/.cache/
+ai/tasks/**/coverage/
+ai/tasks/**/generated/*.vvp
+ai/tasks/**/generated/*.vcd
+ai/tasks/**/generated/*.log

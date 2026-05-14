@@ -1,0 +1,11 @@
+{
+  "name": "logicir-ai-task-basic-software-interpreter-s3",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "typecheck": "node ../../../node_modules/typescript/bin/tsc -p tsconfig.json --noEmit",
+    "build": "node ../../../node_modules/typescript/bin/tsc -p tsconfig.json",
+    "smoke": "node dist/smoke.js",
+    "verify": "yarn typecheck && yarn build && yarn smoke"
+  }
+}

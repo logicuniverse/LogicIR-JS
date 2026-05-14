@@ -1,0 +1,8 @@
+{
+  "name": "logicir-ai-task-legacy-coverage-map",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "verify": "node src/verify-coverage.js"
+  }
+}

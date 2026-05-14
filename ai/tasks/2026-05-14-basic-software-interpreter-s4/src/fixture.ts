@@ -1,0 +1,104 @@
+import type { LogicUnit, Port } from './types';
+
+const input: Port = {
+  boundary: 'input',
+  interaction: {
+    pullReadable: true,
+    pushNotifiable: false,
+    retainedCurrent: false,
+  },
+};
+
+const output: Port = {
+  boundary: 'output',
+  role: 'primary-result',
+  interaction: {
+    pullReadable: false,
+    pushNotifiable: true,
+    retainedCurrent: false,
+  },
+};
+
+const makeFixture = (mode: 'closure' | 'upstream'): LogicUnit => ({
+  schemaVersion: '0.0.0-draft',
+  features: {
+    fulfillment: {
+      namespace: 'logicir.software',
+      key: 'fulfillment',
+      version: '0.0.0-s4',
+    },
+  },
+  requirements: {
+    math: {
+      kind: 'inline',
+      service: {
+        fulfillmentScope: 'independent-units',
+        units: {
+          increment: {
+            kind: 'combinational',
+            ports: { value: input, result: output },
+            requirements: {},
+          },
+        },
+      },
+    },
+  },
+  core: {
+    kindOrganization: { kind: 'combinational' },
+    ports: {
+      value: input,
+      result: output,
+    },
+    closures: {
+      localIncrement: {
+        forwardedPortKeys: { inputs: ['value'], outputs: ['result'] },
+        run: ({ value }) => ({ result: Number(value) + 1 }),
+      },
+    },
+    luis: {
+      increment: {
+        kind: 'combinational',
+        target: {
+          kind: 'requirement',
+          serviceKey: 'math',
+          unitKey: 'increment',
+        },
+        ports: {
+          value: input,
+          result: output,
+        },
+        fulfillments: {
+          math: {
+            kind: 'independent-units',
+            units: {
+              increment:
+                mode === 'closure'
+                  ? { kind: 'closure', closureId: 'localIncrement' }
+                  : {
+                      kind: 'upstream-unit',
+                      supplierServiceKey: 'math',
+                      supplierUnitKey: 'increment',
+                    },
+            },
+          },
+        },
+      },
+    },
+    connections: {
+      valueToIncrement: {
+        from: { owner: { kind: 'lu' }, portKey: 'value' },
+        to: { owner: { kind: 'lui', luiId: 'increment' }, portKey: 'value' },
+      },
+      incrementToResult: {
+        from: {
+          owner: { kind: 'lui', luiId: 'increment' },
+          portKey: 'result',
+        },
+        to: { owner: { kind: 'lu' }, portKey: 'result' },
+      },
+    },
+  },
+});
+
+export const closureFulfillmentLogicUnit = makeFixture('closure');
+export const upstreamFulfillmentLogicUnit = makeFixture('upstream');

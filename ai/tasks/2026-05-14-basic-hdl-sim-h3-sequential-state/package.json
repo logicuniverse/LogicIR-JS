@@ -1,0 +1,12 @@
+{
+  "name": "logicir-ai-task-basic-hdl-sim-h3",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "typecheck": "node ../../../node_modules/typescript/bin/tsc -p tsconfig.json --noEmit",
+    "build": "node ../../../node_modules/typescript/bin/tsc -p tsconfig.json",
+    "emit": "node dist/smoke.js",
+    "iverilog": "powershell -NoProfile -ExecutionPolicy Bypass -Command \". 'E:\\oss-cad-suite\\environment.ps1'; iverilog -g2012 -o generated/h3.vvp generated/h3_module.v generated/h3_tb.v; vvp generated/h3.vvp\"",
+    "verify": "yarn typecheck && yarn build && yarn emit && yarn iverilog"
+  }
+}

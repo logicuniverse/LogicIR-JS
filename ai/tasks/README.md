@@ -1,10 +1,22 @@
 # AI Tasks
 
-This directory is the dedicated workspace for AI-autonomous tasks.
+This directory is the dedicated workspace for reviewable AI-autonomous tasks.
 
 Use it for work produced by `/goal` or by parallel agents when the task is not
-being reviewed step by step by a human. Sandbox output is exploration material,
-not an accepted project result.
+being reviewed step by step by a human, and when the work has a clear objective,
+bounded scope, and runnable verification plan. Sandbox output is exploration
+material, not an accepted project result.
+
+Use [`../scratch/`](../scratch/) instead for quick spikes, failed attempts,
+temporary notes, or work that is not yet ready to become review evidence.
+
+Default routing rule:
+
+- Use `ai/tasks/` for `/goal`, roadmap rounds, parallel-agent work, or other
+  explicitly reviewable automation tasks.
+- Use `ai/scratch/` for uncertain, exploratory, throwaway, or partially
+  specified work.
+- If an agent is unsure, it must choose `ai/scratch/`.
 
 Existing task directories may contain earlier exploration packs that were moved
 here from older development-doc locations. Treat them as AI task material until
@@ -54,6 +66,14 @@ Each task directory should contain:
 - `verification.md`: commands run, results, and known gaps.
 - `promotion-checklist.md`: smallest reviewed pieces that may be moved into
   formal project directories after human review.
+
+Recommended status values:
+
+- `in-progress`: the task is being worked on and is not ready for review.
+- `ready-for-review`: verification evidence exists and human review can begin.
+- `promoted`: selected pieces were reviewed and moved to formal project
+  locations.
+- `archived`: the task is kept as evidence but should not drive current work.
 
 ## Promotion
 
