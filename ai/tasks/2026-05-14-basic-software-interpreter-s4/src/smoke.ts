@@ -23,6 +23,9 @@ const assertDeepEqual = (
 const resolved = resolveStack(basicSoftwareInterpreterStack);
 
 const closurePlan = createInterpreterPlan(closureFulfillmentLogicUnit, resolved);
+if (!closurePlan.interpretation?.baselineOnly) {
+  throw new Error('Closure plan must declare baseline interpretation metadata.');
+}
 const closureResult = executeInterpreterPlan(
   closurePlan,
   { inputs: { value: 4 }, closures: closureProviders },
@@ -30,6 +33,9 @@ const closureResult = executeInterpreterPlan(
 assertDeepEqual(closureResult.outputs, { result: 5 });
 
 const upstreamPlan = createInterpreterPlan(upstreamFulfillmentLogicUnit, resolved);
+if (!upstreamPlan.interpretation?.baselineOnly) {
+  throw new Error('Upstream plan must declare baseline interpretation metadata.');
+}
 const upstreamResult = executeInterpreterPlan(
   upstreamPlan,
   {
@@ -66,6 +72,7 @@ console.log(
   JSON.stringify(
     {
       stack: resolved.stackKey,
+      interpretation: closurePlan.interpretation,
       closure: closureResult,
       upstream: upstreamResult,
       missingProvider: missingProviderResult,

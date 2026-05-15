@@ -6,6 +6,13 @@ Define and verify a minimal task-local LogicIR edit transaction model. The MVP
 shows that a partial LogicIR fixture with typed holes can be completed through
 structured operations, replayed deterministically, validated, and smoke-tested.
 
+## Interpretation Note
+
+This task is sandbox evidence, not edit-model authority. Its transaction and
+operation shapes are a baseline for review; formal promotion may choose a
+different operation model, hash strategy, scope representation, or validation
+pipeline if replayability and semantic review evidence are preserved.
+
 ## Round Target
 
 - Stack: task-local `basic-software-interpreter` style smoke.

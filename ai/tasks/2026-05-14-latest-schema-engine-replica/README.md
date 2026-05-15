@@ -11,6 +11,13 @@ software interpreter pipeline.
 This task is an AI sandbox. It is not a promoted package and it does not change
 formal schema or project source files.
 
+## Interpretation Note
+
+This task treats legacy behavior as source evidence and design input, not as
+schema truth or the only valid runtime architecture. Its compiler/runtime is a
+wide baseline for review; formal promotion should redesign the public plan,
+feature, provider, and engine surfaces around current schema boundaries.
+
 ## Scope
 
 Included:
@@ -61,4 +68,3 @@ ai/tasks/2026-05-14-latest-schema-engine-replica/
   package.json
   tsconfig.json
 ```
-

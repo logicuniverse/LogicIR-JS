@@ -55,28 +55,14 @@
 
 ## AI 协同编辑原则
 
-LogicIR 的长期价值不是让 AI 直接写更多目标代码，而是让 AI 在受约束的语义结构中提交小步、原子、可验证的 LogicIR edit transaction。
-
-目标链路：
-
-```text
-自然语言 / 拖拽 / 图编辑 / 表单输入
--> partial LogicIR
--> typed holes / semantic slots
--> AI completion / repair / refinement
--> validation / typecheck / capability check
--> projection / execution / simulation / report
-```
-
-后续相关实现应优先围绕 partial IR、typed holes、scope/closure resolver、operation model、provider registry、validation pipeline 和 transaction report 展开。
+LogicIR 的长期价值不是让 AI 直接写更多目标代码，而是让 AI 在受约束的语义结构中提交小步、原子、可验证的 LogicIR edit transaction。完整理论和设计约束见 [`operational-theory.md`](operational-theory.md) 的“人 + AI 协同编辑前景”和 [`logicir-architecture.md`](logicir-architecture.md) 的相关接口说明。
 
 ## 工作规则
 
-- 正式项目文件包括 `packages/`、`schema/`、`docs/`、`dev/`、`examples/`、`fixtures/`。
-- `/goal`、roadmap round、并行 agent 或大规模自动生成工作默认写入一个新的 `ai/tasks/YYYY-MM-DD-<task>/` 子目录。
-- 不确定、失败或临时探索写入 `ai/scratch/`。
-- task 可以读取仓库其他文件，但默认只能写自己的 task 目录。
-- 历史 task 如果修改了别的 task 目录，只能看作明确授权的历史例外，不是当前默认规则。
+详细规则以 [`shared-rules.md`](shared-rules.md)、[`../ai/README.md`](../ai/README.md) 和 [`../ai/tasks/README.md`](../ai/tasks/README.md) 为准。快速摘要：
+
+- 正式项目文件在 `packages/`、`schema/`、`docs/`、`dev/`、`examples/`、`fixtures/`。
+- `/goal`、roadmap round、并行 agent 或大规模自动生成工作默认写入一个新的 `ai/tasks/YYYY-MM-DD-<task>/` 子目录；不确定或临时探索写入 `ai/scratch/`。
 - task 产物必须经人工 review 后，最小化 promotion 到正式目录；不要整包复制 task。
 - JS/TS task 要有 task-root `package.json` 和验证脚本；HDL task 要激活 `E:\oss-cad-suite\environment.ps1` 并直接运行 `iverilog`。
 

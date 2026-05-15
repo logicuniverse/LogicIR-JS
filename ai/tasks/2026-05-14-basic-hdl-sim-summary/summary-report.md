@@ -6,6 +6,11 @@ H1-H5 prove that the HDL route is viable. LogicIR fixtures can be projected to
 Verilog HDL, simulated with `iverilog`, and rejected safely when software-only
 semantics are required.
 
+These rounds are baselines for review, not HDL projector law. A promoted
+projector may use different emitters, feature payloads, module-library
+resolution, structural lowering, or diagnostics if HDL semantics remain explicit
+and simulation/diagnostic evidence is preserved.
+
 The route is ready for human review as a set of projector seeds:
 
 - H1 proves basic combinational module/testbench emission.
@@ -73,6 +78,7 @@ required features would violate the current profile discipline.
 - Task-local schema subsets.
 - H5 structural payload as final schema.
 - Thrown-error validation as final diagnostic model.
+- Any H1-H5 emitter or lowering algorithm as mandatory projector architecture.
 
 ## Conclusion
 

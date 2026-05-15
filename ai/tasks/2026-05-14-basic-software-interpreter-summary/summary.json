@@ -2,6 +2,11 @@
   "task": "basic-software-interpreter-summary",
   "stack": "basic-software-interpreter",
   "status": "ready-for-review",
+  "interpretation": {
+    "authority": "review-evidence",
+    "baselineOnly": true,
+    "note": "S1-S5 are verified sandbox baselines, not final interpreter architecture. Formal promotion may use different plan shapes, algorithms, state storage, completion/result models, fulfillment resolution, or diagnostics when semantic preservation is explicit and verified."
+  },
   "rounds": [
     {
       "id": "S1",
@@ -144,6 +149,7 @@
     "task-local schema subsets",
     "runtime-function closure representation as final closure schema",
     "diagnostic taxonomy as final without review",
+    "old-code-inspired algorithms as mandatory engine architecture",
     "generated dist output"
   ]
 }

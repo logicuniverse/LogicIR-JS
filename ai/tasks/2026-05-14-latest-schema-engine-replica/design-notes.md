@@ -9,6 +9,12 @@ implementation details, and JS-specific completion machinery.
 This task instead uses the current core schema for LogicIR topology and lowers
 software/runtime details into a task-local interpreter plan.
 
+The resulting compiler/runtime is a broad baseline for review, not a required
+engine architecture. Legacy behavior is used as evidence for useful semantics
+and compatibility pressure; the formal engine may use different algorithms and
+plan shapes if feature/profile contracts, diagnostics, and verification preserve
+the intended observable behavior.
+
 ## Boundary
 
 - Core schema: current `LogicUnit`, `LUI`, `Connection`, `EndpointRef`,
@@ -42,9 +48,12 @@ formal API. They are useful evidence for a later `packages/engines/software`
 or `packages/tools/profile` promotion, but they should be redesigned during
 human review.
 
+Do not promote the replica's scheduling, state storage, event replay, hook
+model, structural rendering, or nested session mechanics as mandatory runtime
+law. Promote only reviewed semantics and the smallest supporting tests.
+
 ## Remaining Non-Runtime Areas
 
 Editor operations, editor reconciliation, visual model lowering, and large node
 catalog migration remain outside this task. They belong to later authoring and
 feature/catalog tasks.
-

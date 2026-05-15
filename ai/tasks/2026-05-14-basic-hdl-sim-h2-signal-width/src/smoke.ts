@@ -3,6 +3,10 @@ import { emitH2Verilog } from './projector';
 
 const artifacts = emitH2Verilog(add4LogicUnit);
 
+if (!artifacts.interpretation.baselineOnly) {
+  throw new Error('HDL artifacts must declare baseline interpretation metadata.');
+}
+
 if (!artifacts.moduleText.includes('input wire [3:0] a')) {
   throw new Error('Expected 4-bit input a.');
 }
@@ -16,6 +20,7 @@ console.log(
     {
       module: artifacts.modulePath,
       testbench: artifacts.testbenchPath,
+      interpretation: artifacts.interpretation,
       expectedSimulationMarker: 'H2_PASS',
     },
     null,

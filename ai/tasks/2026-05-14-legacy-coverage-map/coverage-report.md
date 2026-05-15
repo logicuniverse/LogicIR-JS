@@ -5,6 +5,11 @@
 `basic-software-interpreter` S1-S5 covers the minimum interpreter spine, not
 the full legacy feature set.
 
+Legacy code is evidence and prioritization input, not schema truth. A
+`covered-by-s1-s5` or `partially-covered` status means the sandbox has a useful
+baseline, not that the old implementation route or task-local algorithm should
+be promoted unchanged.
+
 Covered or meaningfully seeded:
 
 - Provider invocation.
@@ -97,6 +102,7 @@ same ids and recommendations.
 - Editor edit operations and selection state.
 - React/HTML/domain node details.
 - Concrete provider implementation functions.
+- Old engine algorithms as mandatory LogicIR semantics.
 
 These can become software features, execution policies, provider contracts,
 authoring tools, or catalog packages, but not LogicIR core topology.

@@ -6,6 +6,13 @@ Audit and repair the 2026-05-14 S1-S5 and H1-H5 AI task rounds so their LogicIR
 fixtures and architecture/profile/stack data are typed against the stable
 workspace schema packages instead of task-local schema copies.
 
+## Interpretation Note
+
+This task is a consistency gate, not schema authority. Passing alignment means
+the sandbox outputs reference the current package types closely enough for
+review; it does not promote task-local runtime, projector, or diagnostic shapes
+as final project design.
+
 ## Round Target
 
 - Stack: `basic-software-interpreter` and `basic-hdl-sim`

@@ -1,4 +1,5 @@
 import { legacyCoverageRows } from './legacy-coverage';
+import { baselineInterpretation } from './types';
 
 const requiredStatuses = new Set([
   'covered',
@@ -38,9 +39,19 @@ for (const capability of requiredCapabilities) {
   }
 }
 
+const interpretation = baselineInterpretation('latest-schema-legacy-coverage-audit', [
+  'Coverage rows compare legacy capabilities against latest-schema replica evidence.',
+  'Coverage status is review evidence and must not be promoted as schema authority by itself.',
+]);
+
+if (!interpretation.baselineOnly) {
+  throw new Error('Coverage audit must declare baseline interpretation metadata.');
+}
+
 console.log(
   JSON.stringify(
     {
+      interpretation,
       rows: legacyCoverageRows.length,
       covered: legacyCoverageRows.filter((row) => row.status === 'covered')
         .length,

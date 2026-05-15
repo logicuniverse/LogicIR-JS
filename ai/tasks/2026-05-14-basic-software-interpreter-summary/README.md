@@ -6,6 +6,13 @@ Summarize the `basic-software-interpreter` S1-S5 sandbox rounds and identify
 what is ready for human review, what should be promoted only as a seed, and what
 still needs follow-up rounds.
 
+## Interpretation Note
+
+This summary is review evidence, not engine authority. S1-S5 are verified
+baselines for the current basic route; they do not mandate the final interpreter
+plan schema, runtime algorithm, diagnostic taxonomy, state architecture, or
+fulfillment resolver.
+
 ## Round Target
 
 - Stack: `basic-software-interpreter`

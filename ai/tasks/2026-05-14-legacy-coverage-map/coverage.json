@@ -1,5 +1,10 @@
 {
   "task": "legacy-coverage-map",
+  "interpretation": {
+    "authority": "source-evidence",
+    "baselineOnly": true,
+    "note": "Legacy coverage rows are evidence and prioritization input, not a migration order. Covered or partially covered status means a useful sandbox baseline exists, not that legacy algorithms or task-local implementations should be promoted unchanged."
+  },
   "statusEnum": [
     "covered-by-s1-s5",
     "partially-covered",

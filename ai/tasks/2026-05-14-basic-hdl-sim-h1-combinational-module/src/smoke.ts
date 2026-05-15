@@ -3,6 +3,10 @@ import { emitH1Verilog } from './projector';
 
 const artifacts = emitH1Verilog(and2LogicUnit);
 
+if (!artifacts.interpretation.baselineOnly) {
+  throw new Error('HDL artifacts must declare baseline interpretation metadata.');
+}
+
 if (!artifacts.moduleText.includes('module logicir_h1_and2')) {
   throw new Error('Expected generated module name.');
 }
@@ -16,6 +20,7 @@ console.log(
     {
       module: artifacts.modulePath,
       testbench: artifacts.testbenchPath,
+      interpretation: artifacts.interpretation,
       expectedSimulationMarker: 'H1_PASS',
     },
     null,

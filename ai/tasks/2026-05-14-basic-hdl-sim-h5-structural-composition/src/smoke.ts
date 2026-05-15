@@ -10,6 +10,10 @@ const artifacts = emitH5Verilog(and3StructuralLogicUnit, {
   testVectors: and3TruthTable,
 });
 
+if (!artifacts.interpretation.baselineOnly) {
+  throw new Error('HDL artifacts must declare baseline interpretation metadata.');
+}
+
 if (!artifacts.moduleText.includes('logicir_h5_and2 u_and_ab')) {
   throw new Error('Expected first child module instance.');
 }
@@ -37,6 +41,7 @@ console.log(
     {
       modules: artifacts.modulePath,
       testbench: artifacts.testbenchPath,
+      interpretation: artifacts.interpretation,
       vectors: and3TruthTable.length,
       expectedSimulationMarker: 'H5_PASS',
     },

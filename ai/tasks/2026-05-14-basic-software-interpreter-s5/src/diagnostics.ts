@@ -3,6 +3,7 @@ import type {
   DiagnosticPhase,
   DiagnosticReport,
 } from './types';
+import { baselineInterpretation } from './types';
 
 export const diagnostic = (
   code: Diagnostic['code'],
@@ -32,6 +33,10 @@ export const reportDiagnostics = (
     status: diagnostics.some((entry) => entry.severity === 'error')
       ? 'error'
       : 'ok',
+    interpretation: baselineInterpretation('s5-diagnostic-reporting-baseline', [
+      'Projection and execution failures are surfaced as phase-scoped diagnostics.',
+      'Unsupported semantics are rejected instead of silently lowering to different behavior.',
+    ]),
     diagnostics,
     summary,
   };

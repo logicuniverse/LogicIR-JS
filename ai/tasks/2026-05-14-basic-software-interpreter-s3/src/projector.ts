@@ -5,7 +5,7 @@ import type {
   LogicUnit,
   ResolvedStack,
 } from './types';
-import { identityKey } from './types';
+import { baselineInterpretation, identityKey } from './types';
 
 const requiredFeaturesPresent = (
   logicUnit: LogicUnit,
@@ -72,6 +72,10 @@ export const createInterpreterPlan = (
   return {
     key: 'async-double.interpreter-plan.s3',
     stackKey: resolved.stackKey,
+    interpretation: baselineInterpretation('s3-awaited-provider-completion', [
+      'Provider completion is represented as an explicit await-provider policy.',
+      'Provider rejection is converted into a diagnostic result instead of being hidden as ordinary data flow.',
+    ]),
     completion,
     node: {
       luiId,

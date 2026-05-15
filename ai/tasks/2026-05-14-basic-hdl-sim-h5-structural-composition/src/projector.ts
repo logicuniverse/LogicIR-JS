@@ -14,6 +14,7 @@ import type {
   StructuralPayload,
   StructuralWire,
 } from './types';
+import { baselineInterpretation } from './types';
 
 const GENERATED_DIR = 'generated';
 
@@ -365,5 +366,14 @@ export const emitH5Verilog = (
   writeFileSync(modulePath, moduleText);
   writeFileSync(testbenchPath, testbenchText);
 
-  return { modulePath, testbenchPath, moduleText, testbenchText };
+  return {
+    interpretation: baselineInterpretation('h5-structural-module-composition-emit', [
+      'Structural slice payloads are emitted as explicit Verilog wires and module instances.',
+      'Composition is validated by generated test vectors through a task-local iverilog simulation.',
+    ]),
+    modulePath,
+    testbenchPath,
+    moduleText,
+    testbenchText,
+  };
 };

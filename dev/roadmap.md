@@ -7,6 +7,8 @@ tool、projector、compiler、engine、fixture 和 AI task 的建设顺序。
 语言无关的规范和生成产物入口在 `schema/` 下。具体实现仍需要写入
 `dev/plans/` 中的聚焦计划，或者先放进 `ai/tasks/` 下的隔离 AI task。
 
+职责边界：本文维护建设顺序和候选任务；理论原则归 [`operational-theory.md`](operational-theory.md)，生态术语归 [`logicir-architecture.md`](logicir-architecture.md)，schema 规则归 [`schema-principles.md`](schema-principles.md)。
+
 ## 验收主线
 
 近期项目应该优先证明两个主 stack：
@@ -524,6 +526,14 @@ required。Type-system 可以作为 recommended 或 optional 出现在 profile �
 - 基于当前 architecture schema 原型化 `tools/profile-resolver`。
 - 用 feature/profile fixture 原型化 `tools/capability-checker`。
 - 从 `packages/legacy/flow-core` 提取可复用的 node/LUI catalog 证据。
+- `existing-code-provider-wrapping`
+  - 目标：选择一组现有 JS/TS legacy function、state store 或 node function，
+    用 AI 辅助提取 provider contract、LUI boundary、adapter 和 regression
+    fixture，证明 “wrap first, replicate second, replace later” 的接入路线。
+  - 必需内容：source evidence、candidate provider contract、wrapper、
+    LogicIR fixture、execution binding、smoke test、promotion checklist。
+  - 验收：wrapper 能调用旧能力并通过 fixture；task report 明确哪些行为只是
+    wrapper，哪些可以后续复刻为 LogicIR-native LUI/provider。
 - `logicir-edit-transaction-mvp`
   - 目标：定义 task-local LogicIR edit transaction 数据结构和最小 operation
     model，证明 AI 可以在一个 closure/scope 内提交小步、可 replay、可验证的
@@ -557,6 +567,11 @@ required。Type-system 可以作为 recommended 或 optional 出现在 profile �
 - Python runtime/projection。
 - 超出 basic provider 和 transport seam 的 distributed runtime。
 - Visual editor productization。
+- 面向外部读者的公开定位文档，例如 `docs/logicir-as-universal-carrier.md`，
+  用来解释 LogicIR 作为 AI + 可计算工业时代的可验证逻辑通用载体。这个
+  主题已经先沉淀在 `dev/operational-theory.md` 和
+  `dev/logicir-architecture.md`，等 `basic-software-interpreter` 与
+  `basic-hdl-sim` 的正式 seed 跑通后再提炼到 `docs/`。
 
 这些方向适合做 architecture pressure test，但除非它们揭示了缺失的
 target-neutral topology relation，否则不应驱动 core schema 改动。

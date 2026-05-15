@@ -35,3 +35,6 @@ Human review is required before promotion.
 - Generated logs.
 - Whole sandbox directory.
 - Any claim that S1-S5 fully reproduce legacy behavior.
+- Coverage status as a migration order.
+- Legacy algorithms as required implementation routes.
+- Legacy mechanism as core schema or schema truth.

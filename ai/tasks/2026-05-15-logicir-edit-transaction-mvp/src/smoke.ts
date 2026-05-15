@@ -34,6 +34,11 @@ const validation = validateTransaction(editTransaction);
 const validationDiagnostics = validation.flatMap((result) => result.diagnostics);
 
 assert(
+  editTransaction.interpretation.baselineOnly,
+  'Edit transaction must declare baseline interpretation metadata.',
+);
+
+assert(
   !hasErrors(validationDiagnostics),
   `Transaction validation failed: ${stableStringify(validationDiagnostics as unknown as JsonValue)}`,
 );
@@ -61,6 +66,7 @@ const tests: TestResult[] = [
 const report = {
   task: 'logicir-edit-transaction-mvp',
   status: 'passed',
+  interpretation: editTransaction.interpretation,
   beforeHash: editTransaction.before.hash,
   afterHash: editTransaction.after.hash,
   operationCount: editTransaction.operations.length,

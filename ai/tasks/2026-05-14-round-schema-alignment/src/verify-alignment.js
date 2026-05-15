@@ -83,8 +83,21 @@ for (const taskName of taskNames) {
     `${taskName} is not ready-for-review.`,
   );
   assert(
+    readme.includes('## Interpretation Note'),
+    `${taskName} README is missing Interpretation Note.`,
+  );
+  assert(
     verification.includes('`yarn verify`') && verification.includes('passed'),
     `${taskName} verification does not record a passed yarn verify.`,
+  );
+  const sourceFiles = fs
+    .readdirSync(srcDir)
+    .filter((fileName) => fileName.endsWith('.ts'))
+    .map((fileName) => readText(path.join(srcDir, fileName)))
+    .join('\n');
+  assert(
+    sourceFiles.includes('baselineOnly'),
+    `${taskName} source does not declare baseline interpretation metadata.`,
   );
 
   results.push({ task: taskName, core: hasCoreImport, architecture: hasArchitectureImport });

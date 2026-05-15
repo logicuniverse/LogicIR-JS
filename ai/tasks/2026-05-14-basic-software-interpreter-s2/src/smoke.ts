@@ -18,6 +18,11 @@ const assertDeepEqual = (
 
 const resolved = resolveStack(basicSoftwareInterpreterStack);
 const plan = createInterpreterPlan(counterCurrentLogicUnit, resolved);
+
+if (!plan.interpretation?.baselineOnly) {
+  throw new Error('Interpreter plan must declare baseline interpretation metadata.');
+}
+
 const stateStore = createMemoryStateStore({ counter: 1 });
 
 const initialRead = executeInterpreterPlan(plan, {
@@ -48,6 +53,7 @@ console.log(
     {
       stack: resolved.stackKey,
       plan: plan.key,
+      interpretation: plan.interpretation,
       readsAndWrites: [
         initialRead.outputs,
         firstWrite.outputs,

@@ -3,6 +3,10 @@ import { emitH3Verilog } from './projector';
 
 const artifacts = emitH3Verilog(register4LogicUnit);
 
+if (!artifacts.interpretation.baselineOnly) {
+  throw new Error('HDL artifacts must declare baseline interpretation metadata.');
+}
+
 if (!artifacts.moduleText.includes('always @(posedge clk or posedge rst)')) {
   throw new Error('Expected clock/reset sequential block.');
 }
@@ -16,6 +20,7 @@ console.log(
     {
       module: artifacts.modulePath,
       testbench: artifacts.testbenchPath,
+      interpretation: artifacts.interpretation,
       expectedSimulationMarker: 'H3_PASS',
     },
     null,

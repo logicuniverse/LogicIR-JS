@@ -5,6 +5,13 @@
 Prove that `basic-hdl-sim` rejects unsupported software-only semantics instead
 of silently generating invalid or degraded HDL.
 
+## Interpretation Note
+
+This task is sandbox evidence, not schema or projector authority. Its rejection
+shape is a baseline for H4 only; formal promotion may use a different diagnostic
+model if unsupported required semantics still fail explicitly and cannot be
+silently degraded.
+
 ## Round Target
 
 - Stack: `basic-hdl-sim`

@@ -8,7 +8,7 @@ import {
   validInvocationFixture,
 } from './fixtures';
 import { createInterpreterPlan } from './projector';
-import type { Diagnostic } from './types';
+import type { Diagnostic, InterpreterPlan } from './types';
 
 const assertDeepEqual = (
   actual: Record<string, unknown>,
@@ -45,15 +45,28 @@ const providers = {
   },
 };
 
-const valid = executeAndReport(createInterpreterPlan(validInvocationFixture), {
+const assertPlanInterpretation = (plan: InterpreterPlan): void => {
+  if (!plan.interpretation?.baselineOnly) {
+    throw new Error('Interpreter plan must declare baseline interpretation metadata.');
+  }
+};
+
+const validPlan = createInterpreterPlan(validInvocationFixture);
+assertPlanInterpretation(validPlan);
+const valid = executeAndReport(validPlan, {
   inputs: { left: 2, right: 5 },
   providers,
 });
 assertDeepEqual(valid.outputs, { sum: 7 });
 assertDeepEqual(valid.report.summary, {});
+if (!valid.report.interpretation.baselineOnly) {
+  throw new Error('Diagnostic report must declare baseline interpretation metadata.');
+}
 
+const missingProviderPlan = createInterpreterPlan(missingProviderFixture);
+assertPlanInterpretation(missingProviderPlan);
 const missingProvider = executeAndReport(
-  createInterpreterPlan(missingProviderFixture),
+  missingProviderPlan,
   { inputs: { left: 2, right: 5 }, providers },
 );
 assertFirstDiagnostic(missingProvider.diagnostics, {
@@ -62,7 +75,9 @@ assertFirstDiagnostic(missingProvider.diagnostics, {
   severity: 'error',
 });
 
-const invalidPlan = executeAndReport(createInterpreterPlan(invalidPlanFixture), {
+const invalidPlanDefinition = createInterpreterPlan(invalidPlanFixture);
+assertPlanInterpretation(invalidPlanDefinition);
+const invalidPlan = executeAndReport(invalidPlanDefinition, {
   inputs: { left: 2, right: 5 },
   providers,
 });
@@ -72,8 +87,10 @@ assertFirstDiagnostic(invalidPlan.diagnostics, {
   severity: 'error',
 });
 
+const unsupportedPlan = createInterpreterPlan(unsupportedSemanticsFixture);
+assertPlanInterpretation(unsupportedPlan);
 const unsupported = executeAndReport(
-  createInterpreterPlan(unsupportedSemanticsFixture),
+  unsupportedPlan,
   { inputs: { left: 2, right: 5 }, providers },
 );
 assertFirstDiagnostic(unsupported.diagnostics, {
@@ -82,8 +99,10 @@ assertFirstDiagnostic(unsupported.diagnostics, {
   severity: 'error',
 });
 
+const runtimeFailurePlan = createInterpreterPlan(runtimeFailureFixture);
+assertPlanInterpretation(runtimeFailurePlan);
 const runtimeFailure = executeAndReport(
-  createInterpreterPlan(runtimeFailureFixture),
+  runtimeFailurePlan,
   { inputs: { left: 2, right: 5 }, providers },
 );
 assertFirstDiagnostic(runtimeFailure.diagnostics, {
@@ -105,10 +124,14 @@ assertDeepEqual(combinedReport.summary, {
   UNSUPPORTED_SEMANTIC: 1,
   RUNTIME_FAILURE: 1,
 });
+if (!combinedReport.interpretation.baselineOnly) {
+  throw new Error('Combined report must declare baseline interpretation metadata.');
+}
 
 console.log(
   JSON.stringify(
     {
+      interpretation: validPlan.interpretation,
       valid,
       missingProvider,
       invalidPlan,

@@ -7,9 +7,24 @@ const coveragePath = path.join(taskRoot, 'coverage.json');
 const reportPath = path.join(taskRoot, 'coverage-report.md');
 
 const data = JSON.parse(fs.readFileSync(coveragePath, 'utf8'));
+const errors = [];
+if (data.interpretation?.authority !== 'source-evidence') {
+  errors.push('interpretation.authority must be source-evidence');
+}
+if (data.interpretation?.baselineOnly !== true) {
+  errors.push('interpretation.baselineOnly must be true');
+}
+const interpretationNote = String(data.interpretation?.note ?? '');
+if (
+  !interpretationNote.includes('evidence') ||
+  !interpretationNote.includes('not that legacy algorithms')
+) {
+  errors.push(
+    'interpretation.note must warn that legacy coverage is evidence, not algorithm authority',
+  );
+}
 const allowedStatuses = new Set(data.statusEnum);
 const rows = data.coverage;
-const errors = [];
 
 if (!Array.isArray(rows) || rows.length === 0) {
   errors.push('coverage must contain at least one row');

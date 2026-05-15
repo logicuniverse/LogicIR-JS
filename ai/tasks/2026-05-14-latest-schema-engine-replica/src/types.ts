@@ -53,6 +53,25 @@ export type Diagnostic = {
   subject?: string;
 };
 
+export type InterpretationMetadata = {
+  authority: 'sandbox-evidence';
+  baselineOnly: true;
+  realizationStrategy: string;
+  semanticPreservation: string[];
+  note: string;
+};
+
+export const baselineInterpretation = (
+  realizationStrategy: string,
+  semanticPreservation: string[],
+): InterpretationMetadata => ({
+  authority: 'sandbox-evidence',
+  baselineOnly: true,
+  realizationStrategy,
+  semanticPreservation,
+  note: 'This latest-schema replica is review evidence and a runnable baseline, not final schema authority or a mandatory engine algorithm.',
+});
+
 export type ExecutionNodeKind =
   | 'provider'
   | 'state-read'
@@ -85,6 +104,7 @@ export type PortMapping = {
 
 export type InterpreterPlan = {
   key: string;
+  interpretation: InterpretationMetadata;
   unitKind: CoreLogicUnit['core']['kindOrganization']['kind'];
   inputPorts: string[];
   outputPorts: string[];

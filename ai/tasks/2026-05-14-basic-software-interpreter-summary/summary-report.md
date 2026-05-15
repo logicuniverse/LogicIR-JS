@@ -6,6 +6,12 @@ S1-S5 prove the minimum software interpreter spine, but they do not yet form one
 integrated interpreter MVP. Each round intentionally added one semantic slice
 and verified it end to end inside its own sandbox.
 
+These rounds are baselines for review, not engine law. Legacy behavior and
+task-local execution choices are design evidence. A promoted interpreter may use
+different plan shapes, scheduling, state storage, completion/result modeling, or
+fulfillment resolution if profile contracts and verification prove semantic
+preservation.
+
 The route is ready for human review as a set of seeds:
 
 - Invocation can resolve a stack/profile contract and call an explicit provider.
@@ -56,6 +62,11 @@ The first formal promotion should be narrow:
 Avoid promoting the task-local schema subsets. They were useful for sandbox
 speed, but formal code should import accepted types from `packages/`.
 
+Also avoid promoting any S1-S5 algorithm as the only valid runtime strategy:
+primary-result lazy pull, task-local state store, Promise-style completion,
+closure/upstream fulfillment, and S5 diagnostics are current baselines. They
+should be redesigned or retained intentionally during formal review.
+
 ## Recommended Follow-Up Rounds
 
 | Round | Why It Comes Next |
@@ -74,6 +85,7 @@ speed, but formal code should import accepted types from `packages/`.
 - Task-local schema subsets.
 - Runtime-function closure representation as final schema.
 - Diagnostic taxonomy as final without review.
+- Any old-code-inspired algorithm as mandatory engine architecture.
 
 ## Conclusion
 

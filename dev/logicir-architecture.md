@@ -2,6 +2,8 @@
 
 这份文档定义 LogicIR schema、profile、projection 和 execution support 的当前工作架构。它是后续 schema 工作的开发指南，不是生成的 schema artifact，也不替代 `docs/` 中的理论文档。
 
+职责边界：本文维护生态对象和兼容链条的术语；理论动机归 [`operational-theory.md`](operational-theory.md)，schema 设计规则归 [`schema-principles.md`](schema-principles.md)，阶段计划归 [`roadmap.md`](roadmap.md)。
+
 ## 主要可移植数据
 
 LogicIR 开发围绕两个可移植数据对象展开：
@@ -25,11 +27,40 @@ Feature definition、profile definition、stack definition、capability definiti
 
 当前主要 stack 仍然是 software 和 Verilog HDL。Circuit/netlist、mechanical design 和 product enclosure 路线是参考 probe 和未来 extension path。它们有助于检查 architecture 是否保持 target-neutral 和可扩展，但不应驱动 core schema 改动，除非它们揭示了缺失的 target-neutral topology relation。
 
+## 通用载体生态
+
+LogicIR 不应被实现成单个大格式、单个大 runtime 或单个通用编译器。它的生态边界应围绕“可验证逻辑载体”展开：
+
+- **Core schema** 承载 target-neutral logic topology。
+- **Feature / extension catalog** 承载可组合语义能力和 attachment payload。
+- **Profile / stack** 承载单层兼容契约和端到端 workflow 选择。
+- **Validator / resolver / capability checker** 承载机械检查和安全失败。
+- **Projector / compiler** 承载到 interpreter plan、JS/TS、Verilog HDL、report、test 或其它 artifact 的 projection。
+- **Engine / provider registry** 承载 runtime realization 和外部能力履约。
+- **Fixture / regression suite** 承载可重复验证证据。
+- **AI task / edit transaction / promotion flow** 承载 AI 自动探索、人类 review 和正式项目晋升。
+- **Visual / natural-language authoring** 承载用户和 AI 在不同 level 上共同构造 partial LogicIR 的入口。
+
+因此，LogicIR 的统一性不来自“所有目标都共用同一种最终语言”，而来自同一个结构化逻辑对象可以被不同工具验证、变换、投影、执行、审查和继续编辑。这个生态目标服务 AI + 可计算工业时代，但它不是当前每个 package 的即时实现要求；近期工作仍以 `basic-software-interpreter` 和 `basic-hdl-sim` 的最小闭环为准。
+
+### 既有生态接入
+
+LogicIR 的 architecture 必须把 existing ecosystem 当作一等输入，而不是迁移后才存在的外部遗留物。现有函数、模块、服务、state store、event source、HDL module、IP core、数据库、队列、UI node 和测试都可以先通过以下结构进入生态：
+
+- **Provider contract / provider capability**: 描述已有能力满足什么接口和语义义务。
+- **External target LUI**: 在 LogicIR 拓扑中显现一个已有外部能力。
+- **Requirement fulfillment**: 把已有能力绑定到某个 requirement surface。
+- **Execution binding**: 在 execution profile 中把 abstract need 映射到具体 provider。
+- **Adapter / lowering trace**: 记录为接入旧能力而插入的转换、包装或降级。
+- **Fixture / regression evidence**: 证明 wrapper 或 replica 保持了旧行为。
+
+AI-assisted wrapping and replication 是早期生态扩张的主要路线：先封装已有能力，再在必要时复刻成 LogicIR-native LUI/provider，最后才考虑替换旧实现。Architecture schema 不应把 wrapper 视为二等路径；很多成熟生态会长期以 provider、external target 或 target artifact 的形式存在。
+
 ## 可验证逻辑协同编辑
 
 这一节是 [docs/essay.md](../docs/essay.md) 中 LogicIR 作为 logic-as-data substrate、topological source of truth 和 AI-assisted work 结构化交互单位的工程化展开；它不是独立于 essay 的新产品叙事。
 
-LogicIR authoring 的长期产品形态不是让用户只写代码，也不是让 AI 一次性生成大段代码。更有价值的形态是让用户通过自然语言、拖拽、图编辑、表单或它们的组合，半自动构造不同 level 的 partial LogicIR；AI 在明确的 scope、closure、feature/profile 约束和 provider/type 信息下补全空位、修复不一致、生成 projection，并运行验证。
+完整理论动机、authoring level 和 partial IR / typed holes 说明由 [`operational-theory.md`](operational-theory.md) 维护。本节只保留 architecture 需要实现或承认的接口边界。
 
 ```text
 user intent / visual edit
@@ -39,11 +70,9 @@ user intent / visual edit
 -> reviewable result
 ```
 
-这个模型适用于内部开发，也适用于未来外部用户工具。内部使用时，AI task 应尽量提交可验证的 LogicIR fixture、architecture data、projector/engine smoke 和 promotion notes；外部使用时，用户的自然语言和拖拽操作也应落成同一种可验证 edit transaction。
-
 ### Edit Transaction
 
-LogicIR edit transaction 是一次原子逻辑编辑的审查单位。它至少应能表达：
+LogicIR edit transaction 是一次原子逻辑编辑的审查单位。Architecture 层至少需要为以下信息留出稳定表达或关联点：
 
 ```ts
 {
@@ -58,13 +87,11 @@ LogicIR edit transaction 是一次原子逻辑编辑的审查单位。它至少�
 }
 ```
 
-这里的 `unknown` 不是最终 schema，而是提醒当前文档只定义架构角色：`scope` 应指向可编辑的 LU、closure、profile 或 task-local fixture boundary；`operations` 应是可 replay 的结构化 edit operation；`validation` 和 `tests` 应保存 schema、profile、type、runtime 或 HDL simulation 结果。
-
-AI 不应把 edit transaction 降级成普通文件 diff。文件 diff 可以是实现载体，但 review 的核心应该是：这次编辑的意图是什么、改动落在哪个 scope、是否满足当前 profile、是否有 semantic loss、哪些 projection/execution 验收已经通过。
+这里的 `unknown` 不是最终 schema。它表示当前文档只定义角色：`scope` 指向可编辑的 LU、closure、profile 或 task-local fixture boundary；`operations` 是可 replay 的结构化 edit operation；`validation` 和 `tests` 保存 schema、profile、type、runtime 或 HDL simulation 结果。
 
 ### Partial IR 和空位
 
-Authoring tool 可以创建 partial LogicIR，但空位必须有接口。典型空位包括：
+Authoring tool 可以创建 partial LogicIR，但空位必须有接口。Architecture 层主要负责让这些接口可以被 feature、profile、provider contract、type system 和 capability checker 解析，例如：
 
 - 需要选择 provider 的 invocation。
 - 需要补齐 payload type、signal width 或 value shape 的 port。
@@ -72,8 +99,6 @@ Authoring tool 可以创建 partial LogicIR，但空位必须有接口。典型�
 - 需要 clock/reset/state/combinational/elaboration constraint 的 HDL 语义。
 - 需要 closure 或 upstream fulfillment 的 requirement。
 - 需要 projection target 或 execution binding 的 stack 选择。
-
-AI completion 必须在这些接口内工作。Feature definition、profile requirement、provider contract、type system 和 capability checker 共同限定 AI 可补全的空间。
 
 ## LogicIR 文档（LogicIR Document）
 

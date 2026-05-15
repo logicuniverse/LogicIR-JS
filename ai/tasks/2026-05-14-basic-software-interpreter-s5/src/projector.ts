@@ -1,6 +1,6 @@
 import { diagnostic } from './diagnostics';
 import type { InterpreterPlan, LogicUnitFixture } from './types';
-import { providerIdentity } from './types';
+import { baselineInterpretation, providerIdentity } from './types';
 
 export const createInterpreterPlan = (
   fixture: LogicUnitFixture,
@@ -32,6 +32,10 @@ export const createInterpreterPlan = (
 
   return {
     key: `${fixture.key}.interpreter-plan.s5`,
+    interpretation: baselineInterpretation('s5-diagnostic-aware-invocation', [
+      'Provider invocation remains explicit and diagnostic-producing.',
+      'Invalid plans, missing providers, unsupported semantics, and runtime failures stay distinguishable.',
+    ]),
     providerKey: providerIdentity(fixture.target),
     inputMap: fixture.inputMap,
     outputMap: fixture.outputMap,

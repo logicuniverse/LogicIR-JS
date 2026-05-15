@@ -5,6 +5,11 @@
 The catalog in this task is a replica of legacy stdlib node identity and
 behavior evidence. It is not a new formal feature catalog.
 
+Legacy stdlib behavior is evidence, not authority. The task proves a complete
+baseline against old stdlib keys; formal promotion may split, rename, drop,
+defer, or re-model nodes when current LogicIR feature/profile boundaries require
+it.
+
 Core schema remains target-neutral. JS method behavior, callbacks, event emits,
 property state operations, async delay, and component composition helpers are
 all task-local provider/runtime behavior.
@@ -46,6 +51,8 @@ data shapes.
 The replica is directly relevant to a future software interpreter provider
 package. Promotion should happen by extracting reviewed provider behavior,
 coverage cases, and catalog rows into formal feature/tool/runtime packages.
+The formal package should not inherit this task's catalog layout or provider
+dispatch model by default.
 
 ## Verilog HDL Impact
 

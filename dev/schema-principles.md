@@ -2,6 +2,8 @@
 
 这个文档记录后续制定 LogicIR schema 时必须遵守的设计原则。它用于约束 schema 计划，不替代 [docs/essay.md](../docs/essay.md) 的理论正文。
 
+职责边界：本文维护 schema、feature/extension 和 projection target 的规则；生态术语归 [`logicir-architecture.md`](logicir-architecture.md)，理论动机归 [`operational-theory.md`](operational-theory.md)，具体实现阶段归 [`roadmap.md`](roadmap.md)。
+
 ## 理论优先
 
 - [docs/essay.md](../docs/essay.md) 是 LogicIR 新 schema 的理论源头。

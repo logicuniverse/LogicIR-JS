@@ -33,9 +33,29 @@ export type Diagnostic = {
 
 export type DiagnosticReport = {
   status: 'ok' | 'error';
+  interpretation: InterpretationMetadata;
   diagnostics: Diagnostic[];
   summary: Record<string, number>;
 };
+
+export type InterpretationMetadata = {
+  authority: 'sandbox-evidence';
+  baselineOnly: true;
+  realizationStrategy: string;
+  semanticPreservation: string[];
+  note: string;
+};
+
+export const baselineInterpretation = (
+  realizationStrategy: string,
+  semanticPreservation: string[],
+): InterpretationMetadata => ({
+  authority: 'sandbox-evidence',
+  baselineOnly: true,
+  realizationStrategy,
+  semanticPreservation,
+  note: 'This task-local plan is review evidence and a runnable baseline, not final schema authority or a mandatory engine algorithm.',
+});
 
 export type LogicUnitFixture = {
   key: string;
@@ -48,6 +68,7 @@ export type LogicUnitFixture = {
 
 export type InterpreterPlan = {
   key: string;
+  interpretation: InterpretationMetadata;
   providerKey?: string;
   inputMap: Record<string, string>;
   outputMap: Record<string, string>;

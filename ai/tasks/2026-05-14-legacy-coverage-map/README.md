@@ -8,6 +8,13 @@ partial, deferred, and intentionally dropped areas.
 
 This task is source-evidence extraction. It does not implement runtime code.
 
+## Interpretation Note
+
+This task is a coverage map, not a migration order. Legacy capabilities listed
+here are evidence and prioritization input; each promoted feature, provider,
+tool, or engine behavior still needs current-schema design review and may use a
+different implementation route.
+
 ## Round Target
 
 - Stack: `basic-software-interpreter`

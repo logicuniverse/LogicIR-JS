@@ -74,9 +74,29 @@ export type Diagnostic = {
   subject?: string;
 };
 
+export type InterpretationMetadata = {
+  authority: 'sandbox-evidence';
+  baselineOnly: true;
+  realizationStrategy: string;
+  semanticPreservation: string[];
+  note: string;
+};
+
+export const baselineInterpretation = (
+  realizationStrategy: string,
+  semanticPreservation: string[],
+): InterpretationMetadata => ({
+  authority: 'sandbox-evidence',
+  baselineOnly: true,
+  realizationStrategy,
+  semanticPreservation,
+  note: 'This task-local plan is review evidence and a runnable baseline, not final schema authority or a mandatory engine algorithm.',
+});
+
 export type InterpreterPlan = {
   key: string;
   stackKey: string;
+  interpretation: InterpretationMetadata;
   executionKind: 'combinational';
   primaryOutputPort: PortKey;
   inputPorts: PortKey[];

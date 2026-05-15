@@ -6,6 +6,13 @@ Prove signal width and simple type metadata for `basic-hdl-sim`: a 4-bit
 unsigned add fixture projects to Verilog and passes simulation, including
 4-bit wraparound.
 
+## Interpretation Note
+
+This task is sandbox evidence, not schema or projector authority. Its signal
+payload and Verilog emitter are verified baselines for H2 only; formal promotion
+may use a different signal model or emission strategy if width semantics remain
+explicit and verifiable.
+
 ## Round Target
 
 - Stack: `basic-hdl-sim`

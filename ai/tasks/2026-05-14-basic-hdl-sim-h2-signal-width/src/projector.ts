@@ -8,6 +8,7 @@ import type {
   LogicUnit,
   Port,
 } from './types';
+import { baselineInterpretation } from './types';
 
 const GENERATED_DIR = 'generated';
 
@@ -94,5 +95,14 @@ export const emitH2Verilog = (logicUnit: LogicUnit): HdlArtifacts => {
   writeFileSync(modulePath, moduleText);
   writeFileSync(testbenchPath, testbenchText);
 
-  return { modulePath, testbenchPath, moduleText, testbenchText };
+  return {
+    interpretation: baselineInterpretation('h2-width-aware-verilog-emit', [
+      'HDL signal payload width is preserved in Verilog port declarations.',
+      'Arithmetic wrap behavior is verified by a task-local iverilog testbench.',
+    ]),
+    modulePath,
+    testbenchPath,
+    moduleText,
+    testbenchText,
+  };
 };

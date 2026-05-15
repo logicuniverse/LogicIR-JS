@@ -5,6 +5,13 @@
 Prove the first `basic-hdl-sim` round: a minimal combinational LogicIR fixture
 projects to Verilog HDL and passes an `iverilog` simulation smoke test.
 
+## Interpretation Note
+
+This task is sandbox evidence, not schema or projector authority. Its Verilog
+emitter is a verified baseline for H1 only; formal promotion may use a different
+emission strategy if it explicitly preserves combinational LU semantics and
+keeps unsupported behavior diagnostic-friendly.
+
 ## Round Target
 
 - Stack: `basic-hdl-sim`

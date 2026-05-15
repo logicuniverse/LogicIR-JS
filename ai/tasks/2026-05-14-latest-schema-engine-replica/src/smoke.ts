@@ -131,23 +131,30 @@ const engine = createEngine({
   providers: engineProviders,
 });
 
+const assertPlanInterpretation = (plan: ReturnType<typeof compileLogicUnit>): void => {
+  if (!plan.interpretation.baselineOnly) {
+    throw new Error(`Plan ${plan.key} must declare baseline interpretation metadata.`);
+  }
+};
+
 const main = async (): Promise<void> => {
-  const combinational = engine.run(
-    compileLogicUnit(combinationalFixture),
-    { left: 2, right: 5 },
-  );
+  const combinationalPlan = compileLogicUnit(combinationalFixture);
+  assertPlanInterpretation(combinationalPlan);
+  const combinational = engine.run(combinationalPlan, { left: 2, right: 5 });
   assertDeepEqual(combinational.outputs, { sum: 7 });
 
-  const overriddenAdd = engine.run(
-    compileLogicUnit(combinationalFixture),
-    { left: 2, right: 5, override: true },
-  );
+  const overriddenAdd = engine.run(combinationalPlan, {
+    left: 2,
+    right: 5,
+    override: true,
+  });
   assertDeepEqual(overriddenAdd.outputs, { sum: 99 });
   if (!pluginEvents.includes('onDidOverrideLUIManifestation')) {
     throw new Error('Expected override LUI hook event.');
   }
 
   const statePlan = compileLogicUnit(statefulRetainedFixture);
+  assertPlanInterpretation(statePlan);
   const stateRead1 = engine.run(statePlan, {});
   const stateWrite = engine.run(statePlan, { next: 11 });
   const stateRead2 = engine.run(statePlan, {});
@@ -155,34 +162,29 @@ const main = async (): Promise<void> => {
   assertDeepEqual(stateWrite.outputs, { current: 1, written: 11 });
   assertDeepEqual(stateRead2.outputs, { current: 11 });
 
-  const asyncResult = await engine.runAsync(
-    compileLogicUnit(asyncCompletionFixture),
-    { value: 6 },
-  );
+  const asyncPlan = compileLogicUnit(asyncCompletionFixture);
+  assertPlanInterpretation(asyncPlan);
+  const asyncResult = await engine.runAsync(asyncPlan, { value: 6 });
   assertDeepEqual(asyncResult.outputs, { doubled: 12 });
 
-  const syncAsyncDiagnostic = engine.run(
-    compileLogicUnit(asyncCompletionFixture),
-    { value: 6 },
-  );
+  const syncAsyncDiagnostic = engine.run(asyncPlan, { value: 6 });
   assertDeepEqual(syncAsyncDiagnostic.status, 'error');
   assertDeepEqual(syncAsyncDiagnostic.diagnostics[0]?.code, 'ASYNC_PROVIDER_IN_SYNC_RUN');
 
-  const thenableResult = await engine.runAsync(
-    compileLogicUnit(thenableCompletionFixture),
-    { value: 5 },
-  );
+  const thenablePlan = compileLogicUnit(thenableCompletionFixture);
+  assertPlanInterpretation(thenablePlan);
+  const thenableResult = await engine.runAsync(thenablePlan, { value: 5 });
   assertDeepEqual(thenableResult.outputs, { tripled: 15 });
 
-  const closureResult = engine.run(compileLogicUnit(fulfillmentFixture), {
-    value: 4,
-  });
+  const fulfillmentPlan = compileLogicUnit(fulfillmentFixture);
+  assertPlanInterpretation(fulfillmentPlan);
+  const closureResult = engine.run(fulfillmentPlan, { value: 4 });
   assertDeepEqual(closureResult.outputs, {
     local: 5,
     upstream: 14,
   });
 
-  const closureOverride = engine.run(compileLogicUnit(fulfillmentFixture), {
+  const closureOverride = engine.run(fulfillmentPlan, {
     value: 7,
   });
   assertDeepEqual(closureOverride.outputs, {
@@ -193,27 +195,27 @@ const main = async (): Promise<void> => {
     throw new Error('Expected override closure hook event.');
   }
 
-  const sequential = await engine.runAsync(
-    compileLogicUnit(sequentialControlFixture),
-    { start: 0 },
-  );
+  const sequentialPlan = compileLogicUnit(sequentialControlFixture);
+  assertPlanInterpretation(sequentialPlan);
+  const sequential = await engine.runAsync(sequentialPlan, { start: 0 });
   assertDeepEqual(sequential.outputs, { result: 3 });
   if (!pluginEvents.includes('onGoBack')) {
     throw new Error('Expected go-back hook event.');
   }
 
-  const sequentialReturn = await engine.runAsync(
-    compileLogicUnit(sequentialControlFixture),
-    { start: 3 },
-  );
+  const sequentialReturn = await engine.runAsync(sequentialPlan, { start: 3 });
   assertDeepEqual(sequentialReturn.outputs, { result: 4 });
 
-  const payloadPath = engine.run(compileLogicUnit(payloadPathFixture), {
+  const payloadPathPlan = compileLogicUnit(payloadPathFixture);
+  assertPlanInterpretation(payloadPathPlan);
+  const payloadPath = engine.run(payloadPathPlan, {
     source: { nested: { value: 40 } },
   });
   assertDeepEqual(payloadPath.outputs, { picked: { value: 41 } });
 
-  const emitted = engine.run(compileLogicUnit(emitFixture), {
+  const emitPlan = compileLogicUnit(emitFixture);
+  assertPlanInterpretation(emitPlan);
+  const emitted = engine.run(emitPlan, {
     message: 'ready',
   });
   assertDeepEqual(emitted.outputs, { ack: true });
@@ -224,13 +226,11 @@ const main = async (): Promise<void> => {
     throw new Error('Expected before-emit hook event.');
   }
 
-  const reactive = await engine.runReactive(
-    compileLogicUnit(reactiveSubscribeFixture),
-    {},
-    {
-      tick: [{ result: ok(some('pulse')), path: ['latest'] }],
-    },
-  );
+  const reactivePlan = compileLogicUnit(reactiveSubscribeFixture);
+  assertPlanInterpretation(reactivePlan);
+  const reactive = await engine.runReactive(reactivePlan, {}, {
+    tick: [{ result: ok(some('pulse')), path: ['latest'] }],
+  });
   assertDeepEqual(reactive.outputs, { latest: 'pulse' });
 
   const nestedEngine = createEngine({
@@ -240,7 +240,9 @@ const main = async (): Promise<void> => {
       'nested-inner': compileLogicUnit(nestedInnerFixture),
     },
   });
-  const nested = nestedEngine.run(compileLogicUnit(nestedOuterFixture), {
+  const nestedOuterPlan = compileLogicUnit(nestedOuterFixture);
+  assertPlanInterpretation(nestedOuterPlan);
+  const nested = nestedEngine.run(nestedOuterPlan, {
     value: 1,
   });
   assertDeepEqual(nested.outputs, { result: 101 });
@@ -248,7 +250,9 @@ const main = async (): Promise<void> => {
     throw new Error('Expected nested session bookkeeping.');
   }
 
-  const structural = engine.run(compileLogicUnit(structuralCompositionFixture), {
+  const structuralPlan = compileLogicUnit(structuralCompositionFixture);
+  assertPlanInterpretation(structuralPlan);
+  const structural = engine.run(structuralPlan, {
     label: 'Run',
     text: 'Hello',
   });
@@ -270,6 +274,7 @@ const main = async (): Promise<void> => {
   console.log(
     JSON.stringify(
       {
+        interpretation: combinationalPlan.interpretation,
         combinational,
         stateRead1,
         stateWrite,

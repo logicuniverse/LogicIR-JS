@@ -40,3 +40,5 @@ Human review is required before promotion.
 - Whole H1-H5 task directories.
 - Generated `.vvp` files.
 - Task-local type subsets.
+- H1-H5 emitter/lowering algorithms as mandatory projector architecture.
+- H5 structural payload as final schema without anchor/outlet and feature review.

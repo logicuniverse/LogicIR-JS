@@ -7,6 +7,7 @@ import type {
   PortMapping,
   PortKey,
 } from './types';
+import { baselineInterpretation } from './types';
 
 const identityKey = (target: Extract<LUITarget, { kind: 'external' }>): string =>
   `${target.namespace}/${target.key}${target.version ? `@${target.version}` : ''}`;
@@ -200,6 +201,10 @@ export const compileLogicUnit = (logicUnit: LogicUnit): InterpreterPlan => {
 
   return {
     key: `latest-schema.${unitKind}.execution-plan`,
+    interpretation: baselineInterpretation(`latest-schema-${unitKind}-execution-plan`, [
+      'The plan compiles current core LogicUnit fixtures into a runnable execution baseline.',
+      'Legacy-inspired runtime behavior is explicit evidence for review, not mandatory future engine architecture.',
+    ]),
     unitKind,
     inputPorts: inputPorts(logicUnit),
     outputPorts: outputPorts(logicUnit),

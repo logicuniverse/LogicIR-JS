@@ -1,5 +1,6 @@
 import {
   legacyStdlibNodeKeys,
+  stdlibReplicaInterpretation,
   stdlibNodeSpecByKey,
   stdlibNodeSpecs,
 } from './catalog';
@@ -58,9 +59,14 @@ if (
   );
 }
 
+if (!stdlibReplicaInterpretation.baselineOnly) {
+  throw new Error('Stdlib replica must declare baseline interpretation metadata.');
+}
+
 console.log(
   JSON.stringify(
     {
+      interpretation: stdlibReplicaInterpretation,
       legacyKeys: legacyStdlibNodeKeys.length,
       catalog: catalogKeys.size,
       providers: providerKeys.size,

@@ -6,6 +6,13 @@ Add thenable-compatible completion behavior to the software interpreter
 sandbox. An async provider can resolve into outputs or reject into a structured
 diagnostic.
 
+## Interpretation Note
+
+This task is sandbox evidence, not schema or engine authority. Its
+Promise-style completion path is the S3 baseline, not a mandate to put JS async
+mechanics into core. Formal promotion may use a different completion/result
+model if profile policy and diagnostics preserve the observable behavior.
+
 ## Round Target
 
 - Stack: `basic-software-interpreter`

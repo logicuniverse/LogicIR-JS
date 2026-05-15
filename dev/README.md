@@ -22,8 +22,5 @@
 3. 理论到工程实现的映射读 [operational-theory.md](operational-theory.md)。
 4. schema、feature、projection 或 runtime 设计读 [schema-principles.md](schema-principles.md)。
 5. profile、stack、provider、execution binding 等生态概念读 [logicir-architecture.md](logicir-architecture.md)。
-6. AI 协同编辑、partial IR、edit transaction 和可验证 authoring 前景读
-   [operational-theory.md](operational-theory.md) 与
-   [logicir-architecture.md](logicir-architecture.md) 的相关章节。
-7. 项目对象清单和阶段优先级读 [roadmap.md](roadmap.md)。
-8. 重大变更的实施计划写入 [plans/](plans/)；AI 全自动探索写入 [`../ai/tasks/`](../ai/tasks/)。
+6. 项目对象清单和阶段优先级读 [roadmap.md](roadmap.md)。
+7. 重大变更的实施计划写入 [plans/](plans/)；AI 全自动探索写入 [`../ai/tasks/`](../ai/tasks/)。

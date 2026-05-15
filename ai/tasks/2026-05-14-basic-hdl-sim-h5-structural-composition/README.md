@@ -6,6 +6,14 @@ Prove structural module composition for `basic-hdl-sim`: a top-level structural
 LogicIR fixture projects to hierarchical Verilog with two child module
 instances and passes simulation.
 
+## Interpretation Note
+
+This task is sandbox evidence, not schema or projector authority. Its structural
+payload is a verified H5 baseline, not the final structural schema. Formal
+promotion may use anchors/outlets, elaboration data, module-library resolution,
+or another explicit lowering strategy if structural composition semantics are
+preserved and verified.
+
 ## Round Target
 
 - Stack: `basic-hdl-sim`

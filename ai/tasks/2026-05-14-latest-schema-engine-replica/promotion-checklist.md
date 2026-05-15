@@ -48,4 +48,6 @@ Move only the smallest reviewed pieces into formal project locations.
 - Task-local runtime plan types as final API.
 - Task-local `runtime-operation` payload shape without feature schema review.
 - Editor/model convenience rows as runtime requirements.
-
+- Replica runtime scheduling, state storage, hook, event replay, structural
+  rendering, or session mechanics as mandatory engine law.
+- Legacy behavior as schema truth without current-schema feature/profile review.

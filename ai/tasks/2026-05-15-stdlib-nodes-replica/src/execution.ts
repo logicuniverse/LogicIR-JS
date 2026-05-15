@@ -5,7 +5,14 @@ import type {
   PortKey,
 } from '@logic-universe/logic-ir-core';
 import type { LegacyStdlibNodeKey } from './catalog';
-import { stdlibProviders, type ProviderContext } from './providers';
+import {
+  stdlibProviders,
+  type ProviderContext,
+} from './providers';
+import {
+  stdlibReplicaInterpretation,
+  type InterpretationMetadata,
+} from './catalog';
 
 export type PortMapping = {
   portKey: string;
@@ -22,6 +29,7 @@ export type ExecutionNode = {
 
 export type InterpreterPlan = {
   key: string;
+  interpretation: InterpretationMetadata;
   inputPorts: string[];
   outputPorts: string[];
   nodes: ExecutionNode[];
@@ -92,6 +100,7 @@ const outputPorts = (logicUnit: LogicUnit): string[] =>
 
 export const compileLogicUnit = (logicUnit: LogicUnit): InterpreterPlan => ({
   key: 'stdlib-replica.execution-plan',
+  interpretation: stdlibReplicaInterpretation,
   inputPorts: inputPorts(logicUnit),
   outputPorts: outputPorts(logicUnit),
   nodes: Object.entries(logicUnit.core.luis).map(([luiId, lui]) => {

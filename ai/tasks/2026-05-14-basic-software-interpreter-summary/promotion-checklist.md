@@ -39,3 +39,6 @@ Human review is required before promotion.
 - Whole S1-S5 task directories.
 - Task-local type subsets.
 - Generated `dist/` output.
+- S1-S5 runtime algorithms as mandatory engine architecture.
+- Old-code-inspired behavior as schema truth without fresh feature/profile
+  review.

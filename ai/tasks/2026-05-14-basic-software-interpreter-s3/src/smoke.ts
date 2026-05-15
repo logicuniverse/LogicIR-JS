@@ -20,6 +20,10 @@ const run = async (): Promise<void> => {
   const resolved = resolveStack(basicSoftwareInterpreterStack);
   const plan = createInterpreterPlan(asyncDoubleLogicUnit, resolved);
 
+  if (!plan.interpretation?.baselineOnly) {
+    throw new Error('Interpreter plan must declare baseline interpretation metadata.');
+  }
+
   const resolvedResult = await executeInterpreterPlan(plan, {
     inputs: { value: 6 },
     providers: {
@@ -62,6 +66,7 @@ const run = async (): Promise<void> => {
       {
         stack: resolved.stackKey,
         plan: plan.key,
+        interpretation: plan.interpretation,
         resolve: resolvedResult,
         reject: rejectedResult,
       },

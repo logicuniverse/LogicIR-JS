@@ -5,6 +5,7 @@ import type {
   LogicIREditTransaction,
   TypedHole,
 } from './types';
+import { baselineInterpretation } from './types';
 import { hashJson } from './hash';
 
 const inputPort: Port = {
@@ -183,6 +184,10 @@ export const editOperations: LogicIREditOperation[] = [
 
 export const editTransaction: LogicIREditTransaction = {
   schemaVersion: 'logicir.edit-transaction.mvp/0.1',
+  interpretation: baselineInterpretation('typed-hole-edit-transaction-replay', [
+    'Typed holes, edit operations, replay, validation, and smoke execution are demonstrated as one task-local route.',
+    'The transaction shape is review evidence and should be narrowed before any formal edit protocol promotion.',
+  ]),
   intent:
     'Complete a partial LogicIR add-pair invocation by selecting the invocation feature, adding a provider-backed LUI, and wiring LU ports to it.',
   scope: {

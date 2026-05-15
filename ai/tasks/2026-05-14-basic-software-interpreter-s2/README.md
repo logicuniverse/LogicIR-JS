@@ -6,6 +6,14 @@ Add retained-current behavior to the software interpreter sandbox: a LogicIR
 fixture reads current state, writes a new current value through a state-store
 provider, then reads the updated value on the next run.
 
+## Interpretation Note
+
+This task is sandbox evidence, not schema or engine authority. Its state-store
+path is the S2 baseline, not a mandatory state architecture. Formal promotion
+may use a different store, reactive, incremental, or event-loop strategy if
+retained-current/current read and durable update semantics remain explicit and
+verified.
+
 ## Round Target
 
 - Stack: `basic-software-interpreter`

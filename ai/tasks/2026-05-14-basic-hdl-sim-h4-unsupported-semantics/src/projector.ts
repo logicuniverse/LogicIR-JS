@@ -1,5 +1,6 @@
 import { supportedRequiredFeatures } from './architecture';
 import type { Diagnostic, FeatureUse, LogicUnit, ProjectionResult } from './types';
+import { baselineInterpretation } from './types';
 
 const featureIdentity = (feature: FeatureUse): string =>
   `${feature.namespace}/${feature.key}`;
@@ -26,12 +27,20 @@ export const projectToVerilogOrReject = (
   if (diagnostics.length > 0) {
     return {
       kind: 'rejected',
+      interpretation: baselineInterpretation('h4-required-feature-rejection', [
+        'Required unsupported features are rejected with diagnostics instead of silently projected.',
+        'The rejection policy is a task-local baseline for review, not the only valid projector design.',
+      ]),
       diagnostics,
     };
   }
 
   return {
     kind: 'projected',
+    interpretation: baselineInterpretation('h4-supported-feature-placeholder', [
+      'Supported feature sets may proceed to HDL projection after explicit capability checks.',
+      'This path is a placeholder baseline for rejection testing.',
+    ]),
     artifactPath: 'generated/unreachable.v',
     diagnostics: [],
   };

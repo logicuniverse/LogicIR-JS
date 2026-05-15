@@ -23,6 +23,25 @@ here from older development-doc locations. Treat them as AI task material until
 human promotion. Historical paths inside archived task material may be preserved
 as evidence; do not read them as current project routes.
 
+## Interpretation Rules
+
+AI task output is evidence, not authority. Legacy code used by a task is design
+input and compatibility evidence; it is not schema truth, and it is not the only
+valid implementation route.
+
+Task-local runtime, projector, compiler, HDL, catalog, or validation behavior
+should be read as a verified baseline for that task's scope. A later formal
+implementation may use a different algorithm, data layout, execution model, or
+lowering strategy if the profile, feature contract, lowering trace, diagnostics,
+and verification show that the relevant LogicIR semantics are preserved.
+
+In particular, current 2026-05-14 / 2026-05-15 software and HDL tasks may use
+terms such as lazy pull, pipeline, independent state realization, composition
+function, Verilog structural payload, or legacy stdlib replica. Those terms
+describe the task baseline unless a promoted formal document says otherwise.
+They must not be read as final core schema, final feature schema, or mandatory
+engine/projector architecture.
+
 ## Write Boundary
 
 Each autonomous task must create and work inside exactly one child directory:

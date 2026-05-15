@@ -7,6 +7,7 @@ import type {
   LogicUnit,
   PortKey,
 } from './types';
+import { baselineInterpretation } from './types';
 
 const GENERATED_DIR = 'generated';
 
@@ -99,6 +100,10 @@ export const emitH1Verilog = (logicUnit: LogicUnit): HdlArtifacts => {
   writeFileSync(testbenchPath, testbenchText);
 
   return {
+    interpretation: baselineInterpretation('h1-direct-combinational-verilog-emit', [
+      'A supported combinational AND operation is emitted as a direct continuous assignment.',
+      'Generated Verilog is a runnable projection baseline, not a required projector architecture.',
+    ]),
     modulePath,
     testbenchPath,
     moduleText,

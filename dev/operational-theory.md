@@ -2,6 +2,8 @@
 
 这份文档把 [docs/essay.md](../docs/essay.md) 中对工程实现有直接约束力的部分提取出来。它不是新的理论来源；它是给 schema、projection、runtime 和工具设计使用的执行版理论。
 
+职责边界：本文维护理论到工程的原则和 north-star；具体 ecosystem 术语归 [`logicir-architecture.md`](logicir-architecture.md)，具体 schema 规则归 [`schema-principles.md`](schema-principles.md)，具体执行顺序归 [`roadmap.md`](roadmap.md)。
+
 ## 来源优先级
 
 1. 完整理论源头是 [docs/essay.md](../docs/essay.md)。
@@ -12,6 +14,49 @@
 ## 核心主张
 
 LogicIR 的工程目标不是把代码换一种语法重写，而是把逻辑拓扑作为可检查、可变换、可投影的源对象。代码、运行时、HDL、工具视图和其它宿主产物都是 projection 或 realization，不是 LogicIR 本身。
+
+## AI + 可计算工业时代的通用载体
+
+LogicIR 的长期定位不只是“软件/硬件统一语言”，也不只是“AI 代码生成工具”。更准确的 north-star 是：
+
+> LogicIR 是 AI + 可计算工业时代的可验证逻辑通用载体及其生态。
+
+这里的“可计算工业”比传统软件工业更宽，包含软件、HDL/FPGA/ASIC、仿真、执行计划、测试、分析报告、未来 circuit/netlist probe、PCB/机械/产品结构扩展，以及围绕这些对象的工具、验证、协作和生产流程。LogicIR 试图统一的不是最终语法或最终 artifact，而是这些 realization 背后的逻辑拓扑、边界语义、需求履约、能力契约、验证链路和投影路径。
+
+AI 和可计算工业是两股不同但相互放大的力量：
+
+- 可计算工业需要结构化、可复用、可验证、可审查的逻辑资产，否则大规模系统会被口头上下文、局部代码约定、手工 diagram 和事后测试拖回作坊状态。
+- AI 提供生成、补全、迁移、测试和修复的巨大产能，但它需要明确 scope、schema、capability、type、provider、validation 和 review boundary，才能可靠进入长期工程系统。
+- LogicIR 位于两者之间：它为工业化系统提供 AI 可操作的逻辑载体，也为 AI 提供工业级可验证的编辑对象。
+
+这个定位可以借用工业史类比，但内部文档应保持克制：不是宣称 LogicIR 等同于牛顿定律或麦克斯韦方程组，而是承认一个行业从作坊走向大工业，通常需要可共享、可计算、可验证的基础表示和规律框架。机械工业需要可计算的力学对象，无线通信需要可计算的电磁模型；AI + 可计算工业同样需要比代码文本更显式的逻辑载体。
+
+没有这种载体时，AI 与人类只能围绕代码文本、prompt、README、局部测试和人工 review 猜测意图；有了这种载体后，软件、HDL、执行计划、测试、文档、可视化编辑器和 AI 协作都可以成为同一个逻辑对象的 projection、verification 或 edit workflow。
+
+## 既有生态优先接入
+
+LogicIR 不能假设世界会重写，也不应该否定文本代码。现实生态中的 JS/TS、Python、C、Rust、Java、Verilog/SystemVerilog、EDA IP、数据库、消息队列、HTTP/RPC、云服务、旧业务系统、旧 node catalog、测试和部署工具都已经沉淀了大量价值。
+
+更准确的原则是：
+
+> Higher-level logic needs a higher-level medium, but existing code remains a valid realization medium.
+
+Python 和 Node.js 可以调用 C/C++ 类库，C 语言可以内嵌汇编，HDL 可以实例化外部 IP；这些都说明工业系统本来就是分层 realization。LogicIR 同样不需要替代所有底层 medium。它要做的是把更高层的逻辑拓扑、边界语义、需求履约和验证关系提升到更合适的结构化 medium 中，同时让已有代码和工具链通过 provider、external target、binding、adapter、fixture 和 projection 继续发挥作用。
+
+因此，既有生态的接入路线应是：
+
+```text
+existing ecosystem
+-> wrap as Provider
+-> expose as LUI or external target
+-> bind through profile / stack
+-> validate with fixtures
+-> replicate or replace only when valuable
+```
+
+AI 在这里尤其有价值：它可以快速读取旧代码、提取输入输出边界、识别 provider-like capability、生成 wrapper/adapter、复刻 LUI/provider seed、补 regression fixture、建立 coverage map，并在不重写旧系统的前提下让旧能力进入 LogicIR 的可验证生态。
+
+所以早期 adoption 策略应是 **wrap first, replicate second, replace later**。复刻或替换必须有明确收益和验证证据，不能因为 LogicIR 存在就要求已有生态整体重写。
 
 ## 人 + AI 协同编辑前景
 

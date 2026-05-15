@@ -2,6 +2,11 @@
   "task": "basic-hdl-sim-summary",
   "stack": "basic-hdl-sim",
   "status": "ready-for-review",
+  "interpretation": {
+    "authority": "review-evidence",
+    "baselineOnly": true,
+    "note": "H1-H5 are verified sandbox baselines, not final Verilog projector architecture. Formal promotion may use different emitters, feature payloads, structural lowering, module-library resolution, or diagnostics when HDL semantics remain explicit and verified."
+  },
   "rounds": [
     {
       "id": "H1",
@@ -149,6 +154,7 @@
     "task-local schema subsets",
     "generated vvp artifacts",
     "hard-coded structural payload as final schema",
-    "thrown-error validation as final diagnostic model"
+    "thrown-error validation as final diagnostic model",
+    "H1-H5 emitter or lowering algorithms as mandatory projector architecture"
   ]
 }

@@ -6,6 +6,13 @@ Summarize the `basic-hdl-sim` H1-H5 sandbox rounds and identify what is ready
 for human review, what can seed a formal Verilog projector, and what still
 needs follow-up work.
 
+## Interpretation Note
+
+This summary is review evidence, not projector authority. H1-H5 are verified
+baselines for feasibility; they do not mandate the final Verilog projector
+architecture, HDL feature payload shape, structural lowering model, or diagnostic
+taxonomy.
+
 ## Round Target
 
 - Stack: `basic-hdl-sim`

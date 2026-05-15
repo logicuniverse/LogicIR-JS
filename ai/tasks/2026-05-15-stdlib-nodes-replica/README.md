@@ -8,6 +8,13 @@ using the latest-schema engine replica shape as the execution reference.
 The task is evidence only. It does not promote schema, feature definitions, or
 runtime implementation into formal project directories.
 
+## Interpretation Note
+
+Legacy stdlib behavior is catalog and provider evidence, not a required LogicIR
+feature model. This replica proves coverage against old keys; formal promotion
+may split the catalog, change provider packaging, drop or defer nodes, or lower
+selected behavior differently after review.
+
 ## Scope
 
 In scope:

@@ -6,6 +6,12 @@ Unify basic software interpreter failure paths into structured diagnostics and
 reports. Provider missing, invalid plan, unsupported semantics, and runtime
 failure all return diagnostic data instead of uncaught exceptions.
 
+## Interpretation Note
+
+This task is sandbox evidence, not diagnostic-schema authority. Its report shape
+is the S5 baseline; formal promotion may use a different taxonomy, source span
+model, or severity policy if failures remain structured and reviewable.
+
 ## Round Target
 
 - Stack: `basic-software-interpreter`

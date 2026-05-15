@@ -85,8 +85,28 @@ export type TestResult = {
   diagnostics: Diagnostic[];
 };
 
+export type InterpretationMetadata = {
+  authority: 'sandbox-evidence';
+  baselineOnly: true;
+  realizationStrategy: string;
+  semanticPreservation: string[];
+  note: string;
+};
+
+export const baselineInterpretation = (
+  realizationStrategy: string,
+  semanticPreservation: string[],
+): InterpretationMetadata => ({
+  authority: 'sandbox-evidence',
+  baselineOnly: true,
+  realizationStrategy,
+  semanticPreservation,
+  note: 'This edit transaction MVP is review evidence and a runnable sandbox baseline, not final edit protocol schema or mandatory tool architecture.',
+});
+
 export type LogicIREditTransaction = {
   schemaVersion: 'logicir.edit-transaction.mvp/0.1';
+  interpretation: InterpretationMetadata;
   intent: string;
   scope: ScopeRef;
   before: Snapshot;

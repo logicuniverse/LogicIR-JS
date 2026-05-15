@@ -6,6 +6,7 @@ import type {
   LogicUnit,
   StatePayload,
 } from './types';
+import { baselineInterpretation } from './types';
 
 const GENERATED_DIR = 'generated';
 
@@ -100,5 +101,14 @@ export const emitH3Verilog = (logicUnit: LogicUnit): HdlArtifacts => {
   writeFileSync(modulePath, moduleText);
   writeFileSync(testbenchPath, testbenchText);
 
-  return { modulePath, testbenchPath, moduleText, testbenchText };
+  return {
+    interpretation: baselineInterpretation('h3-clocked-register-verilog-emit', [
+      'State and clocking payloads are emitted as an explicit clock/reset register block.',
+      'Sequential behavior is validated by a task-local iverilog simulation baseline.',
+    ]),
+    modulePath,
+    testbenchPath,
+    moduleText,
+    testbenchText,
+  };
 };

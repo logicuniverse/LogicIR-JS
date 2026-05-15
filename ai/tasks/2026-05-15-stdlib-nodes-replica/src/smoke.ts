@@ -49,6 +49,9 @@ const main = async (): Promise<void> => {
   for (const smokeCase of smokeCases) {
     const fixture = createStdlibLogicUnitFixture(smokeCase.key);
     const plan = compileLogicUnit(fixture);
+    if (!plan.interpretation.baselineOnly) {
+      throw new Error(`Plan for ${smokeCase.key} must declare baseline interpretation metadata.`);
+    }
     const actual = await runPlan(plan, smokeCase.inputs);
 
     assertDeepEqual(actual.outputs, smokeCase.expected);
@@ -58,7 +61,18 @@ const main = async (): Promise<void> => {
     }
   }
 
-  console.log(JSON.stringify({ smokeCases: smokeCases.length }, null, 2));
+  console.log(
+    JSON.stringify(
+      {
+        interpretation: compileLogicUnit(
+          createStdlibLogicUnitFixture(smokeCases[0].key),
+        ).interpretation,
+        smokeCases: smokeCases.length,
+      },
+      null,
+      2,
+    ),
+  );
 };
 
 void main();

@@ -4,6 +4,7 @@ import type {
   LogicUnit,
   ResolvedStack,
 } from './types';
+import { baselineInterpretation } from './types';
 
 const requiredFeaturesPresent = (
   logicUnit: LogicUnit,
@@ -90,6 +91,10 @@ export const createInterpreterPlan = (
   return {
     key: 'fulfillment.interpreter-plan.s4',
     stackKey: resolved.stackKey,
+    interpretation: baselineInterpretation('s4-explicit-fulfillment-dispatch', [
+      'Requirement fulfillment is projected as explicit closure or upstream provider dispatch.',
+      'Fulfillment is kept separate from ordinary data flow and ambient lookup.',
+    ]),
     nodes,
     diagnostics: [],
   };

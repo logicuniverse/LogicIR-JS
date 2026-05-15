@@ -6,6 +6,13 @@ Add minimal Z-axis fulfillment to the software interpreter sandbox. A
 requirement-backed LUI can be fulfilled by a local closure or by an upstream
 provider. Missing upstream provider returns a diagnostic.
 
+## Interpretation Note
+
+This task is sandbox evidence, not schema or engine authority. Its closure and
+upstream-provider paths are S4 baselines for Z-axis fulfillment; formal
+promotion may use a different resolver or execution plan if requirement
+fulfillment remains explicit and is not collapsed into ordinary data flow.
+
 ## Round Target
 
 - Stack: `basic-software-interpreter`

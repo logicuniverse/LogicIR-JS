@@ -10,7 +10,12 @@ import type {
   InterpreterPlan,
   ResolvedStack,
 } from './types';
-import { formatExternalTarget, formatFeatureRef, providerKey } from './types';
+import {
+  baselineInterpretation,
+  formatExternalTarget,
+  formatFeatureRef,
+  providerKey,
+} from './types';
 
 const isLuEndpoint = (endpoint: EndpointRef): boolean =>
   endpoint.owner.kind === 'lu';
@@ -170,6 +175,10 @@ export const createInterpreterPlan = (
   return {
     key: 'add-pair.interpreter-plan.s1',
     stackKey: resolved.stackKey,
+    interpretation: baselineInterpretation('s1-primary-result-lazy-pull', [
+      'Combinational LU output is computed only when a demanded primary-result output is read.',
+      'Unused child LUI providers are not executed by this baseline interpreter plan.',
+    ]),
     executionKind: 'combinational',
     primaryOutputPort: primaryOutputPort(logicUnit),
     inputPorts: inputPorts(logicUnit),

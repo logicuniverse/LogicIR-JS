@@ -5,6 +5,7 @@ import type {
   ResolvedStack,
   RetainedCurrentOperation,
 } from './types';
+import { baselineInterpretation } from './types';
 
 const payloadObject = (extension: ExtensionRecord): Record<string, unknown> => {
   if (
@@ -126,6 +127,10 @@ export const createInterpreterPlan = (
   return {
     key: 'counter-current.interpreter-plan.s2',
     stackKey: resolved.stackKey,
+    interpretation: baselineInterpretation('s2-retained-current-state-store', [
+      'Retained-current reads observe the current durable value before same-run writes.',
+      'Write-current operations update a named durable store through an explicit provider boundary.',
+    ]),
     operations,
     diagnostics: [],
   };

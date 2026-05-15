@@ -19,6 +19,11 @@ const assertDeepEqual = (
 
 const resolved = resolveStack(basicSoftwareInterpreterStack);
 const plan = createInterpreterPlan(addPairLogicUnit, resolved);
+
+if (!plan.interpretation?.baselineOnly) {
+  throw new Error('Interpreter plan must declare baseline interpretation metadata.');
+}
+
 const planWithUnusedNode: InterpreterPlan = {
   ...plan,
   nodes: [
@@ -60,6 +65,7 @@ console.log(
     {
       stack: resolved.stackKey,
       plan: plan.key,
+      interpretation: plan.interpretation,
       inputs: { left: 2, right: 3 },
       outputs: result.outputs,
     },

@@ -43,3 +43,5 @@ Human review is required before any task output becomes project content.
 - whole task directory
 - task-local README/report prose as formal docs without editing
 - task-local callback-function smoke representation as core schema
+- legacy stdlib catalog layout as the final package layout by default
+- provider dispatch model as mandatory engine architecture

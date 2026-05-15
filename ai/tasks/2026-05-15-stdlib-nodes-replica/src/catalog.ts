@@ -34,6 +34,33 @@ export type StdlibNodeSpec = {
   notes?: string;
 };
 
+export type InterpretationMetadata = {
+  authority: 'sandbox-evidence';
+  baselineOnly: true;
+  realizationStrategy: string;
+  semanticPreservation: string[];
+  note: string;
+};
+
+export const baselineInterpretation = (
+  realizationStrategy: string,
+  semanticPreservation: string[],
+): InterpretationMetadata => ({
+  authority: 'sandbox-evidence',
+  baselineOnly: true,
+  realizationStrategy,
+  semanticPreservation,
+  note: 'This stdlib replica is source-evidence and a runnable sandbox baseline, not final feature schema or mandatory engine architecture.',
+});
+
+export const stdlibReplicaInterpretation = baselineInterpretation(
+  'legacy-stdlib-node-catalog-and-provider-replica',
+  [
+    'Legacy stdlib node keys are represented as task-local executable catalog entries.',
+    'Provider behavior is compatibility evidence for review, not final LogicIR feature law.',
+  ],
+);
+
 export const legacyStdlibNodeKeys = [
   'constant.null',
   'constant.string',

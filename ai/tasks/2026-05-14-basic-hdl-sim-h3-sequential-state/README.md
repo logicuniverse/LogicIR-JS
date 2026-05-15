@@ -5,6 +5,13 @@
 Prove sequential HDL state support for `basic-hdl-sim`: a 4-bit register with
 active-high reset projects to Verilog and passes simulation.
 
+## Interpretation Note
+
+This task is sandbox evidence, not schema or projector authority. Its
+clock/reset/register lowering is a verified H3 baseline; formal promotion may
+use a different sequential realization if clocking/state contracts remain
+explicit and HDL simulation preserves the observable behavior.
+
 ## Round Target
 
 - Stack: `basic-hdl-sim`
