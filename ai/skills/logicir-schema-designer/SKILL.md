@@ -29,7 +29,8 @@ compatibility, target-neutral core design, and clean package boundaries.
      protocol and feature data shapes.
    - Treat `schema/` as the language-neutral specification surface.
    - Treat `packages/legacy/engine/src/` as old LogicIR JS/TS engine
-     prototype/reference, not as schema authority.
+     prototype/reference, not as schema authority or the only valid
+     implementation route.
    - Treat `packages/legacy/flow-runtime-core/` and
      `packages/legacy/flow-core/` as older FlowForge-era source-only evidence,
      not as schema authority.
@@ -99,11 +100,24 @@ Load only the reference needed for the current task:
 ## Non-Negotiable Rules
 
 - Do not let the old TS/JS implementation decide new schema semantics.
+- Do not promote old implementation algorithms into mandatory schema or engine
+  law. Legacy code is evidence and design input; new projectors and engines may
+  use different algorithms when the profile, lowering trace, diagnostics, and
+  verification prove semantic preservation.
 - Do not place JS runtime artifacts such as Promise/Thenable, subscription machinery, state store handles, or lifecycle hooks in core schema.
 - Do not place HDL-specific clock/reset or module elaboration details in core schema unless they express target-neutral logical topology.
 - Do not treat `Composable` in old code as binding theory; prefer essay terminology such as `Structural` when designing the new schema.
 - Do not let requirement fulfillment collapse into ordinary data flow, parameter passing, naming lookup, callbacks, or ambient context.
 - Do not allow a projector to ignore unsupported required or conditional-required feature or extension contracts from the selected profile.
+- Do not treat `LUCore.luis` as an eager flat node list. Runtime engines,
+  projectors, compilers, and execution plans must dispatch by
+  `LUCore.kindOrganization.kind` and declare their realization strategy. The
+  current basic baseline uses primary-result lazy pull for combinational,
+  pipeline/step-list execution for sequential, durable retained-current/current
+  state realization for stateful, and composition-function/elaboration-result
+  realization for structural. This baseline is not the only valid algorithm.
+  Any flattening, lowering, or alternative execution model must be explicit,
+  profile-supported, diagnostic-friendly, and semantically preserving.
 - Keep the current v0 core draft thin: `kindOrganization` stores only target-neutral organization skeletons, and kind-specific metadata belongs in owner-level extensions such as `LUCore.extensions`.
 - Treat `LogicUnit.features` as the LU-local feature manifest; extension records use local `featureKey` aliases rather than direct feature namespace/key references.
 - Keep architecture schema pure data: no factories, callbacks, provider
@@ -121,7 +135,20 @@ When reviewing `packages/legacy/engine/src/types/models.ts`, `packages/legacy/en
 - Read `PortKind.Pull` and `PortKind.Push` as old boundary/contact evidence; keep unit-level X-axis drive separate from port-level contact capability.
 - Read `Property` as retained-current contact evidence; read its store/cache/subscription mechanics as software runtime feature evidence.
 - Read `Thenable`, `subscribe`, `StateStore`, and lifecycle ids as software runtime feature evidence.
+- Read old `readLUOutput` and `readTargetPort` as one implementation route for
+  combinational lazy pull from demanded output contacts, not as the only valid
+  runtime algorithm and not as evidence for eager execution.
+- Read `manifestSteps` as one implementation route for sequential pipeline /
+  step-list execution. `GoBackIf` and `ReturnIf` are explicit control extension
+  evidence; do not infer a general branch graph in core.
+- Read `initializeState` as one implementation route for durable state/current
+  realization of stateful LUIs, not as mandatory state-store architecture and
+  not as dependency-graph execution.
+- Read `projectCompositions` and `transformComposable` as one implementation
+  route for composable/structural LUIs producing composable return values or
+  functions, then combining them later with context and component inputs.
 - Read `SequentialStep` as old sequential organization evidence, with `isAwaited` as JS async projection detail.
 - Read `dependencies`, `Provider`, `SovereignSource`, `AbstractLUT`, and `closures` as old Z-axis approximation.
-- Read `Composable` and composition maps as old structural/feature evidence, not final theory vocabulary.
+- Read `Composable` and composition maps as old structural/feature evidence,
+  not final theory vocabulary and not ordinary provider invocation.
 - Read `packages/legacy/flow-runtime-core/` and `packages/legacy/flow-core/` only as historical evidence for runtime behavior, editing operations, lowering, old node/LUI catalog coverage, and provider/function examples.

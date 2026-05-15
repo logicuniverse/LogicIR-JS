@@ -7,7 +7,7 @@
 1. 完整理论源头是 [docs/essay.md](../docs/essay.md)。
 2. 这份文档是 essay 的工程执行版摘录；如果两者冲突，以
    [docs/essay.md](../docs/essay.md) 为准。
-3. `packages/legacy/engine/src/` 是旧版 LogicIR JS/TS engine prototype/reference，只能作为实现证据和兼容风险参考。`packages/legacy/flow-runtime-core/` 和 `packages/legacy/flow-core/` 是更早 FlowForge-era source-only 快照，只作为运行时、编辑操作、lowering 和旧 LUI/node 覆盖面的历史证据。
+3. `packages/legacy/engine/src/` 是旧版 LogicIR JS/TS engine prototype/reference，只能作为实现证据、设计借鉴和兼容风险参考；它不是 schema 真理，也不是四类 LU 的唯一或最优实现路线。`packages/legacy/flow-runtime-core/` 和 `packages/legacy/flow-core/` 是更早 FlowForge-era source-only 快照，只作为运行时、编辑操作、lowering 和旧 LUI/node 覆盖面的历史证据。
 
 ## 核心主张
 
@@ -102,9 +102,46 @@ Y 轴描述当前层如何跨时间存在：
 - **Stateful (+X, +Y)**: 在外部到达下演进的驻留状态逻辑。
 - **Structural (+X, -Y)**: 在外部到达下重新显现结构，但自身层不保留主要时间身份。
 
-当前旧代码中的 `Composable` 更接近早期 structural/composition 实现痕迹，不应阻止新 schema 采用 `Structural`。
+当前旧代码中的 `Composable` 更接近早期 structural/composition 实现痕迹，不应阻止新 schema 采用 `Structural`，也不应把旧 composition 算法固定成唯一实现。
 
-当前 core schema 的执行平面形状是：`LUCore.kindOrganization.kind` 是 LU kind 的唯一来源；`LUCore` 按该 kind 形成 discriminated union；每个 core 仍使用一个 `luis` map，但允许的 LUI kind 由外层 LU kind 约束。Sequential core 的最小组织数据是 `steps: LUIId[]`，只表达有序推进的 LUI 序列；分支、guard、return、go-back、async/await 策略或可寻址 control-flow node 都不是 core sequential step 结构，应该由 feature extension 或 projection lowering 表达。
+当前 core schema 的执行平面形状是：`LUCore.kindOrganization.kind` 是 LU kind 的唯一来源；`LUCore` 按该 kind 形成 discriminated union；每个 core 仍使用一个 `luis` map，但允许的 LUI kind 由外层 LU kind 约束。Sequential core 的最小组织数据是 `steps: LUIId[]`，只表达有序推进的 LUI 序列。它不是一般分支控制流图；旧实现中可见的 `GoBackIf` 和 `ReturnIf` 只是一个可借鉴的 pipeline 控制扩展路线。guard、branch、return、go-back、async/await 策略或可寻址 control-flow node 都不应进入 core sequential step 结构，应该由 feature extension 或 projection lowering 表达。
+
+## LU Kind Organization 的目标处理方式
+
+Runtime、projector 和 compiler 必须先按 `LUCore.kindOrganization.kind`
+识别 LU kind 的语义差异，不能把 `LUCore.luis` 无条件拍平成同一种 eager
+node list 后顺序运行。这是语义保护规则，不是算法规定。
+
+下表描述当前 basic software / basic HDL 路线的 reference baseline，尤其用于
+指导近期 AI task 和 legacy migration。它不是唯一实现路线。其它 interpreter、
+compiler、incremental runtime、actor runtime、HDL lowering 或分布式 realization
+可以采用不同算法，但必须在 profile、feature、lowering trace 或 engine
+capability 中显式声明，并用 fixture / smoke / simulation 证明没有丢失对应
+LU kind 的可观察语义。
+
+| LU kind | Core organization | Software interpreter / execution plan | Generated software | Verilog HDL projection |
+| --- | --- | --- | --- | --- |
+| `combinational` | 当前值映射；`kindOrganization.kind = combinational`；通常有一个 `primary-result` 输出。 | 当前 software-interpreter baseline 是从 `primary-result` / return contact 开始 lazy pull，沿 `Connection` 反向读取依赖，只计算被需要的相关 LUI；其它策略可以预分析、拓扑排序或编译表达式，但不能把 unrelated LUI 的运行变成可观察副作用。 | 生成纯函数、可内联表达式或已优化求值计划；不引入状态、订阅、clock 或 runtime lifecycle。 | 生成 continuous assignment、组合表达式或 `always_comb`；不得引入寄存器、clock/reset 或隐式 state。 |
+| `sequential` | `kindOrganization.steps: LUIId[]` 是最小有序推进骨架。 | 当前 software-interpreter baseline 是按 `steps` 作为 pipeline 推进。旧实现允许 `GoBackIf` 调整 step index，允许 `ReturnIf` 提前返回；这是可复用的 control extension 证据，不是唯一控制模型。completion/await、go-back、early-return 等属于 software feature 或 lowering metadata，不属于 core step 字段。 | 生成 pipeline runner、step runner、state machine、async workflow 或其它等价 realization；调度、await、异常传播必须来自 profile/feature policy。 | 需要 clocking/state contract；生成 edge-triggered process、寄存器转移或 FSM；没有 clock/reset/state feature 时应 diagnostic，而不是降级成组合逻辑。 |
+| `stateful` | 驻留状态逻辑；core 只说明 stateful organization，不规定 store 实现。 | 当前 software-interpreter baseline 是对 stateful LUIs 逐个独立运行，收集 property/current 返回值并写入 durable retained-current state。其它 store、reactive、incremental 或 event-loop 策略可以不同，但必须保留 stateful boundary、current read 和 durable/update 语义。 | 生成带私有状态、store handle 或 host binding 的 module/class/function closure；每个 stateful unit 的 durable/current 结果边界必须清楚，生命周期和并发策略由 feature/profile 决定。 | 映射为 register/state variable、reset/initial behavior 和 sequential update；必须有 clocking/state HDL contract。 |
+| `structural` | anchors/outlets、`exportAnchors`、`externalOutlets`、`exportAnchorFills`、`luiFills` 描述结构显现和 composition。 | 当前 software-interpreter baseline 是对 structural/composable LUIs 逐个独立运行，结果是 composition function / composable return；root composition function 之后再用 context 和 inputs 生成结构结果。其它 materialization、diff、incremental composition 或 host-specific builder 可以不同，但必须保留 structural composition surface。 | 生成 composable function、组件/布局/tree construction、module assembly 或 host-specific composition artifact。 | 生成 module instance、wire、hierarchy、generate/elaboration structure；structural slices 可以 lowering 为子系统或层级模块。 |
+
+旧 `packages/legacy/engine/src/projection.ts` 体现了一个可借鉴的分派路线：
+Combinational 是 non-reactive 的 `readLUOutput`；读取 combinational LUI
+输出时才 project 该 LUI 并缓存临时结果。Sequential 走 `manifestSteps`，
+本质是按 step index 线性推进的 pipeline，只有 `GoBackIf` 和 `ReturnIf`
+这类显式控制扩展。Stateful 走 `initializeState`，逐个 project
+`statefulLUIs`，把返回对象中的 property/current 值写入 state store。
+Composable / structural 走 `projectCompositions`，逐个 project
+`composableLUIs`，收集结果后返回 root composition functions；这些函数后续
+通过 `transformComposable` 使用 context 和 component inputs 组合出结构。
+这些旧实现细节可以指导近期 basic-software-interpreter，但不决定新 schema
+命名，也不排除更好的 projector / engine 实现路线。
+
+因此，`Port.interaction.pushNotifiable` 只说明 contact 能接收或发出通知，
+不等于 provider 应被主动执行；`pullReadable` 只说明 contact 可读，也不等于
+所有可读节点都应预先求值。执行入口由 LU kind 和 profile 决定，端口
+capability 只约束连接和可观察边界。
 
 ## 需求履约：Z
 

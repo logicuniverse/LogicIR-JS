@@ -97,6 +97,40 @@ LogicIR document 可以被 authoring tool 和 IR pipeline tool 读写。Projecti
 
 LogicIR core 不应包含 runtime function、host callback、state store handle、JS/Python async 机制、Verilog clock/reset 机制、provider registry 或 profile reference。
 
+### LU Kind 处理入口
+
+所有 projector、compiler 和 engine 都必须先按 `LUCore.kindOrganization.kind`
+识别 LU kind 的语义差异。`LUCore.luis` 是同一 core 内的 LUI map，不是默认
+eager execution list。
+
+下面是当前 basic software / basic HDL 路线的 reference baseline，用于指导
+近期 interpreter、Verilog projector 和 AI task。它不是唯一实现路线；更优的
+incremental、compiled、reactive、distributed 或 target-specific realization
+可以不同，但必须在 profile、feature、lowering trace 或 engine capability 中
+显式声明，并证明没有丢失对应 LU kind 的可观察语义。
+
+- `combinational`: 当前 software baseline 从 `primary-result` / return contact
+  lazy pull，按连接反向读取依赖；Verilog HDL 投影为 continuous assignment、
+  组合表达式或 `always_comb`，不得引入 clock/register。
+- `sequential`: core 表达 pipeline / step list。当前 software baseline 按
+  `kindOrganization.steps` 推进；旧代码中的 `GoBackIf` 和 `ReturnIf` 是一种
+  明确 control extension 路线，不代表 core 中存在一般分支图。HDL 侧必须
+  通过 clocking/state contract 投影为时序过程或 FSM。
+- `stateful`: 当前 software baseline 让 stateful LUIs 产出 durable
+  retained-current/current state；它不是 combinational lazy dependency graph。
+  其它 store、reactive 或 event-loop 策略必须保留 stateful boundary、current
+  read 和 durable/update 语义。HDL 侧对应 register/state variable、
+  reset/initial behavior 和 update process。
+- `structural`: 当前 software baseline 让 structural/composable LUIs 产出
+  composition function、composable return 或 elaboration result；它不是普通
+  provider list execution。其它 materialization、diff、incremental
+  composition 或 host builder 策略必须保留 structural composition surface。
+  HDL 侧对应 module instance、wire、hierarchy 和 generate / elaboration
+  structure。
+
+任何把这些 kind lowering 成平面 execution plan 的实现，都必须在 profile 或
+projection plan 中显式记录 lowering 规则和 semantic preservation 证据。
+
 ## Feature 和 Extension
 
 Feature 和 extension 构成横向语义层。

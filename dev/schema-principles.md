@@ -5,7 +5,7 @@
 ## 理论优先
 
 - [docs/essay.md](../docs/essay.md) 是 LogicIR 新 schema 的理论源头。
-- `packages/legacy/engine/src/` 中的 TS/JS 代码是旧版 LogicIR engine prototype/reference，只能作为历史实现、运行时压力和兼容风险的参考。
+- `packages/legacy/engine/src/` 中的 TS/JS 代码是旧版 LogicIR engine prototype/reference，只能作为历史实现、运行时压力、设计借鉴和兼容风险的参考；它不是 schema 真理，也不是唯一或最优实现路线。
 - `packages/legacy/flow-runtime-core/` 和 `packages/legacy/flow-core/` 是更早 FlowForge-era source-only 快照，只能作为运行时、编辑操作、lowering 和旧 node/LUI catalog 覆盖面的历史证据。
 - 旧 TS/JS 代码不是新 schema 的权威形状，不能反向决定理论概念。
 - 例如，不能因为旧代码使用 `Composable` 命名，就阻止新 schema 按 essay 采用 `Structural` 作为执行平面上的 LU kind。
@@ -20,7 +20,8 @@
 - Core 可以表达 structural `exportAnchors` 作为 named spatial slices，并允许 `Connection + payloadPath` 支撑 slice 间 bus-style routing；但不能把某个分布式 runtime 的 RX/TX 端口生成、placement、transport、scheduling 或 serialization 规则固定为 core schema。
 - X 轴仍然是 unit-level boundary drive。端口 contact capability 不能反向变成新的 X 轴方向。
 - Core 的 port surface 使用单一 `PortKey` namespace；`input` / `output` 是 port boundary，不是两套独立 key 空间。
-- Core sequential organization 只保存 `steps: LUIId[]`。更细的 control-flow、guard、branch、return、go-back、async 或调度语义必须走 feature extension 或 projection lowering。
+- Core sequential organization 只保存 `steps: LUIId[]`，表达 pipeline/step list，不表达一般分支控制流图。`GoBackIf`、`ReturnIf`、guard、branch、async 或调度语义必须走 feature extension 或 projection lowering。
+- `LUCore.kindOrganization.kind` 决定 runtime、projector 和 compiler 的首层处理策略。Core 只保存 target-neutral organization skeleton；software interpreter、generated software、Verilog HDL 或其它 target 的具体处理方式必须由 profile、feature、lowering 或 engine 实现声明。不能把 `LUCore.luis` 默认拍平成 eager node list，也不能把某个 target 的执行策略反向写成 core 字段。
 
 ## 长期协议模型
 
@@ -42,6 +43,7 @@ LogicIR schema 应该像长期协议一样演进：稳定核心、命名空间�
 - Projection 实现不是单一函数，而是一组声明过的能力集合。
 - Projector 必须声明支持的 core version、features、LU kinds、fulfillment forms 和 target constraints。它可以接受 stack/profile 名称，但必须解析为具体 features、stages、policies 和 provider contracts。
 - Projector 只能在声明能力覆盖 schema 需求时执行 projection；否则必须返回结构化 diagnostic。
+- Projector、compiler 和 execution engine 必须按 LU kind 分派处理，并声明自己采用的 realization strategy。当前 basic 路线把 `combinational` 作为 primary-result lazy pull / 组合逻辑，把 `sequential` 作为 pipeline/step list，把 `stateful` 作为 durable retained-current/current state realization，把 `structural` 作为 composition function / elaboration result realization；这些是 baseline，不是唯一算法。任何 flatten/lowering 成平面执行计划或采用其它执行模型的行为，都必须是显式、可诊断、可验证的 projection step，并证明没有丢失对应 LU kind 的可观察语义。
 - JS/TS runtime feature 可以定义 async、subscription、host native、runtime state、error/lifecycle 等软件实现细节。
 - Verilog HDL feature 可以定义 module boundary、clock/reset、combinational block、sequential block、generate/elaboration-time 结构和静态绑定约束。
 

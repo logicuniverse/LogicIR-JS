@@ -27,7 +27,8 @@ tool、projector、compiler、engine、fixture 和 AI task 的建设顺序。
      provider、state store、retained-current、thenable completion 和 projection
      plan。
    - 不把 legacy 结构原样搬回 core；旧代码只作为 feature、profile、
-     projector、engine 和 provider 边界的实现证据。
+     projector、engine 和 provider 边界的实现证据与设计借鉴，不是唯一或
+     最优实现路线。
 2. **第二优先级：`basic-hdl-sim`**
    - 目标链路：`LogicIR -> Verilog HDL -> iverilog simulation`。
    - 用它约束 core 不被 JS runtime 假设污染，并证明 HDL projection 可行。
@@ -43,6 +44,10 @@ tool、projector、compiler、engine、fixture 和 AI task 的建设顺序。
 - 每一轮只增加少量语义，保持可 review、可 promotion。
 - 每一轮至少包含：LogicIR fixture、最小 profile/stack 声明、validator/resolver
   检查、projection 或 execution plan、runtime/`iverilog` 验证、diagnostic 记录。
+- 每一轮必须声明本轮支持的 LU kind、每种 kind 的处理入口、明确拒绝的
+  kind，以及 unsupported 时的 diagnostic。不能把 `LUCore.luis` 默认拍平成
+  eager node list；只有 profile 明确声明 flatten/lowering 并保留语义时才
+  可以生成平面 execution plan。
 - 每一轮都可以作为一个 `/goal` AI task，在 `ai/tasks/YYYY-MM-DD-<round>/`
   中独立完成；task 结束时必须留下 `package.json`、fixture、verification 和
   promotion checklist。
@@ -324,6 +329,7 @@ Projector 要求：
 - 声明支持的 core version。
 - 声明支持的 feature 和 extension point。
 - 声明支持的 LU kind 和 fulfillment form。
+- 按 LU kind 选择 projection strategy；不允许未声明的 eager flatten。
 - 拒绝 unsupported required 或 conditional-required contract。
 - 保留 semantic loss 或 unsupported target construct 的 diagnostic。
 
@@ -354,6 +360,23 @@ Provider 规则：
 
 - `Plugin` 不是 core 生态术语。Plugin 只是 provider 或 pass provider 的一种
   package/loading strategy。
+
+Engine 要求：
+
+- Engine 必须按 LU kind 分派执行，并声明采用的 realization strategy。当前
+  basic-software-interpreter baseline 是：`combinational` 从 `primary-result` /
+  return contact lazy pull；`sequential` 按 `kindOrganization.steps` 作为
+  pipeline 推进，不是一般分支图，只能通过明确 feature/lowering 支持
+  go-back 和 early-return；`stateful` 产出 durable retained-current/current
+  state；`structural` 产出 composition function / elaboration result，而不是
+  普通 provider list execution。这是近期 MVP 路线，不是唯一引擎算法。
+- Engine 可以消费 projector 生成的 execution plan，但该 plan 必须保留或显式
+  记录原 LU kind 语义。若 plan 是 flatten/lowering 后的形态，必须有对应
+  diagnostic 或 lowering trace 说明语义如何保持。
+- `Port.interaction.pushNotifiable` 不等于主动执行 provider；
+  `pullReadable` 不等于预先求值所有可读节点。端口 capability 只约束边界和
+  connection compatibility；执行入口由 LU kind、profile 和 engine strategy
+  决定。
 
 ## 阶段 8：Fixture 和 Example
 
@@ -397,23 +420,34 @@ Example 目录应保持小而可审阅：
    - 必需内容：最小 `basic-software-interpreter` stack/profile 数据、最小
      profile resolver、interpreter execution plan、software engine smoke。
    - legacy 参考：`Provider`、`Projection`、旧 runtime invocation 相关代码。
-   - 验收：从 task 目录运行 JS/TS smoke，得到确定输出；不引入 type-system
-     requiredness。
+   - LU kind 要求：只支持 `combinational`；projection/engine 必须从
+     `primary-result` lazy pull，按连接读取依赖；额外未连接 LUI 不应被执行；
+     其它 kind 必须 diagnostic 或明确 throw。
+   - 验收：从 task 目录运行 JS/TS smoke，得到确定输出；smoke 必须证明不是
+     eager run all nodes；不引入 type-system requiredness。
 2. **Round S2: retained-current**
    - 目标：加入 current value/state store 语义，还原旧 `Property` /
      `StateStore` 的核心行为。
    - 必需内容：retained-current feature/extension 草案、state store provider
      contract、读写 current value fixture。
+   - LU kind 要求：支持 `stateful` retained-current surface；当前 baseline
+     可以让 stateful LUIs 独立运行并产出 durable/current 值；区分 current
+     read 和 update；不得把 stateful 当 combinational lazy function 或普通
+     依赖图。若使用其它 store/reactive/event-loop 策略，必须记录并验证语义。
    - 验收：写入状态、读取 current、更新后再次读取都通过 task-local smoke。
 3. **Round S3: completion / await**
    - 目标：加入 thenable-compatible completion，覆盖 resolve/reject。
    - 必需内容：completion feature/extension 草案、async provider fixture、plan
      中的 completion policy。
+   - LU kind 要求：completion policy 只能作为 software feature/profile
+     policy；不能把 JS await 写进 core `steps`。
    - 验收：异步 resolve 得到正确输出；reject 产生结构化 diagnostic。
 4. **Round S4: fulfillment / closure**
    - 目标：加入最小 Z 轴 fulfillment，包括本地 closure fulfillment 和最小
      upstream provider 解析。
    - 必需内容：requirement fixture、closure fixture、provider binding fixture。
+   - LU kind 要求：fulfillment 不是普通 dataflow connection；closure core
+     内部仍按自己的 LU kind 执行或投影。
    - 验收：requirement 可被 closure/provider 满足；缺失 provider 返回 diagnostic。
 5. **Round S5: error / diagnostic**
    - 目标：统一 provider missing、plan invalid、unsupported semantics 和 runtime
@@ -434,6 +468,8 @@ required。Type-system 可以作为 recommended 或 optional 出现在 profile �
    - 目标：最小 LogicIR combinational fixture 投影成 Verilog module。
    - 必需内容：最小 `basic-hdl-sim` stack/profile 数据、Verilog projector
      smoke、testbench。
+   - LU kind 要求：只支持 `combinational`；投影为 continuous assignment、
+     combinational expression 或 `always_comb`；不得生成 clock/register。
    - 验收：激活 `E:\oss-cad-suite\environment.ps1` 后直接运行 `iverilog`，
      syntax/simulation smoke 通过。
 2. **Round H2: signal width / simple type**
@@ -443,6 +479,8 @@ required。Type-system 可以作为 recommended 或 optional 出现在 profile �
 3. **Round H3: sequential state**
    - 目标：加入 clock/reset/register。
    - 必需内容：clocking/state feature 草案、sequential fixture、testbench。
+   - LU kind 要求：支持 `sequential` 或 stateful register update；必须有
+     clocking/state contract；缺失时 diagnostic。
    - 验收：仿真中 reset 和 register update 行为正确。
 4. **Round H4: unsupported-semantics rejection**
    - 目标：显式拒绝 software-only feature。
@@ -451,6 +489,11 @@ required。Type-system 可以作为 recommended 或 optional 出现在 profile �
 5. **Round H5: structural module composition**
    - 目标：module instance、wire 和 simple hierarchy。
    - 必需内容：module composition fixture。
+   - LU kind 要求：支持 `structural` composition/elaboration；当前 baseline
+     可以让 structural / composable LUIs 独立运行并产出 composition function
+     或 elaboration result；anchors/outlets lowering 为 module instances、
+     wires 或层级结构；不能当 provider list 执行。若使用其它 materialization
+     或 incremental composition 策略，必须记录并验证 structural surface 语义。
    - 验收：生成层级 Verilog，`iverilog` smoke 通过。
 
 ### 其它候选任务
