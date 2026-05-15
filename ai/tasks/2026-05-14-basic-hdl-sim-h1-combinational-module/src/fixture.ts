@@ -20,8 +20,8 @@ const bitOutput = (): Port => ({
   boundary: 'output',
   role: 'primary-result',
   interaction: {
-    pullReadable: false,
-    pushNotifiable: true,
+    pullReadable: true,
+    pushNotifiable: false,
     retainedCurrent: false,
   },
   extensions: [

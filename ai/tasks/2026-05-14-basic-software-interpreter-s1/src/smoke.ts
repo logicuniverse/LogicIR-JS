@@ -3,6 +3,7 @@ import { addPairLogicUnit } from './fixture';
 import { executeInterpreterPlan } from './engine';
 import { createInterpreterPlan } from './projector';
 import { resolveStack } from './resolver';
+import type { InterpreterPlan } from './types';
 
 const assertDeepEqual = (
   actual: Record<string, unknown>,
@@ -18,8 +19,26 @@ const assertDeepEqual = (
 
 const resolved = resolveStack(basicSoftwareInterpreterStack);
 const plan = createInterpreterPlan(addPairLogicUnit, resolved);
+const planWithUnusedNode: InterpreterPlan = {
+  ...plan,
+  nodes: [
+    ...plan.nodes,
+    {
+      luiId: 'unused',
+      target: {
+        namespace: 'logicir.examples.math',
+        key: 'unused',
+      },
+      providerKey: 'logicir.examples.providers/unused-function@0.0.0-s1',
+      inputMap: {},
+      outputMap: {
+        unused: 'unused',
+      },
+    },
+  ],
+};
 
-const result = executeInterpreterPlan(plan, {
+const result = executeInterpreterPlan(planWithUnusedNode, {
   inputs: { left: 2, right: 3 },
   providers: {
     'logicir.examples.providers/add-pair-function@0.0.0-s1': ({
@@ -28,6 +47,9 @@ const result = executeInterpreterPlan(plan, {
     }) => ({
       sum: Number(left) + Number(right),
     }),
+    'logicir.examples.providers/unused-function@0.0.0-s1': () => {
+      throw new Error('Combinational execution should not eagerly run unused nodes.');
+    },
   },
 });
 

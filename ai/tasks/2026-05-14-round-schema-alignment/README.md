@@ -48,3 +48,9 @@ Current status: `ready-for-review`
 
 This task may write its own directory and the S1-S5/H1-H5 task directories it
 audits. Formal project directories remain read-only inputs.
+
+This was a one-off historical exception for repairing already-created sandbox
+rounds after an explicit schema-alignment request. Do not copy this write
+boundary for new tasks. New autonomous tasks should write only inside their own
+`ai/tasks/YYYY-MM-DD-<task>/` directory unless a human explicitly grants a
+different bounded write set.

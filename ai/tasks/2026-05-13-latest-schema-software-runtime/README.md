@@ -62,11 +62,11 @@ From the package root:
 .\node_modules\.bin\tsc.cmd --strict --noEmit --target ES2022 --module ESNext --moduleResolution node packages\core\src\types.ts packages\architecture\src\types.ts ai\tasks\2026-05-13-latest-schema-software-runtime\architecture\software-runtime-architecture.ts ai\tasks\2026-05-13-latest-schema-software-runtime\runtime\software-runtime.ts ai\tasks\2026-05-13-latest-schema-software-runtime\examples\software-runtime-examples.ts ai\tasks\2026-05-13-latest-schema-software-runtime\smoke.ts
 ```
 
-To run the smoke checks without adding build artifacts to the repo:
+To run the smoke checks without adding build artifacts to the repo, bundle the
+task entrypoint so workspace package imports resolve from the repository root:
 
 ```powershell
-$out = Join-Path $env:TEMP 'logicir-latest-schema-runtime-smoke'
-Remove-Item -Recurse -Force $out -ErrorAction SilentlyContinue
-.\node_modules\.bin\tsc.cmd --target ES2020 --module CommonJS --moduleResolution node --strict --outDir $out packages\core\src\types.ts packages\architecture\src\types.ts ai\tasks\2026-05-13-latest-schema-software-runtime\architecture\software-runtime-architecture.ts ai\tasks\2026-05-13-latest-schema-software-runtime\runtime\software-runtime.ts ai\tasks\2026-05-13-latest-schema-software-runtime\examples\software-runtime-examples.ts ai\tasks\2026-05-13-latest-schema-software-runtime\smoke.ts
-node (Join-Path $out 'ai\tasks\2026-05-13-latest-schema-software-runtime\smoke.js')
+.\node_modules\.bin\esbuild.cmd ai\tasks\2026-05-13-latest-schema-software-runtime\smoke.ts --bundle --platform=node --format=cjs --outfile=.tmp\latest-schema-software-runtime-smoke.cjs
+node .tmp\latest-schema-software-runtime-smoke.cjs
+Remove-Item .tmp\latest-schema-software-runtime-smoke.cjs
 ```

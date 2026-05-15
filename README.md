@@ -48,14 +48,32 @@ Repository-level surfaces:
 
 - **[`docs/`](docs)**: reader-facing theory and user documentation.
 - **[`dev/`](dev)**: internal development theory extracts, plans, shared rules,
-  and local AI skill sources.
+  handoff notes, and engineering coordination.
 - **[`schema/`](schema)**: language-neutral schema artifact routes and curated
   specification notes.
-- **[`ai/`](ai)**: write-isolated AI task sandboxes and task templates.
+- **[`ai/`](ai)**: write-isolated AI task sandboxes, task templates, and
+  repository-local AI skill sources.
 - **[`examples/`](examples)** and **[`fixtures/`](fixtures)**: reviewed examples
   and reusable machine-checkable inputs when they are promoted.
 
-## III. Development & Tooling
+## III. New AI Session Handoff
+
+If a new AI session is asked to "read the existing project", it should not start
+by recursively reading every task sandbox. Use this order:
+
+1. Read [`dev/handoff.md`](dev/handoff.md).
+2. Read [`dev/shared-rules.md`](dev/shared-rules.md).
+3. Read [`dev/operational-theory.md`](dev/operational-theory.md),
+   [`dev/schema-principles.md`](dev/schema-principles.md), and
+   [`dev/logicir-architecture.md`](dev/logicir-architecture.md) as needed for
+   the task.
+4. Read [`dev/roadmap.md`](dev/roadmap.md) before starting roadmap or `/goal`
+   work.
+5. Read specific [`ai/tasks/`](ai/tasks) directories only as sandbox evidence
+   for review or promotion. Task output is not accepted project source until a
+   human reviews and promotes the smallest useful pieces.
+
+## IV. Development & Tooling
 
 To ensure absolute determinism in the development environment, this project is optimized for **Yarn Classic (1.22.x)** and utilizes **`ultra-runner`** for high-performance task execution.
 

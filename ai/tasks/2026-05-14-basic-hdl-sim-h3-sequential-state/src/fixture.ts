@@ -22,7 +22,7 @@ const output = (width: number): Port => ({
   boundary: 'output',
   role: 'primary-result',
   interaction: {
-    pullReadable: false,
+    pullReadable: true,
     pushNotifiable: true,
     retainedCurrent: true,
   },

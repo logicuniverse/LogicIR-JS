@@ -18,23 +18,13 @@ const pullInput = (): Port => ({
   },
 });
 
-const pushOutput = (role?: 'primary-result'): Port => ({
-  boundary: 'output',
-  role,
-  interaction: {
-    pullReadable: false,
-    pushNotifiable: true,
-    retainedCurrent: false,
-  },
-});
-
-const retainedOutput = (role?: 'primary-result'): Port => ({
+const computedOutput = (role?: 'primary-result'): Port => ({
   boundary: 'output',
   role,
   interaction: {
     pullReadable: true,
-    pushNotifiable: true,
-    retainedCurrent: true,
+    pushNotifiable: false,
+    retainedCurrent: false,
   },
 });
 
@@ -52,7 +42,7 @@ export const addOneUnit: LogicUnit = {
     kindOrganization: { kind: 'combinational' },
     ports: {
       input: pullInput(),
-      result: retainedOutput('primary-result'),
+      result: computedOutput('primary-result'),
     },
     luis: {
       addOne: {
@@ -65,7 +55,7 @@ export const addOneUnit: LogicUnit = {
         },
         ports: {
           value: pullInput(),
-          result: pushOutput('primary-result'),
+          result: computedOutput('primary-result'),
         },
         fulfillments: {},
         extensions: [
@@ -114,7 +104,7 @@ export const sequentialDoubleThenAddUnit: LogicUnit = {
     ],
     ports: {
       input: pullInput(),
-      result: retainedOutput('primary-result'),
+      result: computedOutput('primary-result'),
     },
     luis: {
       double: {
@@ -127,7 +117,7 @@ export const sequentialDoubleThenAddUnit: LogicUnit = {
         },
         ports: {
           value: pullInput(),
-          result: retainedOutput('primary-result'),
+          result: computedOutput('primary-result'),
         },
         fulfillments: {},
       },
@@ -141,7 +131,7 @@ export const sequentialDoubleThenAddUnit: LogicUnit = {
         },
         ports: {
           value: pullInput(),
-          result: pushOutput('primary-result'),
+          result: computedOutput('primary-result'),
         },
         fulfillments: {},
       },

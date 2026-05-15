@@ -12,8 +12,18 @@ compatibility, target-neutral core design, and clean package boundaries.
 ## Required Workflow
 
 1. Ground in the project:
-   - If the repo has `dev/operational-theory.md`, read it first.
-   - If the repo has `dev/schema-principles.md`, read it next.
+   - If the repo has `dev/handoff.md`, read it first for current status and
+     review entry points.
+   - If the repo has `dev/shared-rules.md`, read it next for collaboration,
+     sandbox, promotion, and verification rules.
+   - If the repo has `dev/operational-theory.md`, read it for theory-to-engineering
+     mapping, including AI-assisted LogicIR editing and edit transactions.
+   - If the repo has `dev/schema-principles.md`, read it for schema and
+     projection boundaries.
+   - If the repo has `dev/logicir-architecture.md`, read it for feature,
+     profile, stack, provider, and execution terminology.
+   - If the repo has `dev/roadmap.md`, read it before roadmap round, `/goal`,
+     promotion, or implementation planning work.
    - Treat `packages/core`, `packages/architecture`, and
      `packages/features/*` as current TS authoring packages for accepted
      protocol and feature data shapes.

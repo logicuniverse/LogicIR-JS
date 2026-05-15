@@ -13,6 +13,67 @@
 
 LogicIR 的工程目标不是把代码换一种语法重写，而是把逻辑拓扑作为可检查、可变换、可投影的源对象。代码、运行时、HDL、工具视图和其它宿主产物都是 projection 或 realization，不是 LogicIR 本身。
 
+## 人 + AI 协同编辑前景
+
+这一节不是新的理论分支，而是把 [docs/essay.md](../docs/essay.md) 中关于“机器编辑源码时需要先从 token residue 重建隐含结构”、以及 AI-assisted work 可以从 token proximity 转向 declared regions、boundaries、requirement sites 和 semantic-preservation checks 的论点，落成工程实践。
+
+LogicIR 的一个核心价值是把 AI 从“直接生成或修改目标代码”提升到“在受约束的语义结构中进行小步、原子、可验证的逻辑编辑”。内部开发和外部用户 authoring 都应优先围绕这个模型设计：
+
+```text
+自然语言 / 拖拽 / 图编辑 / 表单输入
+-> partial LogicIR
+-> typed holes / semantic slots
+-> AI completion / repair / refinement
+-> validation / typecheck / capability check
+-> projection / execution / simulation / report
+```
+
+这不是普通 code generation 的替代语法，而是一个 mixed-initiative authoring model：人类可以在不同抽象层级描述目标、拖拽结构、选择 feature/provider、留下空位；AI 根据当前 scope、closure、profile、feature、provider registry 和 type information 补全、修复或细化 LogicIR。代码、HDL、execution plan、测试和文档都是后续 projection 或 verification artifact。
+
+这个方向比直接 vibe coding 更强的地方在于：AI 编辑的对象不再是自由文本代码，而是带 schema、边界、feature contract、provider contract 和验证结果的逻辑结构。人类 review 的对象也不只是代码 diff，而是一次带有 intent、scope、operations、validation 和 tests 的可追踪 edit transaction。
+
+## Partial IR 和 Typed Holes
+
+LogicIR authoring 应允许暂时不完整，但不允许语义无边界地空缺。一个空位应该有明确接口，例如：
+
+- 这里需要一个满足 invocation contract 的 provider。
+- 这里需要补齐某个 port payload type 或 signal width。
+- 这里需要 completion、error、retained-current 或 fulfillment policy。
+- 这里需要一个 closure 或 upstream fulfillment。
+- 这里需要选择 projection target 或 execution binding。
+
+只要空位的接口确定，AI 就可以在可检查空间内自动补全；如果当前 profile 不允许补全所需 feature，工具必须给出 diagnostic，而不是静默降级。
+
+## Authoring Level
+
+用户和 AI 可以在多个 level 协作：
+
+- **Intent level**: 自然语言描述目标。
+- **Structure level**: 创建 LU、LUI、port、connection、closure 和 composition surface。
+- **Semantic level**: 选择 feature、extension、requirement service 和 provider contract。
+- **Binding level**: 绑定 provider、runtime、target、projection 和 execution environment。
+- **Verification level**: 运行 schema check、profile check、type check、capability check、runtime smoke 或 HDL simulation。
+- **Projection level**: 生成 interpreter plan、JS/TS、Verilog HDL、report、测试或可视化 artifact。
+
+后续工具设计应把这些 level 保持为同一 LogicIR edit flow 的不同入口，而不是互相割裂的产品模式。
+
+## LogicIR Edit Transaction
+
+AI 自动修改 LogicIR 时，理想输出不是“我改了几个文件”，而是一条可验证 transaction：
+
+```text
+intent
+scope / closure
+before state reference
+operations
+after state reference
+validation result
+test or simulation result
+rationale
+```
+
+每次 transaction 都应该尽量小，落在明确 scope 内，并且可以被 replay、review、rollback 或 promotion。这个模型也是 `ai/tasks/` sandbox 与正式项目文件之间的桥梁：AI 可以在 sandbox 中探索完整实现，但被 promotion 的应是经过人工审查、验证通过、边界清楚的最小成果。
+
 ## Logic Unit 模型
 
 - **LU** 是在某个边界和尺度上可完整描述的有界逻辑拓扑。

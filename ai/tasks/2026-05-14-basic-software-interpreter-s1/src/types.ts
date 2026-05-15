@@ -77,6 +77,8 @@ export type Diagnostic = {
 export type InterpreterPlan = {
   key: string;
   stackKey: string;
+  executionKind: 'combinational';
+  primaryOutputPort: PortKey;
   inputPorts: PortKey[];
   outputPorts: PortKey[];
   nodes: InterpreterPlanNode[];

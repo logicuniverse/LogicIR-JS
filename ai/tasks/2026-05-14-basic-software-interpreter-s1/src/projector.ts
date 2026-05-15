@@ -133,6 +133,20 @@ const outputPorts = (logicUnit: LogicUnit): PortKey[] =>
     .filter(([, port]) => port.boundary === 'output')
     .map(([key]) => key);
 
+const primaryOutputPort = (logicUnit: LogicUnit): PortKey => {
+  const entries = Object.entries(logicUnit.core.ports).filter(
+    ([, port]) => port.boundary === 'output' && port.role === 'primary-result',
+  );
+
+  if (entries.length !== 1) {
+    throw new Error(
+      `S1 requires exactly one primary-result output, got ${entries.length}`,
+    );
+  }
+
+  return entries[0][0];
+};
+
 export const createInterpreterPlan = (
   logicUnit: LogicUnit,
   resolved: ResolvedStack,
@@ -156,6 +170,8 @@ export const createInterpreterPlan = (
   return {
     key: 'add-pair.interpreter-plan.s1',
     stackKey: resolved.stackKey,
+    executionKind: 'combinational',
+    primaryOutputPort: primaryOutputPort(logicUnit),
     inputPorts: inputPorts(logicUnit),
     outputPorts: outputPorts(logicUnit),
     nodes: [

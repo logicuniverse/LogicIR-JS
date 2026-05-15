@@ -6,6 +6,7 @@
 
 ## 文档分类
 
+- [handoff.md](handoff.md): 新 AI 会话或新协作者的当前状态交接入口。
 - [shared-rules.md](shared-rules.md): 人与 AI 都要遵守的共同规则。
 - [operational-theory.md](operational-theory.md): 从完整 essay 提取出的工程执行版理论。
 - [schema-principles.md](schema-principles.md): 新 schema 的理论来源、历史实现边界和 projection target 约束。
@@ -16,9 +17,13 @@
 
 ## 阅读路线
 
-1. 通用协作规则先读 [shared-rules.md](shared-rules.md)。
-2. 理论到工程实现的映射读 [operational-theory.md](operational-theory.md)。
-3. schema、feature、projection 或 runtime 设计读 [schema-principles.md](schema-principles.md)。
-4. profile、stack、provider、execution binding 等生态概念读 [logicir-architecture.md](logicir-architecture.md)。
-5. 项目对象清单和阶段优先级读 [roadmap.md](roadmap.md)。
-6. 重大变更的实施计划写入 [plans/](plans/)；AI 全自动探索写入 [`../ai/tasks/`](../ai/tasks/)。
+1. 新会话交接先读 [handoff.md](handoff.md)。
+2. 通用协作规则读 [shared-rules.md](shared-rules.md)。
+3. 理论到工程实现的映射读 [operational-theory.md](operational-theory.md)。
+4. schema、feature、projection 或 runtime 设计读 [schema-principles.md](schema-principles.md)。
+5. profile、stack、provider、execution binding 等生态概念读 [logicir-architecture.md](logicir-architecture.md)。
+6. AI 协同编辑、partial IR、edit transaction 和可验证 authoring 前景读
+   [operational-theory.md](operational-theory.md) 与
+   [logicir-architecture.md](logicir-architecture.md) 的相关章节。
+7. 项目对象清单和阶段优先级读 [roadmap.md](roadmap.md)。
+8. 重大变更的实施计划写入 [plans/](plans/)；AI 全自动探索写入 [`../ai/tasks/`](../ai/tasks/)。

@@ -19,8 +19,8 @@ const output = (retainedCurrent = false): Port => ({
   boundary: 'output',
   role: 'primary-result',
   interaction: {
-    pullReadable: false,
-    pushNotifiable: true,
+    pullReadable: true,
+    pushNotifiable: retainedCurrent,
     retainedCurrent,
   },
 });

@@ -112,6 +112,34 @@ tool、projector、compiler、engine、fixture 和 AI task 的建设顺序。
 - 一个 stack 可以解析为具体 profile requirements。
 - 不支持 required 或 conditional-required contract 时必须产生 diagnostic。
 
+## 阶段 1.5：AI 协同编辑协议
+
+目标：把 AI 工作从“直接写目标代码”推进到“提交可验证 LogicIR edit
+transaction”。这条线同时服务内部 AI task 和未来外部用户工具。
+
+近期必需概念：
+
+- Edit transaction：记录 intent、scope、before、operations、after、
+  validation、tests 和 rationale。
+- Scope/closure resolver：给 AI 明确本次可读取、可修改和只读参考的边界。
+- Partial IR holes：允许 LogicIR 暂时不完整，但每个空位必须有 feature、
+  provider、type、binding 或 profile 层面的接口。
+- Operation model：定义可 replay 的结构化 edit operation，而不只依赖文件
+  diff。
+- Completion/repair loop：AI 根据 diagnostic、type error、capability gap 或
+  failed smoke test 生成下一次小步 transaction。
+
+第一轮 AI 协同编辑验收标准：
+
+- 一个 task-local fixture 能从 partial LogicIR 出发，留下明确 typed holes。
+- AI 或脚本能根据 profile/provider/type 信息补全这些 holes。
+- 补全结果经过 schema/profile/capability validation。
+- 结果投影到 `basic-software-interpreter` 或 `basic-hdl-sim` 的 smoke test。
+- task 输出包含 transaction report，说明每一步修改的 intent、scope 和验收。
+
+这条线不替代 S1/S2/H1 等端到端 round；它应该先在这些 round 的 fixture 上
+实验，确认稳定后再 promotion 到正式 tool/package。
+
 ## 阶段 2：Feature Catalog
 
 目标：定义小而可复用的语义 feature。Feature 不是 stack。software 和 HDL
@@ -453,6 +481,22 @@ required。Type-system 可以作为 recommended 或 optional 出现在 profile �
 - 基于当前 architecture schema 原型化 `tools/profile-resolver`。
 - 用 feature/profile fixture 原型化 `tools/capability-checker`。
 - 从 `packages/legacy/flow-core` 提取可复用的 node/LUI catalog 证据。
+- `logicir-edit-transaction-mvp`
+  - 目标：定义 task-local LogicIR edit transaction 数据结构和最小 operation
+    model，证明 AI 可以在一个 closure/scope 内提交小步、可 replay、可验证的
+    LogicIR 修改。
+  - 必需内容：partial LogicIR fixture、typed holes、operation list、
+    before/after snapshot、validation result、projection/execution smoke、
+    transaction report。
+  - 验收：transaction 可被脚本 replay；replay 后结果与 after snapshot 一致；
+    validation 和 smoke test 通过；失败时返回结构化 diagnostic。
+- `mixed-authoring-hole-completion`
+  - 目标：模拟用户自然语言或拖拽生成 partial LogicIR，再由 AI 或规则脚本基于
+    profile/provider/type 信息补全空位。
+  - 必需内容：至少一个 software invocation 空位和一个 HDL signal/clocking
+    空位；分别投影到 `basic-software-interpreter` 或 `basic-hdl-sim`。
+  - 验收：补全过程不依赖硬编码目标代码；所有补全都能追溯到 feature、
+    provider contract、profile requirement 或 type/signal metadata。
 
 晋升规则：
 

@@ -25,6 +25,56 @@ Feature definition、profile definition、stack definition、capability definiti
 
 当前主要 stack 仍然是 software 和 Verilog HDL。Circuit/netlist、mechanical design 和 product enclosure 路线是参考 probe 和未来 extension path。它们有助于检查 architecture 是否保持 target-neutral 和可扩展，但不应驱动 core schema 改动，除非它们揭示了缺失的 target-neutral topology relation。
 
+## 可验证逻辑协同编辑
+
+这一节是 [docs/essay.md](../docs/essay.md) 中 LogicIR 作为 logic-as-data substrate、topological source of truth 和 AI-assisted work 结构化交互单位的工程化展开；它不是独立于 essay 的新产品叙事。
+
+LogicIR authoring 的长期产品形态不是让用户只写代码，也不是让 AI 一次性生成大段代码。更有价值的形态是让用户通过自然语言、拖拽、图编辑、表单或它们的组合，半自动构造不同 level 的 partial LogicIR；AI 在明确的 scope、closure、feature/profile 约束和 provider/type 信息下补全空位、修复不一致、生成 projection，并运行验证。
+
+```text
+user intent / visual edit
+-> LogicIR edit transaction
+-> validation / typecheck / capability check
+-> projection / execution / simulation
+-> reviewable result
+```
+
+这个模型适用于内部开发，也适用于未来外部用户工具。内部使用时，AI task 应尽量提交可验证的 LogicIR fixture、architecture data、projector/engine smoke 和 promotion notes；外部使用时，用户的自然语言和拖拽操作也应落成同一种可验证 edit transaction。
+
+### Edit Transaction
+
+LogicIR edit transaction 是一次原子逻辑编辑的审查单位。它至少应能表达：
+
+```ts
+{
+  intent: string;
+  scope: unknown;
+  before: unknown;
+  operations: unknown[];
+  after: unknown;
+  validation: unknown;
+  tests: unknown;
+  rationale: string;
+}
+```
+
+这里的 `unknown` 不是最终 schema，而是提醒当前文档只定义架构角色：`scope` 应指向可编辑的 LU、closure、profile 或 task-local fixture boundary；`operations` 应是可 replay 的结构化 edit operation；`validation` 和 `tests` 应保存 schema、profile、type、runtime 或 HDL simulation 结果。
+
+AI 不应把 edit transaction 降级成普通文件 diff。文件 diff 可以是实现载体，但 review 的核心应该是：这次编辑的意图是什么、改动落在哪个 scope、是否满足当前 profile、是否有 semantic loss、哪些 projection/execution 验收已经通过。
+
+### Partial IR 和空位
+
+Authoring tool 可以创建 partial LogicIR，但空位必须有接口。典型空位包括：
+
+- 需要选择 provider 的 invocation。
+- 需要补齐 payload type、signal width 或 value shape 的 port。
+- 需要 completion/error/lifecycle/retained-current policy 的 software 语义。
+- 需要 clock/reset/state/combinational/elaboration constraint 的 HDL 语义。
+- 需要 closure 或 upstream fulfillment 的 requirement。
+- 需要 projection target 或 execution binding 的 stack 选择。
+
+AI completion 必须在这些接口内工作。Feature definition、profile requirement、provider contract、type system 和 capability checker 共同限定 AI 可补全的空间。
+
 ## LogicIR 文档（LogicIR Document）
 
 LogicIR document 回答：
