@@ -43,14 +43,7 @@ const hole = (
 
 export const partialLogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: {
-    invocation: hole(
-      'feature.invocation',
-      'feature-use',
-      'The fixture needs invocation semantics but has not selected the feature identity yet.',
-      'logicir.software.invocation/core',
-    ),
-  },
+  features: {},
   requirements: {},
   core: {
     kindOrganization: { kind: 'combinational' },
@@ -64,8 +57,8 @@ export const partialLogicUnit = {
       add: hole(
         'lui.add',
         'lui',
-        'The user intent left an invocation site without a concrete provider-backed LUI.',
-        'provider-backed combinational invocation',
+        'The user intent left an invocation site without a concrete external-target LUI.',
+        'external-target combinational invocation',
       ),
     },
     connections: {},
@@ -74,13 +67,7 @@ export const partialLogicUnit = {
 
 export const completedLogicUnit: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: {
-    invocation: {
-      namespace: 'logicir.software',
-      key: 'invocation',
-      version: '0.0.0-mvp',
-    },
-  },
+  features: {},
   requirements: {},
   core: {
     kindOrganization: { kind: 'combinational' },
@@ -105,15 +92,7 @@ export const completedLogicUnit: LogicUnit = {
           sum: outputPort,
         },
         fulfillments: {},
-        extensions: [
-          {
-            featureKey: 'invocation',
-            key: 'provider-binding',
-            payload: {
-              bindingKey: 'add-pair-provider',
-            },
-          },
-        ],
+        extensions: [],
       },
     },
     connections: {
@@ -154,11 +133,6 @@ export const completedLogicUnit: LogicUnit = {
 export const editOperations: LogicIREditOperation[] = [
   {
     kind: 'set',
-    path: ['features', 'invocation'],
-    value: completedLogicUnit.features.invocation as unknown as JsonValue,
-  },
-  {
-    kind: 'set',
     path: ['core', 'luis', 'add'],
     value: completedLogicUnit.core.luis.add as unknown as JsonValue,
   },
@@ -182,6 +156,18 @@ export const editOperations: LogicIREditOperation[] = [
   },
 ];
 
+export const executionBindings = [
+  {
+    subject: {
+      kind: 'external-target',
+      namespace: 'logicir.examples.math',
+      key: 'add-pair',
+      version: '0.0.0-mvp',
+    },
+    providerKey: 'add-pair-provider',
+  },
+] as const;
+
 export const editTransaction: LogicIREditTransaction = {
   schemaVersion: 'logicir.edit-transaction.mvp/0.1',
   interpretation: baselineInterpretation('typed-hole-edit-transaction-replay', [
@@ -189,7 +175,7 @@ export const editTransaction: LogicIREditTransaction = {
     'The transaction shape is review evidence and should be narrowed before any formal edit protocol promotion.',
   ]),
   intent:
-    'Complete a partial LogicIR add-pair invocation by selecting the invocation feature, adding a provider-backed LUI, and wiring LU ports to it.',
+    'Complete a partial LogicIR add-pair invocation by adding an external-target LUI and wiring LU ports to it.',
   scope: {
     kind: 'logic-unit',
     ref: 'task.fixture/add-pair-invocation',
@@ -206,5 +192,5 @@ export const editTransaction: LogicIREditTransaction = {
     data: completedLogicUnit as unknown as JsonValue,
   },
   rationale:
-    'The user-facing authoring surface left typed holes for the invocation feature and the provider-backed LUI. The transaction fills only those holes and adds the required connections, producing a core-valid LogicUnit that can be projected to a minimal invocation plan.',
+    'The user-facing authoring surface left a typed hole for the external-target LUI. The transaction fills that hole and adds the required connections, producing a core-valid LogicUnit. Provider selection is supplied separately by task-local execution binding data.',
 };

@@ -16,8 +16,9 @@
 - No task-local `src/types.ts` redefines architecture schema types such as
   `FeatureDefinition`, `StackDefinition`, or profile definitions.
 - Every checked task imports `@logic-universe/logic-ir-core`.
-- Every checked task with `src/architecture.ts` imports
-  `@logic-universe/logic-ir-architecture`.
+- Every checked task with current `src/architecture.ts` imports
+  `@logic-universe/logic-ir-architecture`; rounds without architecture data are
+  not required to create one.
 - Every checked task remains `ready-for-review` and records passed
   `yarn verify`.
 

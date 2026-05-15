@@ -10,25 +10,18 @@ export type {
 } from '@logic-universe/logic-ir-core';
 
 export type {
-  BindingRequirementLevel,
   CoreSchemaVersionSelector,
-  ExecutionBinding,
   ExecutionProfileDefinition,
   FeatureDefinition,
-  FeatureRef,
   IRPipelineProfileDefinition,
-  ProfileDefinition,
   ProfileFeatureContract,
   ProjectionProfileDefinition,
   StackDefinition,
 } from '@logic-universe/logic-ir-architecture';
 
 import type {
-  ExecutionBinding,
   ExecutionProfileDefinition,
-  FeatureRef,
   IRPipelineProfileDefinition,
-  ProfileDefinition,
   ProfileFeatureContract,
   ProjectionProfileDefinition,
   StackDefinition,
@@ -48,9 +41,7 @@ export type SoftwareProfileCatalogEntry =
 
 export type ResolvedStack = {
   stackKey: string;
-  profiles: ProfileDefinition[];
   requiredFeatures: ProfileFeatureContract[];
-  executionBindings: ExecutionBinding[];
 };
 
 export type Diagnostic = {
@@ -112,7 +103,11 @@ export type ExecutionResult = {
   diagnostics: Diagnostic[];
 };
 
-export const identityKey = (value: FeatureRef): string =>
+export const identityKey = (value: {
+  namespace: string;
+  key: string;
+  version?: string;
+}): string =>
   `${value.namespace}/${value.key}${value.version ? `@${value.version}` : ''}`;
 
 export type StackCatalogEntry = CatalogEntry<StackDefinition>;

@@ -7,7 +7,7 @@
 | `dev/roadmap.md` | Defines `basic-software-interpreter` as highest-priority stack and S1 as pure provider invocation. |
 | `dev/logicir-architecture.md` | Defines LogicIR document vs architecture definition, profile layers, stack composition, execution binding, and provider terminology. |
 | `packages/core/src/types.ts` | Current core LogicIR authoring source used as the shape reference for `LogicUnit`, `LUI`, `Port`, `Connection`, and external target identity. |
-| `packages/architecture/src/types.ts` | Current architecture authoring source used as the shape reference for feature, profile, stack, stage, provider contract, and execution binding data. |
+| `packages/architecture/src/types.ts` | Current architecture authoring source used as the shape reference for profile, stack, and execution binding data. |
 | `packages/core/package.json` | Confirms formal package identity and that S1 should not modify package build configuration. |
 | `packages/architecture/package.json` | Confirms architecture package identity and formal dependency direction. |
 
@@ -29,9 +29,9 @@ Task-local files:
 | Source | Why It Matters |
 | --- | --- |
 | `src/types.ts` | S1-local minimal serializable type subset mirroring the accepted schema portions used by this task. |
-| `src/architecture.ts` | Minimal feature, stage capability, provider contract, profiles, execution binding, and stack data. |
+| `src/architecture.ts` | Minimal profiles, execution binding, and stack data. |
 | `src/fixture.ts` | Minimal combinational LogicIR fixture with one external provider LUI. |
-| `src/resolver.ts` | Expands the stack into concrete profile, stage, feature, and binding requirements. |
+| `src/resolver.ts` | Validates the stack profile composition and extracts required execution bindings. |
 | `src/projector.ts` | Projects the LogicIR fixture into an executable interpreter plan. |
 | `src/engine.ts` | Executes the plan by invoking an explicitly registered provider. |
 | `src/smoke.ts` | End-to-end assertion entry point. |

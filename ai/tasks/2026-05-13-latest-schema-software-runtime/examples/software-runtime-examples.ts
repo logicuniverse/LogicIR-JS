@@ -30,13 +30,7 @@ const computedOutput = (role?: 'primary-result'): Port => ({
 
 export const addOneUnit: LogicUnit = {
   schemaVersion: LOGIC_IR_CORE_SCHEMA_VERSION,
-  features: {
-    software: {
-      namespace: 'logicir.software-runtime',
-      key: 'basic',
-      version: '0.0.0-exploration',
-    },
-  },
+  features: {},
   requirements: {},
   core: {
     kindOrganization: { kind: 'combinational' },
@@ -58,16 +52,6 @@ export const addOneUnit: LogicUnit = {
           result: computedOutput('primary-result'),
         },
         fulfillments: {},
-        extensions: [
-          {
-            featureKey: 'software',
-            key: 'provider-contract',
-            payload: {
-              inputPolicy: 'pull-current-inputs',
-              outputPolicy: 'primary-result',
-            },
-          },
-        ],
       },
     },
     connections: {
@@ -93,15 +77,6 @@ export const sequentialDoubleThenAddUnit: LogicUnit = {
       kind: 'sequential',
       steps: ['double', 'addOne'],
     },
-    extensions: [
-      {
-        featureKey: 'software',
-        key: 'completion-policy',
-        payload: {
-          defaultStepCompletion: 'await-before-next-step',
-        },
-      },
-    ],
     ports: {
       input: pullInput(),
       result: computedOutput('primary-result'),

@@ -25,14 +25,6 @@ const output = (retainedCurrent = false): Port => ({
   },
 });
 
-export const featureManifest = {
-  invocation: {
-    namespace: 'logicir.software',
-    key: 'invocation',
-    version: '0.0.0-stdlib-replica',
-  },
-};
-
 const luiIdFor = (key: LegacyStdlibNodeKey): string =>
   `node_${key.replace(/[^A-Za-z0-9]/g, '_')}`;
 
@@ -139,7 +131,7 @@ export const createStdlibLogicUnitFixture = (
 
   return {
     schemaVersion: '0.0.0-draft',
-    features: featureManifest,
+    features: {},
     requirements: {},
     core,
   };

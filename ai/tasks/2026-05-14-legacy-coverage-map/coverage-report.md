@@ -13,7 +13,7 @@ be promoted unchanged.
 Covered or meaningfully seeded:
 
 - Provider invocation.
-- Basic state store get/set.
+- Basic retained-current runtime state get/set.
 - Minimal retained-current read/write.
 - Async provider completion and rejection diagnostic.
 - Minimal closure/upstream fulfillment.
@@ -47,8 +47,8 @@ same ids and recommendations.
 
 | ID | Category | Capability | Status | S Rounds | Recommendation |
 | --- | --- | --- | --- | --- | --- |
-| `runtime.provider-invocation` | runtime core | provider invocation | `covered-by-s1-s5` | S1 | Promote explicit provider binding and invocation seed after review. |
-| `runtime.state-store` | runtime core | state store get/set/snapshot | `covered-by-s1-s5` | S2 | Use S2 as seed for a formal state-store provider contract. |
+| `runtime.provider-invocation` | runtime core | provider invocation | `covered-by-s1-s5` | S1 | Promote architecture-level execution binding and provider execution seed after review. |
+| `runtime.state-store` | runtime core | state store get/set/snapshot | `covered-by-s1-s5` | S2 | Use S2 as seed for retained-current runtime state behavior; decide any formal state-store provider contract later. |
 | `runtime.property-current` | runtime core | Property / retained-current contact | `partially-covered` | S2 | Create Round S6 retained-current-notification. |
 | `runtime.thenable-completion` | runtime core | Thenable completion resolve/reject | `partially-covered` | S3, S5 | Create Round S7 completion-result-model. |
 | `runtime.emit-subscribe` | runtime core | emit / subscribe event stream | `missing` |  | Create Round S8 event-stream. |

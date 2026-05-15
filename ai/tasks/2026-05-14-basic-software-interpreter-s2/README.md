@@ -3,12 +3,12 @@
 ## Objective
 
 Add retained-current behavior to the software interpreter sandbox: a LogicIR
-fixture reads current state, writes a new current value through a state-store
-provider, then reads the updated value on the next run.
+fixture reads current state, writes a new current value through the task-local
+state store context, then reads the updated value on the next run.
 
 ## Interpretation Note
 
-This task is sandbox evidence, not schema or engine authority. Its state-store
+This task is sandbox evidence, not schema or engine authority. Its runtime state
 path is the S2 baseline, not a mandatory state architecture. Formal promotion
 may use a different store, reactive, incremental, or event-loop strategy if
 retained-current/current read and durable update semantics remain explicit and
@@ -18,12 +18,11 @@ verified.
 
 - Stack: `basic-software-interpreter`
 - Round: `S2 retained-current`
-- End-to-end chain: `LogicIR fixture -> stack/profile resolver -> retained-current interpreter plan -> state-store engine -> current value assertions`
+- End-to-end chain: `LogicIR fixture -> stack/profile resolver -> retained-current interpreter plan -> runtime state engine -> current value assertions`
 - Required fixture: `src/fixture.ts`
 - Required verification command: `yarn verify`
 - Expected promotable output: retained-current feature/extension draft,
-  state-store provider contract shape, stateful fixture, and minimal state-store
-  engine behavior.
+  stateful fixture, and minimal runtime state engine behavior.
 
 ## Scope
 
@@ -31,7 +30,7 @@ In scope:
 
 - `logicir.software / retained-current` feature draft.
 - LUI/Port extension payload draft for state key and state operation.
-- Memory state-store provider.
+- Memory runtime state context used by the task-local engine.
 - Read-current and write-current interpreter operations.
 - Task-local smoke proving initial read, write, and updated current read.
 
@@ -47,11 +46,11 @@ Current status: `ready-for-review`
 
 ## Directory Map
 
-- `src/architecture.ts`: S2 feature/profile/stack/provider-contract data.
+- `src/architecture.ts`: S2 feature/profile/stack data.
 - `src/fixture.ts`: retained-current fixture.
 - `src/resolver.ts`: minimal stack resolver.
 - `src/projector.ts`: retained-current plan projector.
-- `src/engine.ts`: memory state-store execution.
+- `src/engine.ts`: memory runtime state execution.
 - `src/smoke.ts`: end-to-end smoke.
 - `verification.md`: fresh command evidence.
 - `promotion-checklist.md`: promotion notes.

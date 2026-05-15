@@ -23,11 +23,10 @@ export type TypedHole = {
   $hole: {
     id: string;
     expected:
-      | 'feature-use'
       | 'lui'
       | 'connection'
       | 'extension-payload'
-      | 'provider-binding'
+      | 'execution-binding'
       | 'custom';
     reason: string;
     contract?: string;
@@ -126,6 +125,16 @@ export type InvocationPlan = {
   providerKey: string;
   inputMap: Record<string, string>;
   outputMap: Record<string, string>;
+};
+
+export type ExecutionBinding = {
+  subject: {
+    kind: 'external-target';
+    namespace: string;
+    key: string;
+    version?: string;
+  };
+  providerKey: string;
 };
 
 export type ProviderFunction = (

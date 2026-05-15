@@ -2,6 +2,9 @@
 
 This directory is the dedicated workspace for reviewable AI-autonomous tasks.
 
+For a route-level summary of useful sandbox outputs and recommended review
+order, see [`material-index.md`](material-index.md).
+
 Use it for work produced by `/goal` or by parallel agents when the task is not
 being reviewed step by step by a human, and when the work has a clear objective,
 bounded scope, and runnable verification plan. Sandbox output is exploration
@@ -41,6 +44,22 @@ function, Verilog structural payload, or legacy stdlib replica. Those terms
 describe the task baseline unless a promoted formal document says otherwise.
 They must not be read as final core schema, final feature schema, or mandatory
 engine/projector architecture.
+
+## Minimal Round Rule
+
+Every task must keep its round minimal. Keep only the data structures, schema
+fragments, profile fields, stack fields, feature contracts, runtime plan fields,
+and helper functions that the current end-to-end path actually consumes.
+
+Do not add future-looking feature catalogs, stages, provider contracts,
+diagnostics, capabilities, plan fields, validators, or runtime abstractions in an
+earlier round unless that round's fixture, projector, engine, compiler,
+simulator, or smoke check uses them.
+
+If a formal schema type requires an empty field such as `featureContracts: []`,
+`stages: []`, or `providerContracts: []`, the task may keep the field, but it
+must be documented as a schema-shape requirement rather than a reserved future
+business contract.
 
 ## Write Boundary
 

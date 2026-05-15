@@ -15,8 +15,8 @@ preservation.
 The route is ready for human review as a set of seeds:
 
 - Invocation can resolve a stack/profile contract and call an explicit provider.
-- Retained-current can read and write current state through a state-store
-  provider.
+- Retained-current can read and write current state through task-local runtime
+  state.
 - Completion can await provider output and convert provider rejection to a
   diagnostic.
 - Fulfillment can execute a requirement through closure or upstream provider.
@@ -28,7 +28,7 @@ The route is ready for human review as a set of seeds:
 | Round | Capability Proven | Verification | Promotion Use |
 | --- | --- | --- | --- |
 | S1 pure invocation | Provider invocation through interpreter plan. | `yarn verify` passed. | Seed resolver, interpreter-plan shape, provider engine, pure invocation fixture. |
-| S2 retained-current | Memory state-store get/write/current behavior. | `yarn verify` passed after catching a state erase bug. | Seed retained-current feature/contract, state-store provider, retained fixture. |
+| S2 retained-current | Memory state get/write/current behavior. | `yarn verify` passed after catching a state erase bug. | Seed retained-current feature/contract candidate and retained fixture. |
 | S3 completion / await | Promise-style resolve and reject diagnostic. | `yarn verify` passed after type fix. | Seed completion policy and async engine behavior. |
 | S4 fulfillment / closure | Closure fulfillment, upstream provider, missing provider diagnostic. | `yarn verify` passed. | Seed fulfillment plan nodes and requirement fixtures. |
 | S5 error / diagnostic | Provider missing, invalid plan, unsupported semantics, runtime failure reports. | `yarn verify` passed. | Seed shared diagnostic model and failure fixture suite. |
@@ -55,7 +55,7 @@ The first formal promotion should be narrow:
 2. Minimal profile resolver seed.
 3. Minimal interpreter-plan data shape.
 4. Provider invocation engine path.
-5. Memory state-store provider path.
+5. Memory retained-current state path.
 6. S1-S5 fixtures as formal regression candidates, after adapting them to
    accepted core/architecture types.
 

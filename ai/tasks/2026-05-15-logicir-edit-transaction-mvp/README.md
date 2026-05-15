@@ -18,8 +18,9 @@ pipeline if replayability and semantic review evidence are preserved.
 - Stack: task-local `basic-software-interpreter` style smoke.
 - Round: `logicir-edit-transaction-mvp`.
 - End-to-end chain: `partial LogicIR -> edit transaction -> replay -> core validation -> invocation plan -> provider smoke`.
-- Required fixture: a combinational add-pair LogicUnit with typed holes for the
-  invocation feature and provider-backed LUI.
+- Required fixture: a combinational add-pair LogicUnit with a typed hole for the
+  external-target LUI. Provider selection is supplied by task-local execution
+  binding data, not by a feature or LUI extension.
 - Required verification command: `yarn verify`.
 - Expected promotable output: concepts and minimal shapes for edit transaction,
   replay, typed holes, and transaction validation.

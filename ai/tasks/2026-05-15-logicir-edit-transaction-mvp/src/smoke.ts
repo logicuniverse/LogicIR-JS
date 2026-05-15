@@ -1,5 +1,5 @@
 import type { LogicUnit } from '@logic-universe/logic-ir-core';
-import { editTransaction } from './fixture';
+import { editTransaction, executionBindings } from './fixture';
 import { stableStringify } from './hash';
 import {
   executeInvocationPlan,
@@ -45,7 +45,7 @@ assert(
 
 const replayed = replayTransaction(editTransaction);
 const logicUnit = replayed.data as unknown as LogicUnit;
-const plan = projectInvocationPlan(logicUnit);
+const plan = projectInvocationPlan(logicUnit, executionBindings);
 const outputs = executeInvocationPlan(plan, { left: 2, right: 3 }, providers);
 
 assert(outputs.sum === 5, `Expected smoke output sum=5, got ${String(outputs.sum)}.`);

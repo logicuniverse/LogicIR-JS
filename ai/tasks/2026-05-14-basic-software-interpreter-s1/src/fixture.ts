@@ -21,13 +21,7 @@ const outputPort: Port = {
 
 export const addPairLogicUnit: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: {
-    invocation: {
-      namespace: 'logicir.software',
-      key: 'invocation',
-      version: '0.0.0-s1',
-    },
-  },
+  features: {},
   requirements: {},
   core: {
     kindOrganization: { kind: 'combinational' },
@@ -51,15 +45,7 @@ export const addPairLogicUnit: LogicUnit = {
           sum: outputPort,
         },
         fulfillments: {},
-        extensions: [
-          {
-            featureKey: 'invocation',
-            key: 'provider-binding',
-            payload: {
-              bindingKey: 'add-pair-provider',
-            },
-          },
-        ],
+        extensions: [],
       },
     },
     connections: {

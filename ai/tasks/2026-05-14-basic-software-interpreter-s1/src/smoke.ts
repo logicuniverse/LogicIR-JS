@@ -20,6 +20,21 @@ const assertDeepEqual = (
 const resolved = resolveStack(basicSoftwareInterpreterStack);
 const plan = createInterpreterPlan(addPairLogicUnit, resolved);
 
+if (Object.keys(addPairLogicUnit.features).includes('invocation')) {
+  throw new Error('Plain external-target add fixture must not declare a software invocation feature.');
+}
+
+const addLuiExtensions = addPairLogicUnit.core.luis.add.extensions ?? [];
+if (
+  addLuiExtensions.some(
+    (extension) =>
+      extension.featureKey === 'invocation' &&
+      extension.key === 'provider-binding',
+  )
+) {
+  throw new Error('Provider binding must stay in architecture execution bindings, not LUI extensions.');
+}
+
 if (!plan.interpretation?.baselineOnly) {
   throw new Error('Interpreter plan must declare baseline interpretation metadata.');
 }

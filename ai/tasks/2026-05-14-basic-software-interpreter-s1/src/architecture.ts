@@ -1,11 +1,8 @@
 import type {
-  CapabilityDefinition,
   CoreSchemaVersionSelector,
   ExecutionProfileDefinition,
-  FeatureDefinition,
   IRPipelineProfileDefinition,
   ProjectionProfileDefinition,
-  ProviderContractDefinition,
   StackDefinition,
 } from './types';
 import type {
@@ -19,99 +16,6 @@ const coreVersions: CoreSchemaVersionSelector = {
   versions: ['0.0.0-draft'],
 };
 
-export const softwareInvocationFeature: CatalogEntry<FeatureDefinition> = {
-  namespace: 'logicir.software',
-  key: 'invocation',
-  version: '0.0.0-s1',
-  definition: {
-    title: 'Software invocation',
-    description:
-      'Callable provider invocation semantics for a software interpreter plan.',
-    extensionPoints: [
-      {
-        key: 'provider-binding',
-        attachment: 'lui',
-        title: 'Provider binding hint',
-        description:
-          'Optional LUI-level hint that an external target is executed through a provider binding.',
-        payloadSchema: {
-          kind: 'inline-json-schema',
-          schema: {
-            type: 'object',
-            additionalProperties: false,
-            properties: {
-              bindingKey: { type: 'string' },
-            },
-            required: ['bindingKey'],
-          },
-        },
-      },
-    ],
-  },
-};
-
-export const coreValidateCapability: CatalogEntry<CapabilityDefinition> = {
-  namespace: 'logicir.pipeline',
-  key: 'core-validate',
-  version: '0.0.0-s1',
-  definition: {
-    capabilityKind: 'ir-stage',
-    title: 'Core validation',
-  },
-};
-
-export const featureManifestResolveCapability: CatalogEntry<CapabilityDefinition> =
-  {
-    namespace: 'logicir.pipeline',
-    key: 'feature-manifest-resolve',
-    version: '0.0.0-s1',
-    definition: {
-      capabilityKind: 'ir-stage',
-      title: 'Feature manifest resolve',
-    },
-  };
-
-export const interpreterPlanCapability: CatalogEntry<CapabilityDefinition> = {
-  namespace: 'logicir.projection',
-  key: 'interpreter-plan',
-  version: '0.0.0-s1',
-  definition: {
-    capabilityKind: 'projection-stage',
-    title: 'Interpreter plan projection',
-  },
-};
-
-export const softwareExecutionCapability: CatalogEntry<CapabilityDefinition> = {
-  namespace: 'logicir.execution',
-  key: 'software-interpreter',
-  version: '0.0.0-s1',
-  definition: {
-    capabilityKind: 'execution',
-    title: 'Software interpreter execution',
-  },
-};
-
-export const invocationProviderContract: CatalogEntry<ProviderContractDefinition> =
-  {
-    namespace: 'logicir.software.provider-contract',
-    key: 'invocation-function',
-    version: '0.0.0-s1',
-    definition: {
-      title: 'Invocation function provider',
-      capabilities: [
-        {
-          namespace: softwareExecutionCapability.namespace,
-          key: softwareExecutionCapability.key,
-          version: softwareExecutionCapability.version,
-        },
-      ],
-      bindingSubjects: ['external-target'],
-      semanticObligations: [
-        'Provider consumes an input object and returns an output object synchronously for S1.',
-      ],
-    },
-  };
-
 export const basicSoftwareIRProfile: CatalogEntry<IRPipelineProfileDefinition> =
   {
     namespace: 'logicir.profile',
@@ -123,52 +27,8 @@ export const basicSoftwareIRProfile: CatalogEntry<IRPipelineProfileDefinition> =
       input: 'logicir',
       output: 'logicir',
       acceptedCoreVersions: coreVersions,
-      featureContracts: [
-        {
-          feature: {
-            namespace: softwareInvocationFeature.namespace,
-            key: softwareInvocationFeature.key,
-            version: softwareInvocationFeature.version,
-          },
-          requirement: 'required',
-          extensionPoints: [
-            {
-              key: 'provider-binding',
-              attachment: 'lui',
-              requirement: 'optional',
-              notes:
-                'S1 can resolve the provider through execution binding even when the hint is absent.',
-            },
-          ],
-        },
-      ],
-      stages: [
-        {
-          key: 'core-validate',
-          capability: {
-            namespace: coreValidateCapability.namespace,
-            key: coreValidateCapability.key,
-            version: coreValidateCapability.version,
-          },
-          requirement: 'required',
-        },
-        {
-          key: 'resolve-feature-manifest',
-          capability: {
-            namespace: featureManifestResolveCapability.namespace,
-            key: featureManifestResolveCapability.key,
-            version: featureManifestResolveCapability.version,
-          },
-          requirement: 'required',
-          consumesFeatures: [
-            {
-              namespace: softwareInvocationFeature.namespace,
-              key: softwareInvocationFeature.key,
-              version: softwareInvocationFeature.version,
-            },
-          ],
-        },
-      ],
+      featureContracts: [],
+      stages: [],
       diagnostics: {
         unsupportedRequiredContract: 'fail',
         unsupportedFeature: 'fail',
@@ -194,35 +54,8 @@ export const toInterpreterPlanProfile: CatalogEntry<ProjectionProfileDefinition>
         version: '0.0.0-s1',
       },
       artifactKinds: ['logicir.interpreter-plan.s1'],
-      featureContracts: [
-        {
-          feature: {
-            namespace: softwareInvocationFeature.namespace,
-            key: softwareInvocationFeature.key,
-            version: softwareInvocationFeature.version,
-          },
-          requirement: 'required',
-        },
-      ],
-      stages: [
-        {
-          key: 'emit-interpreter-plan',
-          capability: {
-            namespace: interpreterPlanCapability.namespace,
-            key: interpreterPlanCapability.key,
-            version: interpreterPlanCapability.version,
-          },
-          requirement: 'required',
-          consumesFeatures: [
-            {
-              namespace: softwareInvocationFeature.namespace,
-              key: softwareInvocationFeature.key,
-              version: softwareInvocationFeature.version,
-            },
-          ],
-          produces: 'logicir.interpreter-plan.s1',
-        },
-      ],
+      featureContracts: [],
+      stages: [],
       diagnostics: {
         unsupportedRequiredContract: 'fail',
         unsupportedFeature: 'fail',
@@ -243,26 +76,8 @@ export const softwareInterpreterExecutionProfile: CatalogEntry<ExecutionProfileD
       output: 'execution',
       executionTarget: 'interpreter',
       environments: ['js-host'],
-      featureContracts: [
-        {
-          feature: {
-            namespace: softwareInvocationFeature.namespace,
-            key: softwareInvocationFeature.key,
-            version: softwareInvocationFeature.version,
-          },
-          requirement: 'required',
-        },
-      ],
-      providerContracts: [
-        {
-          contract: {
-            namespace: invocationProviderContract.namespace,
-            key: invocationProviderContract.key,
-            version: invocationProviderContract.version,
-          },
-          requirement: 'required',
-        },
-      ],
+      featureContracts: [],
+      providerContracts: [],
       bindings: [
         {
           key: 'add-pair-provider',
@@ -277,9 +92,9 @@ export const softwareInterpreterExecutionProfile: CatalogEntry<ExecutionProfileD
             version: '0.0.0-s1',
           },
           contract: {
-            namespace: invocationProviderContract.namespace,
-            key: invocationProviderContract.key,
-            version: invocationProviderContract.version,
+            namespace: 'logicir.software.provider-contract',
+            key: 'external-function',
+            version: '0.0.0-s1',
           },
           requirement: 'required',
         },
@@ -323,5 +138,3 @@ export const profiles: ProfileCatalogEntry[] = [
   toInterpreterPlanProfile,
   softwareInterpreterExecutionProfile,
 ];
-
-export const features = [softwareInvocationFeature];

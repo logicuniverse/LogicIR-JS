@@ -21,26 +21,30 @@ files are evidence, not schema authority.
 | --- | --- |
 | `PortKind.Pull` | `Port.interaction.pullReadable` plus `Port.boundary`. |
 | `PortKind.Push` | `Port.interaction.pushNotifiable` plus dispatch over `Connection`. |
-| `PortKind.Property` | `Port.interaction.retainedCurrent`; storage strategy is software-runtime feature/profile data. |
+| `PortKind.Property` | `Port.interaction.retainedCurrent`; this task keeps storage as task-local runtime state. |
 | `Net.source/target.address` | `Connection.from/to.payloadPath`. |
 | `LU.kind` maps | `LUCore.kindOrganization.kind` discriminated union. |
-| `sequentialSteps` with `isAwaited` | Core keeps `steps: LUIId[]`; await policy is `logicir.software-runtime/basic` `completion-policy`. |
-| `LUITargetKind.Native` | Current `LUITarget.kind = external`; provider binding is execution profile data. |
+| `sequentialSteps` with `isAwaited` | Core keeps `steps: LUIId[]`; this task awaits task-local completion values directly. |
+| `LUITargetKind.Native` | Current `LUITarget.kind = external`; provider lookup is a task-local runtime registry. |
 | `AbstractLUT` / `dependencies` | Current requirement services and fulfillment model; not implemented in this runtime draft. |
-| `Provider` injection | `ExecutionBinding` to an external target provider plus runtime `ProviderRegistry`. |
-| `StateStore` | Runtime implementation detail for retained-current ports. Architecture binding uses namespaced `named` subject. |
+| `Provider` injection | Runtime `ProviderRegistry` keyed by external target identity. |
+| `StateStore` | Runtime implementation detail for retained-current ports. |
 | hooks/plugins | Out of scope; future observation/lifecycle features can add them. |
 
-## Mapping To Architecture Data
+## Deferred Architecture Candidates
 
-| Runtime need | Architecture definition |
+The current smoke path does not define architecture/profile/stack catalog data.
+The following items are candidates for later focused tasks, not active contracts
+in this task:
+
+| Runtime need | Future candidate |
 | --- | --- |
-| Completion/thenable behavior | Feature extension point `completion-policy` on `lu-core`. |
-| External target call contract | Feature extension point `provider-contract` on `lui`. |
-| Retained-current storage | Feature extension point `retained-current-realization` on `port`; execution binding `retained-current-store`. |
-| Provider registry | Provider contract `logicir.software-runtime/external-provider`; execution binding `external-target-providers`. |
-| Direct interpretation | Execution profile `basic-software-direct-execution`. |
-| Interpreter plan route | Projection profile `basic-software-interpreter-plan`. |
+| Completion/thenable behavior | Software runtime completion feature or execution policy. |
+| External target call contract | Architecture-level execution binding and provider contract. |
+| Retained-current storage | Retained-current feature plus runtime state realization policy. |
+| Provider registry | Provider capability registry selected by execution context. |
+| Direct interpretation | Basic software execution profile. |
+| Interpreter plan route | Basic software projection profile. |
 
 ## Deliberate Non-Replays
 

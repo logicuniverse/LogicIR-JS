@@ -16,6 +16,10 @@ S4 validates the smallest useful fulfillment model:
   before promotion it must be replaced or represented by formal LogicIR closure
   data and a proper execution plan.
 - Shared-service and reachability path are deferred.
+- Required fulfillment feature checking is only declared on the projection
+  profile because the S4 projector is the code path that consumes it.
+- Empty `featureContracts`, `stages`, `providerContracts`, and `bindings`
+  arrays remain only where the current architecture schema shape requires them.
 
 ## Promotion Notes
 

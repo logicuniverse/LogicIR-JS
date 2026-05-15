@@ -2,10 +2,14 @@
 
 This matrix compares the two proposed initial stacks.
 
+Historical planning note: this matrix is a broad comparison, not a runnable
+task scope. Current rounds may cover a single row or subset and should not carry
+unused feature/profile/stack data just because it appears here.
+
 | Area | Basic Software | Basic HDL |
 | --- | --- | --- |
 | Feasibility read | Feasible as the first runtime/execution stack | Feasible as the first strict static projection stack |
-| What it proves | LogicIR can be interpreted, provider-bound, and run through software environments | LogicIR core can be constrained, lowered, and emitted as Verilog-oriented hardware artifacts |
+| What it proves | LogicIR can be interpreted, execution-bound to providers, and run through software environments | LogicIR core can be constrained, lowered, and emitted as Verilog-oriented hardware artifacts |
 | Working stack | `logicir.stack.basic-software` | `logicir.stack.basic-hdl` |
 | Primary target | Language-neutral software interpretation/codegen | Verilog HDL projection |
 | IR profile | `basic-software-ir` | `basic-hdl-ir` |
@@ -16,7 +20,7 @@ This matrix compares the two proposed initial stacks.
 | Completion | Immediate + continuation model | Not a target semantic |
 | Retained-current | Runtime/provider/store/cache realization | Register/stable signal realization |
 | Dynamic fulfillment | Static-at-startup baseline; late-bound/switchable as required feature | Rejected by default; static binding required |
-| External target | Execution provider binding | Module binding / blackbox / generated module |
+| External target | Architecture-level execution binding to a provider | Module binding / blackbox / generated module |
 | Structural composition | Can realize structural output or software UI-like trees | Can lower export anchors to modules/slices |
 | Payload path | Runtime addressing and packet path routing | Flattening, packed fields, bus lanes, part-selects |
 | Execution provider | Function/module/remote service/state store/message bus | Optional simulator/testbench/foreign module provider |
@@ -54,8 +58,9 @@ reject it.
 
 ### Requirement Fulfillment
 
-Basic software can support runtime provider binding. Basic HDL requires static
-binding before emission.
+Basic software can support runtime provider selection through explicit
+architecture-level execution binding. Basic HDL requires static binding before
+emission.
 
 ### Structural Slices
 

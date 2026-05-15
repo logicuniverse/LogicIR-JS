@@ -14,7 +14,7 @@ tool、projector、compiler、engine、fixture 和 AI task 的建设顺序。
 近期项目应该优先证明两个主 stack：
 
 - **basic-software**: LogicIR 可以被验证、规范化、投影到 interpreter plan
-  或 JS/TS 生成产物，并通过显式 provider binding 执行。
+  或 JS/TS 生成产物，并通过架构层 execution binding 选择 provider 执行。
 - **basic-hdl**: LogicIR 可以被验证、规范化，对 software-only 语义进行
   拒绝或 lowering，并投影到 Verilog HDL。
 
@@ -246,9 +246,9 @@ Profile 是单层兼容契约。Tool 实现 profile；用户通常选择 stack�
 
 必需 execution profile：
 
-- `software-interpreter-execution`: 在 JS/TS runtime 中通过显式 provider 运行
-  LogicIR 或 interpreter plan。
-- `generated-software-execution`: 用 selected provider binding 运行 generated
+- `software-interpreter-execution`: 在 JS/TS runtime 中通过架构层 execution
+  binding 选择 provider 运行 LogicIR 或 interpreter plan。
+- `generated-software-execution`: 用选定的架构层 execution binding 运行 generated
   software artifact。
 - `verilog-sim-execution`: 通过 simulator environment 消费 generated Verilog。
 
@@ -447,7 +447,8 @@ Example 目录应保持小而可审阅：
 4. **Round S4: fulfillment / closure**
    - 目标：加入最小 Z 轴 fulfillment，包括本地 closure fulfillment 和最小
      upstream provider 解析。
-   - 必需内容：requirement fixture、closure fixture、provider binding fixture。
+   - 必需内容：requirement fixture、closure fixture、架构层 execution binding
+     fixture。
    - LU kind 要求：fulfillment 不是普通 dataflow connection；closure core
      内部仍按自己的 LU kind 执行或投影。
    - 验收：requirement 可被 closure/provider 满足；缺失 provider 返回 diagnostic。
@@ -556,6 +557,58 @@ required。Type-system 可以作为 recommended 或 optional 出现在 profile �
 - AI task output 只是素材。人工 promotion 时只迁移经过审阅的最小成果到
   `packages/`、`schema/`、`examples/`、`fixtures/` 或 `dev/`，然后在正式
   project context 中重新验证。
+
+## 中长期：Zero-to-LogicIR
+
+`zero-to-LogicIR` 是中长期 research / dataset / training 分支，不是近期主线实现。它参考 `Zero-to-CAD: Agentic Synthesis of Interpretable CAD Programs at Million-Scale Without Real Data` 的思路：用 agentic synthesis、执行/验证反馈和 synthetic corpus curation，在缺少真实数据时构造高质量、可解释、可执行的训练样本。
+
+LogicIR 版本的目标不是直接训练模型写代码，而是生成和筛选可验证的 LogicIR edit transactions：
+
+```text
+intent / source code / partial IR
+-> proposed LogicIR operation sequence
+-> after LogicIR
+-> schema/profile/type/capability validation
+-> projection / execution / simulation
+-> curated transaction corpus
+```
+
+前置条件：
+
+- Core validator。
+- Profile resolver。
+- Capability checker。
+- Type-system seed。
+- `basic-software-interpreter` formal seed。
+- `basic-hdl-sim` formal seed。
+- Edit transaction MVP。
+- Existing-code provider wrapping seed。
+
+候选阶段：
+
+1. **ZL1 transaction schema**: 定义样本记录结构，包括 intent、before、operations、after、validation、projection/execution result 和 rationale。
+2. **ZL2 synthetic fixture generator**: 生成 schema-valid LogicIR fixtures，覆盖 combinational、stateful、sequential 和 structural seed。
+3. **ZL3 verifier loop**: 接入 validator、profile resolver、capability checker、type checker、software smoke 和 HDL `iverilog` simulation。
+4. **ZL4 repair loop**: 根据 diagnostics 自动修复 LogicIR，并保留失败/修复轨迹。
+5. **ZL5 corpus curation**: 去重、难度分级、coverage matrix、quality gates 和 high-quality subset。
+6. **ZL6 model training**: 训练或微调 intent-to-LogicIR、code-to-LogicIR、partial-to-complete 和 diagnostic-to-repair 能力。
+7. **ZL7 local micro-agent**: 训练或蒸馏一个面向 Web IDE 的小模型，专注预测局部 LogicIR edit operations，而不是通用代码生成。它应能结合 current scope、typed holes、catalog、diagnostics 和 validator feedback 生成候选 transaction。
+
+### WebGPU / 本地模型预期
+
+`zero-to-LogicIR` 的一个重要远期收益是让 Web IDE 使用本地小模型完成高频、低延迟、可验证的逻辑编辑，减少服务器资源依赖：
+
+```text
+Web IDE
+-> current scope / partial IR / typed holes
+-> local model proposes edit transaction
+-> local validator / catalog / type checker filters
+-> user accepts or rejects
+```
+
+这个方向可行的前提是 LogicIR 输出空间被 schema、feature/profile、provider catalog 和 validator 强约束。小模型不需要理解或生成完整工程；它可以先专注于 provider binding、port/type 补全、connection patch、diagnostic repair、naming/organization 等局部任务。复杂 synthesis 仍可交给云端大模型或 agentic task。
+
+这个分支应先以 `ai/tasks/` research task 形式探索。只有当工具链验证闭环稳定后，才考虑正式 package、dataset 或公开文档。
 
 ## 暂不作为项目计划
 

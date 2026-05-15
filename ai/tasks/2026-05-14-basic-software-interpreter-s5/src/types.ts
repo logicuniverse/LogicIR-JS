@@ -1,13 +1,5 @@
 export type { LogicUnit, LUITarget, Port } from '@logic-universe/logic-ir-core';
 
-export type {
-  ExecutionProfileDefinition,
-  FeatureDefinition,
-  IRPipelineProfileDefinition,
-  ProjectionProfileDefinition,
-  StackDefinition,
-} from '@logic-universe/logic-ir-architecture';
-
 import type { LogicUnit, LUITarget } from '@logic-universe/logic-ir-core';
 
 export type DiagnosticSeverity = 'info' | 'warning' | 'error';

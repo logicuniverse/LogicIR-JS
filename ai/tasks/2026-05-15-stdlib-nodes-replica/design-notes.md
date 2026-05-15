@@ -14,6 +14,10 @@ Core schema remains target-neutral. JS method behavior, callbacks, event emits,
 property state operations, async delay, and component composition helpers are
 all task-local provider/runtime behavior.
 
+Stdlib LogicUnit fixtures use plain external-target LUIs with no software
+invocation feature. Provider selection is task-local execution data, not a
+LogicIR feature manifest requirement.
+
 ## Latest-Schema Chain
 
 Each smoke case uses this path:

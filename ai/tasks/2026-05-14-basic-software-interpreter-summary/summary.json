@@ -41,13 +41,13 @@
       "verified": true,
       "capabilities": [
         "retained-current feature draft",
-        "state-store provider contract shape",
+        "task-local retained-current state shape",
         "read-current operation",
         "write-current operation",
         "memory state-store behavior"
       ],
       "promotionSeeds": [
-        "state-store provider contract",
+        "retained-current runtime state fixture",
         "retained-current fixture",
         "packages/engines/software memory state store"
       ],
@@ -134,7 +134,7 @@
   "routeConclusion": {
     "mvpStatus": "seeded-not-integrated",
     "summary": "S1-S5 prove the interpreter spine across invocation, retained-current state, async completion, fulfillment, and diagnostics. They do not yet form one unified interpreter MVP.",
-    "promotionStrategy": "Promote only a narrow vertical slice first: shared diagnostic type, profile resolver seed, interpreter-plan data shape, provider invocation engine, memory state-store provider, and S1/S2/S3/S4/S5 smoke fixtures."
+    "promotionStrategy": "Promote only a narrow vertical slice first: shared diagnostic type, profile resolver seed, interpreter-plan data shape, provider invocation engine, retained-current runtime state behavior, and S1/S2/S3/S4/S5 smoke fixtures."
   },
   "recommendedNextRounds": [
     "S6 retained-current-notification",

@@ -1,42 +1,42 @@
-import type { ExtensionRecord, LogicUnit } from '@logic-universe/logic-ir-core';
+import type { LogicUnit, LUITarget } from '@logic-universe/logic-ir-core';
 import type {
+  ExecutionBinding,
   InvocationPlan,
-  JsonRecord,
   JsonValue,
   ProviderRegistry,
 } from './types';
 
-const isRecord = (value: unknown): value is JsonRecord =>
-  typeof value === 'object' && value !== null && !Array.isArray(value);
-
-const readBindingKey = (payload: unknown): string | undefined => {
-  if (!isRecord(payload)) {
-    return undefined;
-  }
-
-  return typeof payload.bindingKey === 'string' ? payload.bindingKey : undefined;
-};
-
-const isProviderBindingExtension = (extension: ExtensionRecord): boolean =>
-  extension.featureKey === 'invocation' && extension.key === 'provider-binding';
+const targetMatchesBinding = (
+  target: Extract<LUITarget, { kind: 'external' }>,
+  binding: ExecutionBinding,
+): boolean =>
+  binding.subject.kind === 'external-target' &&
+  binding.subject.namespace === target.namespace &&
+  binding.subject.key === target.key &&
+  (!binding.subject.version || binding.subject.version === target.version);
 
 export const projectInvocationPlan = (
   logicUnit: LogicUnit,
+  executionBindings: readonly ExecutionBinding[],
 ): InvocationPlan => {
   const externalEntries = Object.entries(logicUnit.core.luis).filter(([, lui]) =>
-    lui.extensions?.some(isProviderBindingExtension),
+    lui.target.kind === 'external',
   );
 
   if (externalEntries.length !== 1) {
-    throw new Error('MVP invocation smoke requires exactly one provider-backed LUI.');
+    throw new Error('MVP invocation smoke requires exactly one external-target LUI.');
   }
 
   const [luiId, lui] = externalEntries[0];
-  const binding = lui.extensions?.find(isProviderBindingExtension);
-  const providerKey = readBindingKey(binding?.payload);
+  if (lui.target.kind !== 'external') {
+    throw new Error('MVP invocation smoke supports only external-target LUI.');
+  }
+  const binding = executionBindings.find((entry) =>
+    targetMatchesBinding(lui.target, entry),
+  );
 
-  if (!providerKey) {
-    throw new Error('Provider-backed LUI is missing payload.bindingKey.');
+  if (!binding) {
+    throw new Error('External-target LUI is missing an execution binding.');
   }
 
   const inputMap: Record<string, string> = {};
@@ -61,7 +61,7 @@ export const projectInvocationPlan = (
   }
 
   return {
-    providerKey,
+    providerKey: binding.providerKey,
     inputMap,
     outputMap,
   };

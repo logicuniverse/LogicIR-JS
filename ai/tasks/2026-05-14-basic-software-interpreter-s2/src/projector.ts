@@ -127,9 +127,9 @@ export const createInterpreterPlan = (
   return {
     key: 'counter-current.interpreter-plan.s2',
     stackKey: resolved.stackKey,
-    interpretation: baselineInterpretation('s2-retained-current-state-store', [
+    interpretation: baselineInterpretation('s2-retained-current-runtime-state', [
       'Retained-current reads observe the current durable value before same-run writes.',
-      'Write-current operations update a named durable store through an explicit provider boundary.',
+      'Write-current operations update a named durable store through task-local runtime state context.',
     ]),
     operations,
     diagnostics: [],

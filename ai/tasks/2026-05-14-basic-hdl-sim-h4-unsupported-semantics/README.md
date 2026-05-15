@@ -16,7 +16,7 @@ silently degraded.
 
 - Stack: `basic-hdl-sim`
 - Round: `H4 unsupported-semantics rejection`
-- End-to-end chain: `LogicIR fixture -> HDL profile capability check -> structured rejection diagnostic`
+- End-to-end chain: `LogicIR fixture -> HDL projector support check -> structured rejection diagnostic`
 - Required fixture: `src/fixture.ts`
 - Required verification command: `yarn verify`
 - Expected promotable output: rejection diagnostic shape and unsupported
@@ -31,7 +31,7 @@ Current status: `ready-for-review`
 In scope:
 
 - Negative fixture using `logicir.software/invocation`.
-- HDL supported feature set.
+- Task-local HDL supported feature set.
 - Projector rejection result with diagnostic.
 
 Out of scope:

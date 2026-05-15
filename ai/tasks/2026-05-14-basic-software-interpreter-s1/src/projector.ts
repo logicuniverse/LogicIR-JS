@@ -13,7 +13,6 @@ import type {
 import {
   baselineInterpretation,
   formatExternalTarget,
-  formatFeatureRef,
   providerKey,
 } from './types';
 
@@ -45,29 +44,6 @@ const findBinding = (
   }
 
   return binding;
-};
-
-const assertRequiredFeatureManifest = (
-  logicUnit: LogicUnit,
-  resolved: ResolvedStack,
-): void => {
-  const declared = Object.values(logicUnit.features);
-
-  for (const contract of resolved.requiredFeatures) {
-    const found = declared.some(
-      (feature) =>
-        feature.namespace === contract.feature.namespace &&
-        feature.key === contract.feature.key &&
-        (!contract.feature.version ||
-          feature.version === contract.feature.version),
-    );
-
-    if (!found) {
-      throw new Error(
-        `LogicUnit is missing required feature ${formatFeatureRef(contract.feature)}`,
-      );
-    }
-  }
 };
 
 const getSingleExternalLui = (
@@ -156,8 +132,6 @@ export const createInterpreterPlan = (
   logicUnit: LogicUnit,
   resolved: ResolvedStack,
 ): InterpreterPlan => {
-  assertRequiredFeatureManifest(logicUnit, resolved);
-
   if (logicUnit.core.kindOrganization.kind !== 'combinational') {
     throw new Error('S1 supports only combinational LogicUnits.');
   }

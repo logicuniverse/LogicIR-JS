@@ -2,6 +2,10 @@
 
 Status: AI task material, not accepted project source.
 
+Historical planning note: this matrix predates the current rule that each
+runnable task round must stay minimal. Treat its requiredness rows as future
+profile candidates, not as automatic requirements for S/H round sandboxes.
+
 This matrix is the requiredness source of truth for this exploration pack.
 `feature-catalog.md` defines feature purpose and extension keys; profiles define
 whether those contracts are required, conditional, recommended, or optional.
@@ -28,9 +32,9 @@ whether those contracts are required, conditional, recommended, or optional.
 | --- | --- | --- | --- |
 | `logicir.value / literals` | `required` | `literal-values`, `default-inputs`, `initial-values` | Provides portable constants/defaults/initial values without host-language syntax. |
 | `logicir.software-runtime / completion` | `required` | `completion-contract`, `step-await-policy`, `completion-error-policy` | Defines immediate/continuation completion and sequential step waiting semantics without choosing JS Promise or Python coroutine. |
-| `logicir.software-runtime / invocation` | `required` | `call-contract`, `input-read-policy`, `push-delivery-policy`, `packet-path-policy` | Defines how providers are invoked and how pull, push, and payloadPath routing become software calls. |
+| `logicir.software-runtime / invocation` | `conditional-required` | `call-contract`, `input-read-policy`, `push-delivery-policy`, `packet-path-policy` | Plain external-target provider calls use architecture-level execution binding and do not require a LogicIR invocation feature. This feature is required only when the LogicIR input uses non-default software invocation semantics such as push delivery, packet-path policy, or custom input-read policy. |
 | `logicir.software-runtime / retained-current` | `required` | `retained-current-realization`, `state-backing`, `latest-value-cache` | Required software stack capability for retained-current contact realization. |
-| `logicir.fulfillment / static-binding` | `required` | `provider-binding-policy` | Baseline is static-at-startup provider binding. `dynamic-fulfillment`, `late-bound-provider`, and `switching-policy` are explicit extra required contracts only when used. |
+| `logicir.fulfillment / static-binding` | `required` | `provider-binding-policy` | Baseline is static-at-startup architecture-level execution binding. `dynamic-fulfillment`, `late-bound-provider`, and `switching-policy` are explicit extra required contracts only when used. |
 | `logicir.execution / error` | `required` | `error-policy`, `error-port`, `error-channel` | Defines how provider errors map to results, ports/channels, or diagnostics. |
 | `logicir.software-runtime / lifecycle` | `recommended` | `resource-lifecycle`, `start-stop`, `dispose` | Recommended for long-running/resource-owning providers; not required for stateless providers. |
 | `logicir.software-runtime / observation` | `optional` | `trace-events`, `runtime-hooks`, `override-policy` | Observation is tooling support by default. Behavior-changing hooks require explicit binding. |

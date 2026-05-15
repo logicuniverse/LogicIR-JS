@@ -31,7 +31,8 @@ In scope:
 
 - Minimal S1 architecture data for `basic-software-interpreter`.
 - Minimal profile resolver for one IR profile, one projection profile, and one
-  execution profile.
+  execution profile. The resolved runtime view only exposes data consumed by
+  S1: `stackKey` and required execution bindings.
 - Minimal interpreter execution plan for one combinational external LUI.
 - Minimal synchronous software engine that calls a provider from an explicit
   registry.

@@ -3,12 +3,10 @@
 Status: AI task material, not accepted project source or production runtime.
 
 This pack replays the useful behavior of the earlier JS/TS runtime against the
-current LogicIR core and architecture schemas:
+current LogicIR core schema:
 
 - `packages/core/src/types.ts` is the TS authoring source for LogicIR object
   shape.
-- `packages/architecture/src/types.ts` is the TS authoring source for feature,
-  profile, stack, provider contract, and binding definition shapes.
 - Old `packages/legacy/engine/src/types/models.ts`,
   `packages/legacy/engine/src/types/runtime.ts`,
   `packages/legacy/engine/src/projector.ts`, and
@@ -19,9 +17,6 @@ profile. Nothing here should be promoted without review.
 
 ## Files
 
-- `architecture/software-runtime-architecture.ts`: feature, capability, profile,
-  provider contract, provider capability, and stack data using the latest
-  architecture schema.
 - `runtime/software-runtime.ts`: a small interpreter draft for current core
   LogicUnits.
 - `examples/software-runtime-examples.ts`: minimal LogicIR examples and provider
@@ -39,7 +34,7 @@ Implemented runtime semantics:
 - Pull-readable reads across `Connection` edges with `payloadPath`.
 - Push dispatch to connected sinks.
 - Retained-current port state.
-- Sequential `steps: LUIId[]` with profile-owned await policy.
+- Sequential `steps: LUIId[]` with task-local await handling.
 - External target provider invocation.
 
 Not implemented in this pack:
@@ -51,15 +46,19 @@ Not implemented in this pack:
 - JS-specific `Promise` as schema data.
 
 Those omissions are intentional. They keep this exploration aligned with the
-current core boundary and leave target-specific behavior in features, profiles,
-provider contracts, or later runtime drafts.
+current core boundary and leave target-specific behavior to later focused
+feature/profile/provider-contract tasks.
+
+Minimal-round note: this task no longer carries architecture/profile/stack
+catalog data because the smoke path only consumes core-shaped fixtures, a
+provider registry, and the task-local runtime.
 
 ## Verification
 
 From the package root:
 
 ```powershell
-.\node_modules\.bin\tsc.cmd --strict --noEmit --target ES2022 --module ESNext --moduleResolution node packages\core\src\types.ts packages\architecture\src\types.ts ai\tasks\2026-05-13-latest-schema-software-runtime\architecture\software-runtime-architecture.ts ai\tasks\2026-05-13-latest-schema-software-runtime\runtime\software-runtime.ts ai\tasks\2026-05-13-latest-schema-software-runtime\examples\software-runtime-examples.ts ai\tasks\2026-05-13-latest-schema-software-runtime\smoke.ts
+.\node_modules\.bin\tsc.cmd --strict --noEmit --target ES2022 --module ESNext --moduleResolution node packages\core\src\types.ts ai\tasks\2026-05-13-latest-schema-software-runtime\runtime\software-runtime.ts ai\tasks\2026-05-13-latest-schema-software-runtime\examples\software-runtime-examples.ts ai\tasks\2026-05-13-latest-schema-software-runtime\smoke.ts
 ```
 
 To run the smoke checks without adding build artifacts to the repo, bundle the

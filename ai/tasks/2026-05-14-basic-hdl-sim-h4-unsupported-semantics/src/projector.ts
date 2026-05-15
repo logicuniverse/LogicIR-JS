@@ -1,6 +1,10 @@
-import { supportedRequiredFeatures } from './architecture';
 import type { Diagnostic, FeatureUse, LogicUnit, ProjectionResult } from './types';
 import { baselineInterpretation } from './types';
+
+const supportedRequiredFeatures = [
+  'logicir.hdl/signal',
+  'logicir.hdl/combinational',
+] as const;
 
 const featureIdentity = (feature: FeatureUse): string =>
   `${feature.namespace}/${feature.key}`;

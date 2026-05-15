@@ -32,7 +32,6 @@ Current status: `ready-for-review`
 
 In scope:
 
-- Task-local HDL feature/profile sketch for the H5 round.
 - Structured fixture data for module name, library module, internal wire,
   child instances, and truth-table vectors.
 - Projector-side payload validation before emitting Verilog.

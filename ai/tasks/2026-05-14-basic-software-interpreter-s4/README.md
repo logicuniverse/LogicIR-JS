@@ -21,7 +21,7 @@ fulfillment remains explicit and is not collapsed into ordinary data flow.
 - Required fixture: `src/fixture.ts`
 - Required verification command: `yarn verify`
 - Expected promotable output: fulfillment feature/extension draft,
-  requirement/closure/upstream fixture, provider binding behavior, and missing
+  requirement/closure/upstream fixture, explicit fulfillment dispatch, and missing
   provider diagnostic path.
 
 ## Scope

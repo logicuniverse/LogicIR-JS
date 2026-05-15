@@ -2,6 +2,11 @@
 
 Status: AI task draft.
 
+Historical planning note: this document describes a broad future stack shape.
+It is not the scope template for a runnable HDL round. Round tasks should
+introduce only the concrete feature payloads, diagnostics, projector data, and
+simulator inputs they consume in that round.
+
 Working stack name: `logicir.stack.basic-hdl`.
 
 Goal: define the smallest useful HDL stack for Verilog HDL projection. Unlike
@@ -68,7 +73,7 @@ Purpose:
 - Lower or reject unsupported dynamic/software semantics.
 - Prepare projection-ready LogicIR for Verilog.
 
-Required stages:
+Future candidate stages:
 
 1. `core-validate`
 2. `resolve-target-contracts`
@@ -143,7 +148,7 @@ Artifact kinds:
 - Optional projection metadata.
 - Optional diagnostics report.
 
-Required stages:
+Future candidate stages:
 
 1. `plan-signals`
 2. `flatten-payload-paths`

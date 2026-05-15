@@ -15,6 +15,9 @@ runtime failure.
 - Runtime exceptions from providers are caught and converted to
   `RUNTIME_FAILURE`.
 - Report summary counts diagnostic codes for machine checks and human review.
+- This round intentionally does not define profile, stack, feature, provider
+  contract, or capability data because the S5 smoke path only exercises
+  diagnostic projection, execution, and reporting.
 
 ## Promotion Notes
 

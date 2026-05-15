@@ -16,7 +16,7 @@
       "verified": true,
       "requiresIverilog": true,
       "capabilities": [
-        "minimal HDL stack/profile data",
+        "minimal core-shaped HDL fixture",
         "one-bit combinational AND fixture",
         "Verilog module emitter",
         "testbench emitter",
@@ -140,7 +140,7 @@
   "routeConclusion": {
     "mvpStatus": "seeded-not-integrated",
     "summary": "H1-H5 prove HDL simulation feasibility across combinational logic, signal widths, sequential state, unsupported software semantic rejection, and structural hierarchy. They do not yet form one unified Verilog projector.",
-    "promotionStrategy": "Promote a narrow Verilog projector seed: signal emitter helpers, module/testbench emission patterns, register emitter seed, rejection diagnostic path, and H1-H5 fixtures adapted to formal core/architecture types."
+    "promotionStrategy": "Promote a narrow Verilog projector seed: signal emitter helpers, module/testbench emission patterns, register emitter seed, rejection diagnostic path, and H1-H5 fixtures adapted to reviewed core and feature contracts."
   },
   "recommendedNextRounds": [
     "H6 unified-verilog-projector",

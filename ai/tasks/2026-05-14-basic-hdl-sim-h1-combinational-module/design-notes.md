@@ -13,8 +13,6 @@ testbench. The simulator verifies the full truth table for AND.
 - Z fulfillment: not exercised.
 - Feature/extension: `logicir.hdl/signal` annotates one-bit ports;
   `logicir.hdl/combinational` annotates the primitive operation.
-- Profile/stack: `basic-hdl-sim` is represented as IR, projection, and
-  execution metadata.
 - Projection/runtime boundary: TS emits Verilog artifacts; `iverilog` consumes
   those artifacts.
 
@@ -24,6 +22,8 @@ testbench. The simulator verifies the full truth table for AND.
 - Width and signedness are fixed to one-bit.
 - The Verilog projector supports only one external `and` primitive.
 - Generated HDL is an artifact, not LogicIR.
+- H1 intentionally does not define task-local profile/stack/architecture data;
+  this round only verifies fixture-to-Verilog-to-iverilog behavior.
 
 ## Risks
 

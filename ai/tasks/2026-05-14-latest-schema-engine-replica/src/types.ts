@@ -14,14 +14,6 @@ export type {
   UnitFulfillment,
 } from '@logic-universe/logic-ir-core';
 
-export type {
-  ExecutionProfileDefinition,
-  FeatureDefinition,
-  IRPipelineProfileDefinition,
-  ProjectionProfileDefinition,
-  StackDefinition,
-} from '@logic-universe/logic-ir-architecture';
-
 export type Option<T = unknown> =
   | { kind: 'some'; value: T }
   | { kind: 'none' };

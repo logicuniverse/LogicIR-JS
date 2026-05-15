@@ -2,6 +2,11 @@
 
 Status: AI task draft.
 
+Historical planning note: this document describes a broad future stack shape.
+It is not the scope template for a runnable round. Round tasks should introduce
+only the concrete feature contracts, stages, provider contracts, execution
+bindings, and runtime data they consume in that round.
+
 Working stack name: `logicir.stack.basic-software`.
 
 Goal: define the smallest useful software stack that can be interpreted directly
@@ -18,7 +23,7 @@ prototype:
 - ordered sequential progression.
 - state backing.
 - closure/local fulfillment.
-- external/native provider binding.
+- architecture-level execution binding for external/native targets.
 - result/error value convention.
 
 It intentionally does not include:
@@ -73,7 +78,7 @@ Purpose:
   conversion behavior.
 - Strip or retain authoring-only data according to policy.
 
-Required stages:
+Future candidate stages:
 
 1. `core-validate`
 2. `resolve-target-contracts`
@@ -151,14 +156,19 @@ Required stages:
 6. `plan-fulfillment-bindings`
 7. `emit-executable-plan`
 
-Required features:
+Future candidate feature contracts:
 
-- `logicir.software-runtime / invocation`
 - `logicir.software-runtime / completion`
 - `logicir.software-runtime / retained-current`
 - `logicir.fulfillment / static-binding`
 - `logicir.value / literals`
 - `logicir.execution / error`
+
+Conditional feature contracts:
+
+- `logicir.software-runtime / invocation`
+  - required only for non-default software invocation semantics such as push
+    delivery, packet-path routing, or custom input-read policy.
 
 Recommended features:
 
@@ -220,7 +230,7 @@ Execution environment examples:
 
 The profile should describe semantics, not force one environment.
 
-Required provider contracts:
+Future candidate provider contracts:
 
 ### `software-unit-provider`
 

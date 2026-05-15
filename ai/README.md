@@ -46,3 +46,18 @@ Suite from `E:\oss-cad-suite` and run `iverilog` directly after activating
 `E:\oss-cad-suite\environment.ps1`. A task that claims both JS/TS and HDL
 support must verify both paths or record a concrete blocker for the unverified
 path.
+
+## Minimal Round Rule
+
+Each AI task round must keep only the data structures, schema fragments,
+profile fields, stack fields, feature contracts, runtime plan fields, and
+helpers that the current end-to-end business path actually consumes.
+
+Do not predeclare future features, stages, provider contracts, diagnostics,
+capabilities, execution plan fields, or validation outputs just because a later
+round may need them. Add them in the later round when its fixture, projector,
+engine, compiler, simulator, or smoke path uses them.
+
+Empty required fields may remain only when the currently accepted formal schema
+requires them. Document that as a schema-shape constraint, not as a business
+reservation.

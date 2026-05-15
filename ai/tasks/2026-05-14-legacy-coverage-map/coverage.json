@@ -26,7 +26,7 @@
         "packages/legacy/flow-runtime-core/src/runner.ts"
       ],
       "notes": "S1 proves one external target is resolved to an explicit provider and invoked through an interpreter plan.",
-      "recommendation": "Promote only the explicit provider binding and object-in/object-out invocation seed after review."
+      "recommendation": "Promote only architecture-level execution binding plus the object-in/object-out provider execution seed after review."
     },
     {
       "id": "runtime.state-store",
@@ -38,8 +38,8 @@
         "packages/legacy/engine/src/types/runtime.ts",
         "packages/legacy/flow-runtime-core/src/types/runtime.ts"
       ],
-      "notes": "S2 proves memory state-store read and write current behavior across executions.",
-      "recommendation": "Use S2 as seed for a formal state-store provider contract."
+      "notes": "S2 proves memory retained-current state read and write behavior across executions.",
+      "recommendation": "Use S2 as seed for retained-current runtime state behavior. Decide any formal state-store provider contract in a later review task."
     },
     {
       "id": "runtime.property-current",

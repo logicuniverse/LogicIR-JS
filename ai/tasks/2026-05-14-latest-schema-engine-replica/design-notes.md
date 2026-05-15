@@ -25,6 +25,9 @@ the intended observable behavior.
   `InterpreterPlan`.
 - Execution layer: `runtime.ts` executes providers, state, events, hooks,
   control flow, nested plans, and diagnostics.
+- Minimal-round scope: this replica does not define profile, stack, provider
+  contract, or feature catalog data because its smoke path consumes task-local
+  fixtures, compiler output, and runtime execution directly.
 
 ## Replicated Legacy Behavior
 

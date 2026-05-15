@@ -40,6 +40,14 @@ Move only the smallest reviewed pieces into formal project locations.
   `. E:\oss-cad-suite\environment.ps1; iverilog <files>`
 - Additional checks:
 
+## Minimal Round Review
+
+- Unused data structures removed or justified:
+- Future-only feature/stage/provider/diagnostic declarations removed or
+  explicitly justified:
+- Empty schema-required fields documented as schema-shape constraints:
+- Promoted pieces are the smallest reviewed units, not whole sandbox folders:
+
 ## Do Not Promote
 
 List task files or ideas that should remain sandbox-only:

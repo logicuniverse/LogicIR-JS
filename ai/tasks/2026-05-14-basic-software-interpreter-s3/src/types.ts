@@ -11,7 +11,6 @@ export type {
   FeatureDefinition,
   FeatureRef,
   IRPipelineProfileDefinition,
-  ProfileDefinition,
   ProjectionProfileDefinition,
   StackDefinition,
 } from '@logic-universe/logic-ir-architecture';
@@ -20,7 +19,6 @@ import type {
   ExecutionProfileDefinition,
   FeatureRef,
   IRPipelineProfileDefinition,
-  ProfileDefinition,
   ProjectionProfileDefinition,
   StackDefinition,
 } from '@logic-universe/logic-ir-architecture';
@@ -67,7 +65,6 @@ export type SoftwareProfileCatalogEntry =
 export type ResolvedStack = {
   stackKey: string;
   requiredFeatures: FeatureRef[];
-  completionPolicy: 'await-provider';
 };
 
 export type CompletionPolicy = {
@@ -106,5 +103,3 @@ export const identityKey = (value: FeatureRef): string =>
   `${value.namespace}/${value.key}${value.version ? `@${value.version}` : ''}`;
 
 export type StackCatalogEntry = CatalogEntry<StackDefinition>;
-
-export type AnyProfileDefinition = ProfileDefinition;

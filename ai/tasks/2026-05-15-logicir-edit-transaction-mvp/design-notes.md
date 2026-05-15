@@ -39,11 +39,18 @@ it is wiring endpoints, not just editing an object field.
 
 The `before` snapshot uses explicit `$hole` records for:
 
-- the unresolved invocation feature identity;
-- the unresolved provider-backed LUI.
+- the unresolved external-target LUI.
 
 This keeps the partial IR bounded. The fixture is incomplete, but the missing
 parts carry expected kind, reason, and optional contract text.
+
+The typed-hole vocabulary is intentionally limited to the hole kinds used by
+this MVP. Feature-use holes are deferred until a task actually edits feature
+manifests or extension contracts.
+
+Provider selection is intentionally outside the LogicIR snapshot. The smoke
+uses task-local execution binding data to map the external target to
+`add-pair-provider`, matching the architecture boundary used by S1.
 
 ## Validation
 
@@ -63,7 +70,8 @@ transaction can be mechanically checked in a task-local loop.
 ## Smoke
 
 After replay and validation, the task projects the completed LogicUnit into a
-tiny invocation plan and executes it with a local `add-pair-provider`.
+tiny invocation plan using task-local execution binding data, then executes it
+with a local `add-pair-provider`.
 
 Expected output:
 

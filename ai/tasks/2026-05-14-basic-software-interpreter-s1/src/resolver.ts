@@ -2,9 +2,7 @@ import { profiles } from './architecture';
 import type {
   CatalogEntry,
   ExecutionProfileDefinition,
-  IRPipelineProfileDefinition,
   ProfileCatalogEntry,
-  ProjectionProfileDefinition,
   ResolvedStack,
   StackCatalogEntry,
 } from './types';
@@ -42,14 +40,8 @@ const findProfile = (
 };
 
 export const resolveStack = (stack: StackCatalogEntry): ResolvedStack => {
-  const irProfile = findProfile(
-    stack.definition.profiles.irPipeline,
-    'ir-pipeline',
-  ) as CatalogEntry<IRPipelineProfileDefinition>;
-  const projectionProfile = findProfile(
-    stack.definition.profiles.projection,
-    'projection',
-  ) as CatalogEntry<ProjectionProfileDefinition>;
+  findProfile(stack.definition.profiles.irPipeline, 'ir-pipeline');
+  findProfile(stack.definition.profiles.projection, 'projection');
 
   if (!stack.definition.profiles.execution) {
     throw new Error('S1 requires an execution profile.');
@@ -62,18 +54,6 @@ export const resolveStack = (stack: StackCatalogEntry): ResolvedStack => {
 
   return {
     stackKey: entryKey(stack),
-    irProfile,
-    projectionProfile,
-    executionProfile,
-    requiredFeatures: [
-      ...irProfile.definition.featureContracts,
-      ...projectionProfile.definition.featureContracts,
-      ...executionProfile.definition.featureContracts,
-    ].filter((contract) => contract.requirement === 'required'),
-    requiredStages: [
-      ...irProfile.definition.stages,
-      ...projectionProfile.definition.stages,
-    ].filter((stage) => stage.requirement === 'required'),
     executionBindings: executionProfile.definition.bindings.filter(
       (binding) => binding.requirement === 'required',
     ),

@@ -28,10 +28,14 @@ In scope:
 
 - List the feature, tool, validator, runtime, projector, fixture, or document
   areas explored by this task.
+- Keep only the structures and fields consumed by this task's current
+  end-to-end path.
 
 Out of scope:
 
 - List formal project directories or semantics that this task must not change.
+- List future features, stages, provider contracts, diagnostics, plan fields, or
+  abstractions that are deliberately deferred to later rounds.
 
 ## Status
 
@@ -89,3 +93,13 @@ If this task contains runnable JS/TS code, it should include its own
 `build`, or `smoke`. The task may depend on formal workspace packages as
 read-only dependencies, but verification should be runnable from inside the task
 sandbox instead of requiring formal packages to import task-local code.
+
+## Minimal Round Rule
+
+This task must stay minimal. Do not predeclare future feature contracts, stages,
+provider contracts, diagnostics, capability catalogs, execution plan fields,
+validators, or runtime abstractions unless this task's fixture-to-verification
+path actually consumes them.
+
+If the current formal schema requires an empty field, keep it only as a
+schema-shape constraint and say so in `design-notes.md`.

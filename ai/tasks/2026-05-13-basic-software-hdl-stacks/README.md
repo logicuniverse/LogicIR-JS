@@ -2,6 +2,12 @@
 
 Status: AI task material, not accepted project source.
 
+Historical status: this pack is broad planning material from before the
+round-by-round sandbox rule was tightened. Do not use it as a template for a
+new autonomous task. New tasks must keep only the schema, feature/profile/stack,
+runtime, projector, or fixture data needed by that specific round and must mark
+future-only material as deferred candidates.
+
 This pack drafts two initial LogicIR stacks using the architecture in
 `dev/logicir-architecture.md`:
 

@@ -33,6 +33,6 @@ Observed output:
 ## Known Gaps
 
 - No subscription/update notification semantics.
-- No persistence beyond memory provider.
+- No persistence beyond the task-local memory state context.
 - Missing-provider failures are still fail-fast here; S5 will unify diagnostic
   behavior.

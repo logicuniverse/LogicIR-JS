@@ -1,4 +1,3 @@
-import { architectureDefinitions } from './architecture/software-runtime-architecture';
 import {
   completionToPromise,
   createSoftwareRuntime,
@@ -35,15 +34,6 @@ const readNumber = (value: unknown): number => {
 };
 
 const main = async (): Promise<void> => {
-  assert(
-    architectureDefinitions.features.length === 1,
-    'architecture should declare one software runtime feature'
-  );
-  assert(
-    architectureDefinitions.profiles.length === 3,
-    'architecture should declare IR, projection, and execution profiles'
-  );
-
   const runtime = createSoftwareRuntime({ providers: exampleProviders });
 
   const addResult = await completionToPromise(
@@ -63,4 +53,3 @@ const main = async (): Promise<void> => {
 };
 
 void main();
-

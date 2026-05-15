@@ -85,9 +85,12 @@ Candidate extension keys:
 
 Purpose:
 
-- Describe how LUI providers are invoked.
+- Describe non-default software invocation semantics for LUI providers.
 - Preserve pull reads, push delivery, packet paths, and primary results.
 - Keep host function/coroutine/thread details out of the stack.
+
+Plain external-target provider selection should stay in architecture-level
+execution binding data; it does not by itself require this feature.
 
 ### `logicir.software-runtime / retained-current`
 

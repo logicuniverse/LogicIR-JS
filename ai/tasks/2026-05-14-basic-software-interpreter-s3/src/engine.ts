@@ -28,6 +28,19 @@ export const executeInterpreterPlan = async (
     providers: AsyncProviderRegistry;
   },
 ): Promise<ExecutionResult> => {
+  if (plan.completion.kind !== 'await-provider') {
+    return {
+      status: 'error',
+      outputs: {},
+      diagnostics: [
+        errorDiagnostic(
+          'COMPLETION_POLICY_UNSUPPORTED',
+          `Unsupported completion policy ${plan.completion.kind}`,
+        ),
+      ],
+    };
+  }
+
   const provider = context.providers[plan.node.providerKey];
 
   if (!provider) {
@@ -64,6 +77,10 @@ export const executeInterpreterPlan = async (
       diagnostics: [...plan.diagnostics],
     };
   } catch (error) {
+    if (plan.completion.rejectMode !== 'diagnostic') {
+      throw error;
+    }
+
     return {
       status: 'error',
       outputs: {},

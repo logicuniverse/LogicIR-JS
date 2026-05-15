@@ -27,7 +27,7 @@ export const retainedCurrentFeature: CatalogEntry<FeatureDefinition> = {
   definition: {
     title: 'Software retained current',
     description:
-      'Retained-current state surface with explicit state-store contract linkage.',
+      'Retained-current state surface with explicit state operation metadata.',
     extensionPoints: [
       {
         key: 'state-key',
@@ -73,31 +73,8 @@ export const basicSoftwareIRProfile: CatalogEntry<IRPipelineProfileDefinition> =
       input: 'logicir',
       output: 'logicir',
       acceptedCoreVersions,
-      featureContracts: [
-        {
-          feature: {
-            namespace: retainedCurrentFeature.namespace,
-            key: retainedCurrentFeature.key,
-            version: retainedCurrentFeature.version,
-          },
-          requirement: 'required',
-        },
-      ],
-      stages: [
-        {
-          key: 'core-validate',
-          requirement: 'required',
-          capability: { namespace: 'logicir.pipeline', key: 'core-validate' },
-        },
-        {
-          key: 'resolve-retained-current',
-          requirement: 'required',
-          capability: {
-            namespace: 'logicir.pipeline',
-            key: 'retained-current-resolve',
-          },
-        },
-      ],
+      featureContracts: [],
+      stages: [],
       diagnostics,
     },
   };
@@ -129,17 +106,7 @@ export const toInterpreterPlanProfile: CatalogEntry<ProjectionProfileDefinition>
           requirement: 'required',
         },
       ],
-      stages: [
-        {
-          key: 'emit-retained-current-plan',
-          requirement: 'required',
-          capability: {
-            namespace: 'logicir.projection',
-            key: 'interpreter-plan',
-          },
-          produces: 'logicir.interpreter-plan.s2',
-        },
-      ],
+      stages: [],
       diagnostics,
     },
   };
@@ -156,42 +123,9 @@ export const softwareInterpreterExecutionProfile: CatalogEntry<ExecutionProfileD
       output: 'execution',
       executionTarget: 'interpreter',
       environments: ['js-host'],
-      featureContracts: [
-        {
-          feature: {
-            namespace: retainedCurrentFeature.namespace,
-            key: retainedCurrentFeature.key,
-            version: retainedCurrentFeature.version,
-          },
-          requirement: 'required',
-        },
-      ],
-      providerContracts: [
-        {
-          contract: {
-            namespace: 'logicir.software.provider-contract',
-            key: 'state-store',
-            version: '0.0.0-s2',
-          },
-          requirement: 'required',
-        },
-      ],
-      bindings: [
-        {
-          key: 'counter-state-store',
-          subject: {
-            kind: 'named',
-            namespace: 'logicir.software.state',
-            key: 'counter',
-          },
-          provider: {
-            namespace: 'logicir.examples.providers',
-            key: 'memory-state-store',
-            version: '0.0.0-s2',
-          },
-          requirement: 'required',
-        },
-      ],
+      featureContracts: [],
+      providerContracts: [],
+      bindings: [],
       diagnostics,
     },
   };

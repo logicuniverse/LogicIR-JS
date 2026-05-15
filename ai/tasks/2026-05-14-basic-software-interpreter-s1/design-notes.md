@@ -17,9 +17,9 @@ promotion of the first interpreter-plan projector and engine shapes.
   boundary to provider LUI and back.
 - Z requirement/fulfillment: not exercised in S1.
 - Closure: not exercised in S1.
-- Core vs feature vs extension: core stores topology; `logicir.software /
-  invocation` marks software invocation semantics; the LUI extension can carry a
-  provider-binding hint.
+- Core vs architecture: core stores topology; a plain external-target add LUI
+  does not need a software invocation feature. Provider selection is resolved by
+  architecture-level execution bindings, not by LogicIR feature payload.
 - Profile/stack layer: `basic-software-interpreter` composes
   `basic-software-ir`, `to-interpreter-plan`, and
   `software-interpreter-execution`.
@@ -30,7 +30,7 @@ promotion of the first interpreter-plan projector and engine shapes.
 
 | Draft Artifact | Intended Formal Home | Notes |
 | --- | --- | --- |
-| `src/architecture.ts` | `packages/architecture` fixtures or examples | Minimal S1 profile/stack/provider contract data. |
+| `src/architecture.ts` | `packages/architecture` fixtures or examples | Minimal S1 profile/stack/execution binding data. |
 | `src/fixture.ts` | `fixtures/logicir` or `examples/basic-software` | Minimal pure invocation LogicIR fixture. |
 | `src/resolver.ts` | future `packages/tools/profile-resolver` | Only supports the S1 profile composition. |
 | `src/projector.ts` | future `packages/projectors/interpreter-plan` | Only supports one combinational external LUI. |
@@ -47,28 +47,42 @@ Core boundary:
 
 Feature/extension boundary:
 
-- Feature identity: `logicir.software / invocation`.
-- Extension point: optional `provider-binding` on LUI.
-- Payload schema: `{ bindingKey: string }` for the optional binding hint.
+- Feature identity: none in S1. A plain add-pair external target does not need a
+  software invocation feature just to be executable by this stack.
+- Extension point: none in S1.
+- Provider selection is not feature payload. It belongs to the execution profile
+  binding selected by the stack.
 
 Architecture/profile boundary:
 
 - Profiles: `basic-software-ir`, `to-interpreter-plan`,
   `software-interpreter-execution`.
-- Requiredness: invocation is `required`; its LUI `provider-binding`
-  extension point is `optional` in S1 because execution binding can resolve the
-  provider by external target identity.
-- Provider contract: `logicir.software.provider-contract /
-  invocation-function`.
+- Requiredness: no LogicIR feature is required for S1 pure invocation. The stack
+  only carries the profile composition and execution binding data needed by the
+  current end-to-end path.
 - Execution binding: maps external target `logicir.examples.math / add-pair`
   to provider `logicir.examples.providers / add-pair-function`.
 
 Implementation boundary:
 
-- Resolver expands stack data and extracts required contracts.
+- Resolver validates that the stack references one IR, one projection, and one
+  execution profile, then returns only the S1 runtime view: `stackKey` and
+  required execution bindings.
 - Projector performs minimal capability-sensitive plan construction.
 - Engine executes an already projected plan; it does not inspect LogicIR
   topology.
+
+Round minimality:
+
+- Each roadmap round should keep only the schema, profile, stack, plan, and
+  runtime data that the round actually uses.
+- Later rounds may add feature contracts, stages, provider contracts, validation
+  output, diagnostics, or richer plan fields when their business path consumes
+  them.
+- S1 intentionally does not predeclare feature manifest resolution, core
+  validation stages, provider contract catalogs, or required feature lists.
+- Empty `featureContracts`, `stages`, and `providerContracts` arrays remain only
+  because the current architecture schema shape requires those fields.
 
 ## Alternatives Considered
 

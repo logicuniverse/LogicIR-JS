@@ -19,15 +19,16 @@ keeps unsupported behavior diagnostic-friendly.
 - End-to-end chain: `LogicIR fixture -> Verilog projector -> module/testbench -> iverilog -> vvp output`
 - Required fixture: `src/fixture.ts`
 - Required verification command: `yarn verify`
-- Expected promotable output: minimal HDL stack/profile data, one combinational
-  fixture, one Verilog emitter shape, and one HDL smoke pattern.
+- Expected promotable output: one combinational fixture, one Verilog emitter
+  shape, and one HDL smoke pattern.
 
 ## Scope
 
 In scope:
 
 - One bit two-input AND combinational fixture.
-- Minimal HDL signal and combinational feature metadata.
+- Minimal HDL signal and combinational extension payloads used by the fixture
+  and projector.
 - Minimal Verilog module and testbench emission.
 - `iverilog` and `vvp` verification through OSS CAD Suite.
 
@@ -45,7 +46,7 @@ Current status: `ready-for-review`
 
 ## Directory Map
 
-- `src/`: task-local types, architecture data, fixture, projector, and smoke.
+- `src/`: task-local types, fixture, projector, and smoke.
 - `generated/`: generated Verilog, testbench, and simulation output.
 - `verification.md`: verification evidence.
 - `promotion-checklist.md`: possible formal promotion targets.

@@ -11,31 +11,23 @@ export type {
 } from '@logic-universe/logic-ir-core';
 
 export type {
-  CapabilityDefinition,
   CoreSchemaVersionSelector,
   ExecutionBinding,
   ExecutionProfileDefinition,
-  FeatureDefinition,
-  FeatureRef,
   IRPipelineProfileDefinition,
-  ProfileFeatureContract,
   ProjectionProfileDefinition,
-  ProviderContractDefinition,
   ProviderRef,
-  StageRequirement,
   StackDefinition,
 } from '@logic-universe/logic-ir-architecture';
 
 import type { LUITarget, PortKey } from '@logic-universe/logic-ir-core';
 import type {
+  CoreSchemaVersionSelector,
   ExecutionBinding,
   ExecutionProfileDefinition,
-  FeatureRef,
   IRPipelineProfileDefinition,
-  ProfileFeatureContract,
   ProjectionProfileDefinition,
   ProviderRef,
-  StageRequirement,
   StackDefinition,
 } from '@logic-universe/logic-ir-architecture';
 
@@ -60,11 +52,6 @@ export type StackCatalogEntry = CatalogEntry<StackDefinition>;
 
 export type ResolvedStack = {
   stackKey: string;
-  irProfile: CatalogEntry<IRPipelineProfileDefinition>;
-  projectionProfile: CatalogEntry<ProjectionProfileDefinition>;
-  executionProfile: CatalogEntry<ExecutionProfileDefinition>;
-  requiredFeatures: ProfileFeatureContract[];
-  requiredStages: StageRequirement[];
   executionBindings: ExecutionBinding[];
 };
 
@@ -123,9 +110,6 @@ export type ExecutionResult = {
   outputs: Record<string, unknown>;
   diagnostics: Diagnostic[];
 };
-
-export const formatFeatureRef = (feature: FeatureRef): string =>
-  `${feature.namespace}/${feature.key}${feature.version ? `@${feature.version}` : ''}`;
 
 export const formatExternalTarget = (target: ExternalTargetIdentity): string =>
   `${target.namespace}/${target.key}${target.version ? `@${target.version}` : ''}`;

@@ -11,7 +11,6 @@ export type {
   FeatureDefinition,
   FeatureRef,
   IRPipelineProfileDefinition,
-  ProfileDefinition,
   ProjectionProfileDefinition,
   StackDefinition,
 } from '@logic-universe/logic-ir-architecture';
@@ -21,7 +20,6 @@ import type {
   ExecutionProfileDefinition,
   FeatureRef,
   IRPipelineProfileDefinition,
-  ProfileDefinition,
   ProjectionProfileDefinition,
   StackDefinition,
 } from '@logic-universe/logic-ir-architecture';
@@ -109,5 +107,3 @@ export const identityKey = (value: FeatureRef): string =>
   `${value.namespace}/${value.key}${value.version ? `@${value.version}` : ''}`;
 
 export type StackCatalogEntry = CatalogEntry<StackDefinition>;
-
-export type AnyProfileDefinition = ProfileDefinition;

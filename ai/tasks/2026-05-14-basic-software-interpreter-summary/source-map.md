@@ -5,7 +5,7 @@
 | Source | Why It Matters |
 | --- | --- |
 | `ai/tasks/2026-05-14-basic-software-interpreter-s1/` | Provider invocation, resolver, interpreter plan, and synchronous engine seed. |
-| `ai/tasks/2026-05-14-basic-software-interpreter-s2/` | Retained-current state-store provider behavior. |
+| `ai/tasks/2026-05-14-basic-software-interpreter-s2/` | Retained-current task-local state behavior. |
 | `ai/tasks/2026-05-14-basic-software-interpreter-s3/` | Thenable-compatible completion and provider rejection behavior. |
 | `ai/tasks/2026-05-14-basic-software-interpreter-s4/` | Requirement fulfillment, closure, upstream provider, and missing-provider behavior. |
 | `ai/tasks/2026-05-14-basic-software-interpreter-s5/` | Shared diagnostic/report seed and no-uncaught-throw failure behavior. |

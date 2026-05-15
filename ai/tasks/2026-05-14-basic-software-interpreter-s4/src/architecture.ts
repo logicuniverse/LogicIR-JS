@@ -52,23 +52,8 @@ export const basicSoftwareIRProfile: CatalogEntry<IRPipelineProfileDefinition> =
       input: 'logicir',
       output: 'logicir',
       acceptedCoreVersions,
-      featureContracts: [
-        {
-          feature: {
-            namespace: fulfillmentFeature.namespace,
-            key: fulfillmentFeature.key,
-            version: fulfillmentFeature.version,
-          },
-          requirement: 'required',
-        },
-      ],
-      stages: [
-        {
-          key: 'core-validate',
-          capability: { namespace: 'logicir.pipeline', key: 'core-validate' },
-          requirement: 'required',
-        },
-      ],
+      featureContracts: [],
+      stages: [],
       diagnostics,
     },
   };
@@ -100,17 +85,7 @@ export const toInterpreterPlanProfile: CatalogEntry<ProjectionProfileDefinition>
           requirement: 'required',
         },
       ],
-      stages: [
-        {
-          key: 'emit-fulfillment-plan',
-          capability: {
-            namespace: 'logicir.projection',
-            key: 'interpreter-plan',
-          },
-          requirement: 'required',
-          produces: 'logicir.interpreter-plan.s4',
-        },
-      ],
+      stages: [],
       diagnostics,
     },
   };
@@ -127,16 +102,7 @@ export const softwareInterpreterExecutionProfile: CatalogEntry<ExecutionProfileD
       output: 'execution',
       executionTarget: 'interpreter',
       environments: ['js-host'],
-      featureContracts: [
-        {
-          feature: {
-            namespace: fulfillmentFeature.namespace,
-            key: fulfillmentFeature.key,
-            version: fulfillmentFeature.version,
-          },
-          requirement: 'required',
-        },
-      ],
+      featureContracts: [],
       providerContracts: [],
       bindings: [],
       diagnostics,

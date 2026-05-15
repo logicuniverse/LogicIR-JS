@@ -33,6 +33,10 @@ AI 和可计算工业是两股不同但相互放大的力量：
 
 没有这种载体时，AI 与人类只能围绕代码文本、prompt、README、局部测试和人工 review 猜测意图；有了这种载体后，软件、HDL、执行计划、测试、文档、可视化编辑器和 AI 协作都可以成为同一个逻辑对象的 projection、verification 或 edit workflow。
 
+中长期可以参考 `Zero-to-CAD: Agentic Synthesis of Interpretable CAD Programs at Million-Scale Without Real Data` 的方法论：用 agentic synthesis、执行/验证反馈和 synthetic corpus curation 生成可解释程序数据。LogicIR 对应的方向是 zero-to-LogicIR，但它依赖 core validator、profile resolver、capability checker、software interpreter、HDL simulation 和 edit transaction seed 先形成最小闭环；因此它是中长期 research / dataset 路线，不是近期主线实现。
+
+如果 zero-to-LogicIR 形成足够高质量的 transaction corpus，还可以支持极小的本地模型：模型不需要自由生成大段代码，而是根据 scope、typed holes、catalog 和 diagnostics 预测候选 edit operation。Web IDE 可以用 WebGPU/WASM 在本地运行这种 micro-agent，并用本地 validator、catalog lookup 和用户确认兜底。这样既减少服务器资源，也更符合 LogicIR 的结构化编辑模型。
+
 ## 既有生态优先接入
 
 LogicIR 不能假设世界会重写，也不应该否定文本代码。现实生态中的 JS/TS、Python、C、Rust、Java、Verilog/SystemVerilog、EDA IP、数据库、消息队列、HTTP/RPC、云服务、旧业务系统、旧 node catalog、测试和部署工具都已经沉淀了大量价值。

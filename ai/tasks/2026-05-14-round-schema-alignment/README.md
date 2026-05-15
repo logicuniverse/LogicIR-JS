@@ -3,8 +3,9 @@
 ## Objective
 
 Audit and repair the 2026-05-14 S1-S5 and H1-H5 AI task rounds so their LogicIR
-fixtures and architecture/profile/stack data are typed against the stable
-workspace schema packages instead of task-local schema copies.
+fixtures, and any architecture/profile/stack data that the round actually uses,
+are typed against the stable workspace schema packages instead of task-local
+schema copies.
 
 ## Interpretation Note
 
@@ -31,8 +32,8 @@ In scope:
 - `ai/tasks/2026-05-14-basic-software-interpreter-s1` through `s5`.
 - `ai/tasks/2026-05-14-basic-hdl-sim-h1` through `h5`.
 - Task-local type imports from `@logic-universe/logic-ir-core`.
-- Task-local type imports from `@logic-universe/logic-ir-architecture` when the
-  round contains architecture/profile/stack data.
+- Task-local type imports from `@logic-universe/logic-ir-architecture` only
+  when the round contains architecture/profile/stack data.
 - Re-running every touched round's `yarn verify`.
 
 Out of scope:
