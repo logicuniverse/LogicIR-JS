@@ -1,63 +1,43 @@
-# AI Workspace
+# AI 工作区
 
-This directory contains repository-local coordination surfaces for AI-assisted
-work, especially fully autonomous AI task output that has not been promoted.
+这个目录保存仓库内的人+AI 协作材料，尤其是尚未 promotion 的 AI 全自动任务输出。
 
-## Directories
+## 语言约定
 
-- [`scratch/`](scratch/): temporary AI exploration space for work that is not
-  yet reviewable and should not be treated as task evidence.
-- [`tasks/`](tasks/): write-isolated sandboxes for AI-autonomous tasks.
-- [`templates/`](templates/): reusable templates for AI task directories and
-  promotion review material.
-- [`skills/`](skills/): repository-local source for reusable Codex skills.
+`ai/` 和 `dev/` 下的项目协作文档默认使用中文。正式源码、package、schema、面向用户的 `docs/`、examples、fixtures 等目录继续使用英文，除非目标读者明确需要中文。
 
-Do not put accepted project source here. Formal project content belongs in
-`packages/`, `schema/`, `docs/`, `dev/`, `examples/`, `fixtures/`, or other
-reviewed project directories after human confirmation.
+## 目录
 
-AI task output may be useful code, data, notes, tests, or reports, but it is
-only source material until a human reviews and promotes the smallest useful
-pieces into the correct formal directory.
+- [`scratch/`](scratch/): 临时 AI 探索区，用于不可 review、失败尝试、临时笔记或未完成自动化输出。
+- [`tasks/`](tasks/): AI 全自动任务的写隔离 sandbox。
+- [`templates/`](templates/): AI task 目录和 promotion review 材料模板。
+- [`skills/`](skills/): 仓库本地可复用 Codex skills 源目录。
 
-Use `scratch/` for quick spikes, failed attempts, temporary agent notes, or
-unfinished automation output. Move or recreate only the useful, reviewable
-result in `tasks/` once the work has a clear objective, bounded scope, and
-runnable verification plan.
+不要把已接受的项目源码放在这里。正式项目内容经过人工确认后，应进入
+`packages/`、`schema/`、`docs/`、`dev/`、`examples/`、`fixtures/` 或其它正式目录。
 
-## Default Routing
+AI task 输出可能包含有价值的代码、数据、笔记、测试或报告，但它在人工 review 和 promotion 前都只是素材。Promotion 时只移动最小、明确、已验证的部分。
 
-- Use `tasks/` only for `/goal`, roadmap rounds, parallel-agent work, or other
-  explicitly reviewable automation tasks.
-- Use `scratch/` for uncertain, exploratory, throwaway, or partially specified
-  work.
-- If an agent is unsure whether work belongs in `tasks/` or `scratch/`, it must
-  choose `scratch/`.
+## 默认路由
 
-Sandbox isolation is write isolation, not read isolation. Task-local code may
-use relative paths to read or import formal repository files as read-only inputs,
-including JS/TS source, Verilog HDL, Python, fixtures, docs, and generated
-artifacts. Formal project files must not import or depend on task-local code.
+- `/goal`、roadmap round、parallel-agent work 或其它明确可 review 的自动化任务，进入 `tasks/`。
+- 不确定、探索性、可丢弃、需求不完整的工作，进入 `scratch/`。
+- 如果 agent 不确定应该进入 `tasks/` 还是 `scratch/`，必须选择 `scratch/`。
 
-Autonomous tasks must produce runnable verification evidence. JS/TS work should
-include a task-root `package.json` with task-local scripts and run the relevant
-type check, build, test, or smoke path. Verilog HDL work should use OSS CAD
-Suite from `E:\oss-cad-suite` and run `iverilog` directly after activating
-`E:\oss-cad-suite\environment.ps1`. A task that claims both JS/TS and HDL
-support must verify both paths or record a concrete blocker for the unverified
-path.
+Sandbox isolation 是写隔离，不是读隔离。Task-local 代码可以用相对路径读取或导入正式仓库文件作为只读输入，包括 JS/TS、Verilog HDL、Python、fixtures、docs 和生成 artifact。正式项目文件不能 import 或依赖 task-local 代码。
 
-## Minimal Round Rule
+AI 全自动 task 必须提供可运行验证证据。JS/TS task 应该在 task 根目录提供 `package.json` 和 task-local scripts，并运行相关 typecheck、build、test 或 smoke。Verilog HDL task 应使用 `E:\oss-cad-suite`，激活 `E:\oss-cad-suite\environment.ps1` 后直接运行 `iverilog`。如果 task 声称同时支持 JS/TS 和 HDL，就必须验证两条路径，或者记录未验证路径的具体 blocker。
 
-Each AI task round must keep only the data structures, schema fragments,
-profile fields, stack fields, feature contracts, runtime plan fields, and
-helpers that the current end-to-end business path actually consumes.
+AI task 完成时必须同步 [`tasks/material-index.md`](tasks/material-index.md)。
+这个索引是 task 素材总目录和后续 review 队列。任何 task 标记为
+`ready-for-review` 前，都必须已经更新自己的 `verification.md`、
+`promotion-checklist.md`，并把分类、证据、风险和后续 review ticket 写入
+`material-index.md`。
 
-Do not predeclare future features, stages, provider contracts, diagnostics,
-capabilities, execution plan fields, or validation outputs just because a later
-round may need them. Add them in the later round when its fixture, projector,
-engine, compiler, simulator, or smoke path uses them.
+## 最小 Round 规则
 
-Empty required fields may remain only when the currently accepted formal schema
-requires them. Document that as a schema-shape constraint, not as a business
-reservation.
+每个 AI task round 只保留当前端到端业务路径实际使用的数据结构、schema 片段、profile 字段、stack 字段、feature contract、runtime plan 字段和 helper。
+
+不要因为后续 round 可能需要，就提前声明未来 feature、stage、provider contract、diagnostic、capability、execution plan 字段或 validation output。等后续 round 的 fixture、projector、engine、compiler、simulator 或 smoke path 真正使用时再加入。
+
+如果正式 schema 要求某些空字段，例如 `featureContracts: []`、`stages: []` 或 `providerContracts: []`，task 可以保留这些字段，但必须说明这是 schema-shape constraint，不是业务预留。

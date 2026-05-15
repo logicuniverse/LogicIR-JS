@@ -4,6 +4,10 @@
 
 [`docs/essay.md`](../docs/essay.md) 是理论源头，描述 LogicIR 的核心模型。`dev/` 不替代 essay，而是把理论同步到代码过程中的计划、约束和交接记录保存下来。
 
+## 语言约定
+
+`dev/` 和 [`../ai/`](../ai/) 下的项目协作文档默认使用中文。正式源码、package、schema、面向用户的 `docs/`、examples、fixtures 等目录继续使用英文，除非目标读者明确需要中文。
+
 ## 文档分类
 
 - [handoff.md](handoff.md): 新 AI 会话或新协作者的当前状态交接入口。
