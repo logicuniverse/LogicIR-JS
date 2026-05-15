@@ -1,21 +1,31 @@
-export type FeatureUse = {
+export type { FeatureUse, LogicUnit } from '@logic-universe/logic-ir-core';
+
+export type {
+  CoreSchemaVersionSelector,
+  ExecutionProfileDefinition,
+  FeatureDefinition,
+  IRPipelineProfileDefinition,
+  ProjectionProfileDefinition,
+  StackDefinition,
+} from '@logic-universe/logic-ir-architecture';
+
+import type {
+  ExecutionProfileDefinition,
+  IRPipelineProfileDefinition,
+  ProjectionProfileDefinition,
+} from '@logic-universe/logic-ir-architecture';
+
+export type CatalogEntry<T> = {
   namespace: string;
   key: string;
   version?: string;
+  definition: T;
 };
 
-export type LogicUnit = {
-  schemaVersion: '0.0.0-draft';
-  features: Record<string, FeatureUse>;
-  requirements: Record<string, unknown>;
-  core: {
-    kindOrganization: { kind: 'combinational' };
-    ports: Record<string, unknown>;
-    connections: Record<string, unknown>;
-    closures: Record<string, unknown>;
-    luis: Record<string, unknown>;
-  };
-};
+export type HdlProfileCatalogEntry =
+  | CatalogEntry<IRPipelineProfileDefinition>
+  | CatalogEntry<ProjectionProfileDefinition>
+  | CatalogEntry<ExecutionProfileDefinition>;
 
 export type Diagnostic = {
   code: 'HDL_UNSUPPORTED_REQUIRED_FEATURE';

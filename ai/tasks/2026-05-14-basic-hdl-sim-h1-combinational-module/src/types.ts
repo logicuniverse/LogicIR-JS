@@ -1,70 +1,40 @@
-export type LogicIRCoreSchemaVersion = '0.0.0-draft';
-export type LogicIRKey = string;
-export type PortKey = LogicIRKey;
-export type LUIId = LogicIRKey;
-export type ConnectionId = LogicIRKey;
-export type FeatureUseKey = LogicIRKey;
-export type ExtensionKey = LogicIRKey;
+export type {
+  Connection,
+  EndpointRef,
+  ExtensionRecord,
+  LogicUnit,
+  LUI,
+  Port,
+  PortKey,
+} from '@logic-universe/logic-ir-core';
 
-export type FeatureUse = {
+export type {
+  CoreSchemaVersionSelector,
+  ExecutionProfileDefinition,
+  FeatureRef,
+  FeatureDefinition,
+  IRPipelineProfileDefinition,
+  ProjectionProfileDefinition,
+  StackDefinition,
+} from '@logic-universe/logic-ir-architecture';
+
+import type {
+  ExecutionProfileDefinition,
+  IRPipelineProfileDefinition,
+  ProjectionProfileDefinition,
+} from '@logic-universe/logic-ir-architecture';
+
+export type CatalogEntry<T> = {
   namespace: string;
   key: string;
   version?: string;
+  definition: T;
 };
 
-export type ExtensionRecord = {
-  featureKey: FeatureUseKey;
-  key: ExtensionKey;
-  payload: unknown;
-};
-
-export type Port = {
-  boundary: 'input' | 'output';
-  role?: 'primary-result';
-  interaction: {
-    pullReadable: boolean;
-    pushNotifiable: boolean;
-    retainedCurrent: boolean;
-  };
-  extensions?: ExtensionRecord[];
-};
-
-export type EndpointRef = {
-  owner: { kind: 'lu' } | { kind: 'lui'; luiId: LUIId };
-  portKey: PortKey;
-};
-
-export type Connection = {
-  from: EndpointRef;
-  to: EndpointRef;
-};
-
-export type CombinationalLUI = {
-  kind: 'combinational';
-  target: {
-    kind: 'external';
-    namespace: string;
-    key: string;
-    version?: string;
-  };
-  ports: Record<PortKey, Port>;
-  fulfillments: Record<string, unknown>;
-  extensions?: ExtensionRecord[];
-};
-
-export type LogicUnit = {
-  schemaVersion: LogicIRCoreSchemaVersion;
-  features: Record<FeatureUseKey, FeatureUse>;
-  requirements: Record<string, unknown>;
-  core: {
-    kindOrganization: { kind: 'combinational' };
-    ports: Record<PortKey, Port>;
-    connections: Record<ConnectionId, Connection>;
-    closures: Record<string, unknown>;
-    luis: Record<LUIId, CombinationalLUI>;
-    extensions?: ExtensionRecord[];
-  };
-};
+export type HdlProfileCatalogEntry =
+  | CatalogEntry<IRPipelineProfileDefinition>
+  | CatalogEntry<ProjectionProfileDefinition>
+  | CatalogEntry<ExecutionProfileDefinition>;
 
 export type HdlSignalPayload = {
   width: 1;

@@ -1,0 +1,13 @@
+{
+  "name": "logicir-ai-task-stdlib-nodes-replica",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "typecheck": "node ../../../node_modules/typescript/bin/tsc -p tsconfig.json --noEmit",
+    "build": "node ../../../node_modules/typescript/bin/tsc -p tsconfig.json",
+    "smoke": "node dist/smoke.js",
+    "coverage": "node dist/coverage-check.js",
+    "source-audit": "node dist/legacy-source-audit.js",
+    "verify": "yarn typecheck && yarn build && yarn source-audit && yarn smoke && yarn coverage"
+  }
+}

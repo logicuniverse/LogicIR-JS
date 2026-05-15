@@ -1,4 +1,4 @@
-import { h4Profile } from './architecture';
+import { supportedRequiredFeatures } from './architecture';
 import type { Diagnostic, FeatureUse, LogicUnit, ProjectionResult } from './types';
 
 const featureIdentity = (feature: FeatureUse): string =>
@@ -17,8 +17,8 @@ export const projectToVerilogOrReject = (
   const diagnostics = Object.values(logicUnit.features)
     .filter(
       (feature) =>
-        !h4Profile.supportedRequiredFeatures.includes(
-          featureIdentity(feature) as (typeof h4Profile.supportedRequiredFeatures)[number],
+        !supportedRequiredFeatures.includes(
+          featureIdentity(feature) as (typeof supportedRequiredFeatures)[number],
         ),
     )
     .map(unsupportedFeatureDiagnostic);

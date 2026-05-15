@@ -2,7 +2,7 @@ import type {
   Diagnostic,
   ExecutionResult,
   InterpreterPlan,
-  LogicUnit,
+  ClosureProviderRegistry,
   RequirementProvider,
 } from './types';
 
@@ -19,9 +19,9 @@ const errorDiagnostic = (
 
 export const executeInterpreterPlan = (
   plan: InterpreterPlan,
-  logicUnit: LogicUnit,
   context: {
     inputs: Record<string, unknown>;
+    closures: ClosureProviderRegistry;
     upstreamProvider?: RequirementProvider;
   },
 ): ExecutionResult => {
@@ -38,7 +38,7 @@ export const executeInterpreterPlan = (
     let nodeOutputs: Record<string, unknown> | undefined;
 
     if (node.fulfillment.kind === 'closure') {
-      const closure = logicUnit.core.closures[node.fulfillment.closureId];
+      const closure = context.closures[node.fulfillment.closureId];
 
       if (!closure) {
         diagnostics.push(
@@ -51,7 +51,7 @@ export const executeInterpreterPlan = (
         continue;
       }
 
-      nodeOutputs = closure.run(nodeInputs);
+      nodeOutputs = closure(nodeInputs);
     } else {
       nodeOutputs = context.upstreamProvider?.(
         node.fulfillment.supplierServiceKey,

@@ -1,0 +1,149 @@
+{
+  "task": "basic-software-interpreter-summary",
+  "stack": "basic-software-interpreter",
+  "status": "ready-for-review",
+  "rounds": [
+    {
+      "id": "S1",
+      "path": "ai/tasks/2026-05-14-basic-software-interpreter-s1",
+      "name": "pure invocation",
+      "status": "ready-for-review",
+      "verified": true,
+      "capabilities": [
+        "minimal stack/profile data",
+        "profile resolver",
+        "interpreter execution plan",
+        "synchronous provider invocation",
+        "software engine smoke"
+      ],
+      "promotionSeeds": [
+        "fixtures/logicir/basic-software/pure-invocation",
+        "packages/tools/profile-resolver",
+        "packages/projectors/interpreter-plan",
+        "packages/engines/software"
+      ],
+      "knownGaps": [
+        "single combinational external LUI only",
+        "fail-fast S1 errors",
+        "no retained-current, async completion, fulfillment, or diagnostics"
+      ]
+    },
+    {
+      "id": "S2",
+      "path": "ai/tasks/2026-05-14-basic-software-interpreter-s2",
+      "name": "retained-current",
+      "status": "ready-for-review",
+      "verified": true,
+      "capabilities": [
+        "retained-current feature draft",
+        "state-store provider contract shape",
+        "read-current operation",
+        "write-current operation",
+        "memory state-store behavior"
+      ],
+      "promotionSeeds": [
+        "state-store provider contract",
+        "retained-current fixture",
+        "packages/engines/software memory state store"
+      ],
+      "knownGaps": [
+        "no subscription or update notification",
+        "no durable persistence",
+        "missing-provider path deferred to S5"
+      ]
+    },
+    {
+      "id": "S3",
+      "path": "ai/tasks/2026-05-14-basic-software-interpreter-s3",
+      "name": "completion / await",
+      "status": "ready-for-review",
+      "verified": true,
+      "capabilities": [
+        "completion feature draft",
+        "provider value or Promise output",
+        "awaited execution",
+        "provider rejection to diagnostic"
+      ],
+      "promotionSeeds": [
+        "completion policy fixture",
+        "async provider fixture",
+        "await/reject engine behavior"
+      ],
+      "knownGaps": [
+        "no cancellation",
+        "no scheduler or backpressure",
+        "broader diagnostic taxonomy deferred to S5"
+      ]
+    },
+    {
+      "id": "S4",
+      "path": "ai/tasks/2026-05-14-basic-software-interpreter-s4",
+      "name": "fulfillment / closure",
+      "status": "ready-for-review",
+      "verified": true,
+      "capabilities": [
+        "fulfillment feature draft",
+        "requirement-backed fixture",
+        "closure fulfillment",
+        "upstream provider fulfillment",
+        "missing provider diagnostic"
+      ],
+      "promotionSeeds": [
+        "requirement and fulfillment fixtures",
+        "fulfillment plan nodes",
+        "closure/upstream execution behavior"
+      ],
+      "knownGaps": [
+        "closure body represented as runtime function",
+        "no shared-service fulfillment",
+        "no nested reachability path"
+      ]
+    },
+    {
+      "id": "S5",
+      "path": "ai/tasks/2026-05-14-basic-software-interpreter-s5",
+      "name": "error / diagnostic",
+      "status": "ready-for-review",
+      "verified": true,
+      "capabilities": [
+        "diagnostic shape",
+        "provider missing diagnostic",
+        "plan invalid diagnostic",
+        "unsupported semantics diagnostic",
+        "runtime failure diagnostic",
+        "report summary"
+      ],
+      "promotionSeeds": [
+        "shared diagnostic model draft",
+        "projector diagnostic path",
+        "engine failure conversion",
+        "failure fixture smoke"
+      ],
+      "knownGaps": [
+        "no source ranges",
+        "no warning or info policy",
+        "not formally merged with S1-S4 implementations"
+      ]
+    }
+  ],
+  "routeConclusion": {
+    "mvpStatus": "seeded-not-integrated",
+    "summary": "S1-S5 prove the interpreter spine across invocation, retained-current state, async completion, fulfillment, and diagnostics. They do not yet form one unified interpreter MVP.",
+    "promotionStrategy": "Promote only a narrow vertical slice first: shared diagnostic type, profile resolver seed, interpreter-plan data shape, provider invocation engine, memory state-store provider, and S1/S2/S3/S4/S5 smoke fixtures."
+  },
+  "recommendedNextRounds": [
+    "S6 retained-current-notification",
+    "S7 completion-result-model",
+    "S8 event-stream",
+    "S10 multi-lui-plan",
+    "S12 sequential-basic",
+    "S13 control-flow"
+  ],
+  "doNotPromote": [
+    "whole sandbox directories",
+    "task-local schema subsets",
+    "runtime-function closure representation as final closure schema",
+    "diagnostic taxonomy as final without review",
+    "generated dist output"
+  ]
+}

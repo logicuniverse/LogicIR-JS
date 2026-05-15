@@ -1,14 +1,36 @@
-export type ExtensionRecord = {
-  featureKey: string;
-  key: string;
-  payload: unknown;
-};
+export type {
+  ExtensionRecord,
+  FeatureUse,
+  LogicUnit,
+  Port,
+} from '@logic-universe/logic-ir-core';
 
-export type FeatureUse = {
+export type {
+  CoreSchemaVersionSelector,
+  ExecutionProfileDefinition,
+  FeatureDefinition,
+  IRPipelineProfileDefinition,
+  ProjectionProfileDefinition,
+  StackDefinition,
+} from '@logic-universe/logic-ir-architecture';
+
+import type {
+  ExecutionProfileDefinition,
+  IRPipelineProfileDefinition,
+  ProjectionProfileDefinition,
+} from '@logic-universe/logic-ir-architecture';
+
+export type CatalogEntry<T> = {
   namespace: string;
   key: string;
   version?: string;
+  definition: T;
 };
+
+export type HdlProfileCatalogEntry =
+  | CatalogEntry<IRPipelineProfileDefinition>
+  | CatalogEntry<ProjectionProfileDefinition>
+  | CatalogEntry<ExecutionProfileDefinition>;
 
 export type HdlSignalPayload = {
   width: number;
@@ -17,16 +39,6 @@ export type HdlSignalPayload = {
 
 export type HdlModulePayload = {
   moduleName: string;
-};
-
-export type Port = {
-  boundary: 'input' | 'output';
-  interaction: {
-    pullReadable: boolean;
-    pushNotifiable: boolean;
-    retainedCurrent: boolean;
-  };
-  extensions?: ExtensionRecord[];
 };
 
 export type StructuralInstance = {
@@ -38,28 +50,6 @@ export type StructuralInstance = {
 export type StructuralWire = {
   name: string;
   signal: HdlSignalPayload;
-};
-
-export type LogicUnit = {
-  schemaVersion: '0.0.0-draft';
-  features: { [localKey: string]: FeatureUse };
-  requirements: { [requirementKey: string]: unknown };
-  core: {
-    kindOrganization: {
-      kind: 'structural';
-      exportAnchors: { [anchorKey: string]: { required: boolean } };
-      externalOutlets: {
-        [outletKey: string]: { shape: 'single'; required: boolean };
-      };
-      exportAnchorFills: { [anchorKey: string]: unknown };
-      luiFills: { [luiId: string]: unknown };
-    };
-    ports: { [portKey: string]: Port };
-    connections: { [connectionId: string]: unknown };
-    closures: { [closureId: string]: unknown };
-    luis: { [luiId: string]: unknown };
-    extensions?: ExtensionRecord[];
-  };
 };
 
 export type StructuralPayload = {

@@ -86,7 +86,7 @@ export const createInterpreterPlan = (
 
   for (const [luiId, lui] of Object.entries(logicUnit.core.luis)) {
     const extension = lui.extensions?.find(
-      (entry) => entry.key === 'state-operation',
+      (entry: ExtensionRecord) => entry.key === 'state-operation',
     );
 
     if (!extension) {

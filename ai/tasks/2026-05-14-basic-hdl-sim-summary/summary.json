@@ -1,0 +1,154 @@
+{
+  "task": "basic-hdl-sim-summary",
+  "stack": "basic-hdl-sim",
+  "status": "ready-for-review",
+  "rounds": [
+    {
+      "id": "H1",
+      "path": "ai/tasks/2026-05-14-basic-hdl-sim-h1-combinational-module",
+      "name": "combinational module",
+      "status": "ready-for-review",
+      "verified": true,
+      "requiresIverilog": true,
+      "capabilities": [
+        "minimal HDL stack/profile data",
+        "one-bit combinational AND fixture",
+        "Verilog module emitter",
+        "testbench emitter",
+        "iverilog and vvp simulation smoke"
+      ],
+      "promotionSeeds": [
+        "fixtures/logicir/basic-hdl/and2",
+        "packages/projectors/verilog emitter seed",
+        "HDL fixture-runner smoke pattern"
+      ],
+      "knownGaps": [
+        "one-bit only",
+        "no sequential state",
+        "no unsupported-semantics rejection",
+        "no structural hierarchy"
+      ]
+    },
+    {
+      "id": "H2",
+      "path": "ai/tasks/2026-05-14-basic-hdl-sim-h2-signal-width",
+      "name": "signal width / simple type",
+      "status": "ready-for-review",
+      "verified": true,
+      "requiresIverilog": true,
+      "capabilities": [
+        "HDL signal width payload",
+        "unsigned vector signal metadata",
+        "width-aware Verilog emitter",
+        "4-bit addition fixture",
+        "wraparound simulation smoke"
+      ],
+      "promotionSeeds": [
+        "fixtures/logicir/basic-hdl/add4",
+        "signal width helper",
+        "width-aware HDL smoke"
+      ],
+      "knownGaps": [
+        "no signed arithmetic verification",
+        "no sequential logic",
+        "no hierarchy"
+      ]
+    },
+    {
+      "id": "H3",
+      "path": "ai/tasks/2026-05-14-basic-hdl-sim-h3-sequential-state",
+      "name": "sequential state",
+      "status": "ready-for-review",
+      "verified": true,
+      "requiresIverilog": true,
+      "capabilities": [
+        "clock/reset payload shape",
+        "register state payload shape",
+        "positive-edge sequential logic",
+        "active-high reset",
+        "reset and latch simulation smoke"
+      ],
+      "promotionSeeds": [
+        "fixtures/logicir/basic-hdl/reg4",
+        "register emitter seed",
+        "clock/reset testbench pattern"
+      ],
+      "knownGaps": [
+        "no multiple clock domains",
+        "no structural composition",
+        "no failure diagnostics"
+      ]
+    },
+    {
+      "id": "H4",
+      "path": "ai/tasks/2026-05-14-basic-hdl-sim-h4-unsupported-semantics",
+      "name": "unsupported-semantics rejection",
+      "status": "ready-for-review",
+      "verified": true,
+      "requiresIverilog": false,
+      "capabilities": [
+        "negative fixture with software invocation feature",
+        "HDL supported feature set",
+        "structured rejection diagnostic",
+        "no artifact written on rejection"
+      ],
+      "promotionSeeds": [
+        "fixtures/logicir/basic-hdl/unsupported-software-invocation",
+        "capability checker/projector diagnostic seed",
+        "HDL rejection smoke"
+      ],
+      "knownGaps": [
+        "no shared diagnostic model",
+        "no lowering route",
+        "no Verilog simulation because rejection is expected"
+      ]
+    },
+    {
+      "id": "H5",
+      "path": "ai/tasks/2026-05-14-basic-hdl-sim-h5-structural-composition",
+      "name": "structural module composition",
+      "status": "ready-for-review",
+      "verified": true,
+      "requiresIverilog": true,
+      "capabilities": [
+        "HDL module payload",
+        "library module fixture",
+        "internal wire metadata",
+        "child instance emission",
+        "projector-side structural payload validation",
+        "hierarchical Verilog simulation smoke"
+      ],
+      "promotionSeeds": [
+        "fixtures/logicir/basic-hdl/and3-structural",
+        "module instance emission helper",
+        "structural payload validation helper",
+        "HDL hierarchy smoke"
+      ],
+      "knownGaps": [
+        "no arbitrary hierarchy lowering",
+        "no formal module library resolution",
+        "no anchor/outlet lowering",
+        "validation failures still throw task-local errors"
+      ]
+    }
+  ],
+  "routeConclusion": {
+    "mvpStatus": "seeded-not-integrated",
+    "summary": "H1-H5 prove HDL simulation feasibility across combinational logic, signal widths, sequential state, unsupported software semantic rejection, and structural hierarchy. They do not yet form one unified Verilog projector.",
+    "promotionStrategy": "Promote a narrow Verilog projector seed: signal emitter helpers, module/testbench emission patterns, register emitter seed, rejection diagnostic path, and H1-H5 fixtures adapted to formal core/architecture types."
+  },
+  "recommendedNextRounds": [
+    "H6 unified-verilog-projector",
+    "H7 formal-hdl-diagnostic-model",
+    "H8 anchor-outlet-structural-lowering",
+    "H9 multi-module-library-resolution",
+    "H10 signed-and-packed-signal-semantics"
+  ],
+  "doNotPromote": [
+    "whole sandbox directories",
+    "task-local schema subsets",
+    "generated vvp artifacts",
+    "hard-coded structural payload as final schema",
+    "thrown-error validation as final diagnostic model"
+  ]
+}

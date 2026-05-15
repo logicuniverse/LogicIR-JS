@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import type {
+  ExtensionRecord,
   HdlArtifacts,
   HdlOperationPayload,
   HdlSignalPayload,
@@ -28,7 +29,7 @@ const rangeOf = (signal: HdlSignalPayload): string =>
 const operationOf = (logicUnit: LogicUnit): HdlOperationPayload => {
   const lui = Object.values(logicUnit.core.luis)[0];
   const payload = lui.extensions?.find(
-    (extension) =>
+    (extension: ExtensionRecord) =>
       extension.featureKey === 'hdlCombinational' && extension.key === 'operation',
   )?.payload as HdlOperationPayload | undefined;
 

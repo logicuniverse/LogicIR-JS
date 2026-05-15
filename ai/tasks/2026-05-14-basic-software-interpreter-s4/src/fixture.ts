@@ -1,4 +1,5 @@
 import type { LogicUnit, Port } from './types';
+import type { ClosureProviderRegistry } from './types';
 
 const input: Port = {
   boundary: 'input',
@@ -52,7 +53,16 @@ const makeFixture = (mode: 'closure' | 'upstream'): LogicUnit => ({
     closures: {
       localIncrement: {
         forwardedPortKeys: { inputs: ['value'], outputs: ['result'] },
-        run: ({ value }) => ({ result: Number(value) + 1 }),
+        core: {
+          kindOrganization: { kind: 'combinational' },
+          ports: {
+            value: input,
+            result: output,
+          },
+          connections: {},
+          closures: {},
+          luis: {},
+        },
       },
     },
     luis: {
@@ -76,6 +86,7 @@ const makeFixture = (mode: 'closure' | 'upstream'): LogicUnit => ({
                   ? { kind: 'closure', closureId: 'localIncrement' }
                   : {
                       kind: 'upstream-unit',
+                      reachabilityPath: [],
                       supplierServiceKey: 'math',
                       supplierUnitKey: 'increment',
                     },
@@ -102,3 +113,7 @@ const makeFixture = (mode: 'closure' | 'upstream'): LogicUnit => ({
 
 export const closureFulfillmentLogicUnit = makeFixture('closure');
 export const upstreamFulfillmentLogicUnit = makeFixture('upstream');
+
+export const closureProviders: ClosureProviderRegistry = {
+  localIncrement: ({ value }) => ({ result: Number(value) + 1 }),
+};

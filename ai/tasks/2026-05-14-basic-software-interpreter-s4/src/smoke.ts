@@ -1,6 +1,7 @@
 import { basicSoftwareInterpreterStack } from './architecture';
 import { executeInterpreterPlan } from './engine';
 import {
+  closureProviders,
   closureFulfillmentLogicUnit,
   upstreamFulfillmentLogicUnit,
 } from './fixture';
@@ -24,17 +25,16 @@ const resolved = resolveStack(basicSoftwareInterpreterStack);
 const closurePlan = createInterpreterPlan(closureFulfillmentLogicUnit, resolved);
 const closureResult = executeInterpreterPlan(
   closurePlan,
-  closureFulfillmentLogicUnit,
-  { inputs: { value: 4 } },
+  { inputs: { value: 4 }, closures: closureProviders },
 );
 assertDeepEqual(closureResult.outputs, { result: 5 });
 
 const upstreamPlan = createInterpreterPlan(upstreamFulfillmentLogicUnit, resolved);
 const upstreamResult = executeInterpreterPlan(
   upstreamPlan,
-  upstreamFulfillmentLogicUnit,
   {
     inputs: { value: 4 },
+    closures: closureProviders,
     upstreamProvider: (_serviceKey, _unitKey, inputs) => ({
       result: Number(inputs.value) + 10,
     }),
@@ -44,8 +44,7 @@ assertDeepEqual(upstreamResult.outputs, { result: 14 });
 
 const missingProviderResult = executeInterpreterPlan(
   upstreamPlan,
-  upstreamFulfillmentLogicUnit,
-  { inputs: { value: 4 } },
+  { inputs: { value: 4 }, closures: closureProviders },
 );
 
 if (missingProviderResult.status !== 'error') {

@@ -47,7 +47,11 @@ export const counterCurrentLogicUnit: LogicUnit = {
     luis: {
       readCounter: {
         kind: 'stateful',
-        target: { kind: 'state-store', storeKey: 'counter' },
+        target: {
+          kind: 'external',
+          namespace: 'logicir.software.state-store',
+          key: 'counter',
+        },
         ports: {
           current: retainedOutput,
         },
@@ -62,7 +66,11 @@ export const counterCurrentLogicUnit: LogicUnit = {
       },
       writeCounter: {
         kind: 'stateful',
-        target: { kind: 'state-store', storeKey: 'counter' },
+        target: {
+          kind: 'external',
+          namespace: 'logicir.software.state-store',
+          key: 'counter',
+        },
         ports: {
           next: retainedInput,
           written: retainedOutput,

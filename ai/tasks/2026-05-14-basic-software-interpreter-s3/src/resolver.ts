@@ -1,8 +1,8 @@
 import { profiles } from './architecture';
 import type {
   CatalogEntry,
-  ProfileDefinition,
   ResolvedStack,
+  SoftwareProfileCatalogEntry,
   StackDefinition,
 } from './types';
 import { identityKey } from './types';
@@ -11,7 +11,7 @@ const findProfile = (ref: {
   namespace: string;
   key: string;
   version?: string;
-}): CatalogEntry<ProfileDefinition> => {
+}): SoftwareProfileCatalogEntry => {
   const profile = profiles.find((entry) => identityKey(entry) === identityKey(ref));
 
   if (!profile) {
@@ -27,8 +27,13 @@ export const resolveStack = (
   const profileDefinitions = [
     findProfile(stack.definition.profiles.irPipeline).definition,
     findProfile(stack.definition.profiles.projection).definition,
-    findProfile(stack.definition.profiles.execution).definition,
   ];
+
+  if (stack.definition.profiles.execution) {
+    profileDefinitions.push(
+      findProfile(stack.definition.profiles.execution).definition,
+    );
+  }
 
   return {
     stackKey: identityKey(stack),

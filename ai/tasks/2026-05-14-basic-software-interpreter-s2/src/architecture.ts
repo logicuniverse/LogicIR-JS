@@ -1,9 +1,24 @@
 import type {
   CatalogEntry,
+  CoreSchemaVersionSelector,
+  ExecutionProfileDefinition,
   FeatureDefinition,
-  ProfileDefinition,
+  IRPipelineProfileDefinition,
+  ProjectionProfileDefinition,
   StackDefinition,
+  SoftwareProfileCatalogEntry,
 } from './types';
+
+const diagnostics = {
+  unsupportedRequiredContract: 'fail',
+  unsupportedFeature: 'fail',
+  unsafeFallback: 'fail',
+} as const;
+
+const acceptedCoreVersions: CoreSchemaVersionSelector = {
+  kind: 'one-of',
+  versions: ['0.0.0-draft'],
+};
 
 export const retainedCurrentFeature: CatalogEntry<FeatureDefinition> = {
   namespace: 'logicir.software',
@@ -18,95 +33,118 @@ export const retainedCurrentFeature: CatalogEntry<FeatureDefinition> = {
         key: 'state-key',
         attachment: 'port',
         payloadSchema: {
-          type: 'object',
-          additionalProperties: false,
-          properties: { storeKey: { type: 'string' } },
-          required: ['storeKey'],
+          kind: 'inline-json-schema',
+          schema: {
+            type: 'object',
+            additionalProperties: false,
+            properties: { storeKey: { type: 'string' } },
+            required: ['storeKey'],
+          },
         },
       },
       {
         key: 'state-operation',
         attachment: 'lui',
         payloadSchema: {
-          type: 'object',
-          additionalProperties: false,
-          properties: {
-            kind: { enum: ['read-current', 'write-current'] },
-            storeKey: { type: 'string' },
+          kind: 'inline-json-schema',
+          schema: {
+            type: 'object',
+            additionalProperties: false,
+            properties: {
+              kind: { enum: ['read-current', 'write-current'] },
+              storeKey: { type: 'string' },
+            },
+            required: ['kind', 'storeKey'],
           },
-          required: ['kind', 'storeKey'],
         },
       },
     ],
   },
 };
 
-export const basicSoftwareIRProfile: CatalogEntry<ProfileDefinition> = {
-  namespace: 'logicir.profile',
-  key: 'basic-software-ir',
-  version: '0.0.0-s2',
-  definition: {
-    profileKind: 'ir-pipeline',
-    title: 'Basic software IR profile with retained-current',
-    featureContracts: [
-      {
-        feature: {
-          namespace: retainedCurrentFeature.namespace,
-          key: retainedCurrentFeature.key,
-          version: retainedCurrentFeature.version,
+export const basicSoftwareIRProfile: CatalogEntry<IRPipelineProfileDefinition> =
+  {
+    namespace: 'logicir.profile',
+    key: 'basic-software-ir',
+    version: '0.0.0-s2',
+    definition: {
+      profileKind: 'ir-pipeline',
+      title: 'Basic software IR profile with retained-current',
+      input: 'logicir',
+      output: 'logicir',
+      acceptedCoreVersions,
+      featureContracts: [
+        {
+          feature: {
+            namespace: retainedCurrentFeature.namespace,
+            key: retainedCurrentFeature.key,
+            version: retainedCurrentFeature.version,
+          },
+          requirement: 'required',
         },
-        requirement: 'required',
-      },
-    ],
-    stages: [
-      {
-        key: 'core-validate',
-        requirement: 'required',
-        capability: { namespace: 'logicir.pipeline', key: 'core-validate' },
-      },
-      {
-        key: 'resolve-retained-current',
-        requirement: 'required',
-        capability: {
-          namespace: 'logicir.pipeline',
-          key: 'retained-current-resolve',
+      ],
+      stages: [
+        {
+          key: 'core-validate',
+          requirement: 'required',
+          capability: { namespace: 'logicir.pipeline', key: 'core-validate' },
         },
-      },
-    ],
-  },
-};
+        {
+          key: 'resolve-retained-current',
+          requirement: 'required',
+          capability: {
+            namespace: 'logicir.pipeline',
+            key: 'retained-current-resolve',
+          },
+        },
+      ],
+      diagnostics,
+    },
+  };
 
-export const toInterpreterPlanProfile: CatalogEntry<ProfileDefinition> = {
-  namespace: 'logicir.profile',
-  key: 'to-interpreter-plan',
-  version: '0.0.0-s2',
-  definition: {
-    profileKind: 'projection',
-    title: 'Project retained-current to interpreter plan',
-    featureContracts: [
-      {
-        feature: {
-          namespace: retainedCurrentFeature.namespace,
-          key: retainedCurrentFeature.key,
-          version: retainedCurrentFeature.version,
-        },
-        requirement: 'required',
+export const toInterpreterPlanProfile: CatalogEntry<ProjectionProfileDefinition> =
+  {
+    namespace: 'logicir.profile',
+    key: 'to-interpreter-plan',
+    version: '0.0.0-s2',
+    definition: {
+      profileKind: 'projection',
+      title: 'Project retained-current to interpreter plan',
+      input: 'logicir',
+      output: 'executable-plan',
+      acceptedCoreVersions,
+      projectionTarget: {
+        namespace: 'logicir.projection-target',
+        key: 'software-interpreter-plan',
+        version: '0.0.0-s2',
       },
-    ],
-    stages: [
-      {
-        key: 'emit-retained-current-plan',
-        requirement: 'required',
-        capability: {
-          namespace: 'logicir.projection',
-          key: 'interpreter-plan',
+      artifactKinds: ['logicir.interpreter-plan.s2'],
+      featureContracts: [
+        {
+          feature: {
+            namespace: retainedCurrentFeature.namespace,
+            key: retainedCurrentFeature.key,
+            version: retainedCurrentFeature.version,
+          },
+          requirement: 'required',
         },
-      },
-    ],
-  },
-};
+      ],
+      stages: [
+        {
+          key: 'emit-retained-current-plan',
+          requirement: 'required',
+          capability: {
+            namespace: 'logicir.projection',
+            key: 'interpreter-plan',
+          },
+          produces: 'logicir.interpreter-plan.s2',
+        },
+      ],
+      diagnostics,
+    },
+  };
 
-export const softwareInterpreterExecutionProfile: CatalogEntry<ProfileDefinition> =
+export const softwareInterpreterExecutionProfile: CatalogEntry<ExecutionProfileDefinition> =
   {
     namespace: 'logicir.profile',
     key: 'software-interpreter-execution',
@@ -114,6 +152,10 @@ export const softwareInterpreterExecutionProfile: CatalogEntry<ProfileDefinition
     definition: {
       profileKind: 'execution',
       title: 'Software interpreter execution with state store',
+      input: 'executable-plan',
+      output: 'execution',
+      executionTarget: 'interpreter',
+      environments: ['js-host'],
       featureContracts: [
         {
           feature: {
@@ -150,6 +192,7 @@ export const softwareInterpreterExecutionProfile: CatalogEntry<ProfileDefinition
           requirement: 'required',
         },
       ],
+      diagnostics,
     },
   };
 
@@ -179,7 +222,7 @@ export const basicSoftwareInterpreterStack: CatalogEntry<StackDefinition> = {
   },
 };
 
-export const profiles = [
+export const profiles: SoftwareProfileCatalogEntry[] = [
   basicSoftwareIRProfile,
   toInterpreterPlanProfile,
   softwareInterpreterExecutionProfile,

@@ -1,0 +1,12 @@
+{
+  "name": "logicir-ai-task-latest-schema-engine-replica",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "typecheck": "node ../../../node_modules/typescript/bin/tsc -p tsconfig.json --noEmit",
+    "build": "node ../../../node_modules/typescript/bin/tsc -p tsconfig.json",
+    "smoke": "node dist/smoke.js",
+    "coverage": "node dist/coverage-check.js",
+    "verify": "yarn typecheck && yarn build && yarn smoke && yarn coverage"
+  }
+}

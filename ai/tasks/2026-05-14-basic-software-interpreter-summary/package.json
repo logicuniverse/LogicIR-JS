@@ -1,0 +1,8 @@
+{
+  "name": "logicir-ai-task-basic-software-interpreter-summary",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "verify": "node src/verify-summary.js"
+  }
+}

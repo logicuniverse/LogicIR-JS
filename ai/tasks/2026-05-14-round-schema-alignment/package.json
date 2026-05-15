@@ -1,0 +1,8 @@
+{
+  "name": "logicir-ai-task-round-schema-alignment",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "verify": "node src/verify-alignment.js"
+  }
+}

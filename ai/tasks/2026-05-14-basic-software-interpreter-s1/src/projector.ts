@@ -2,26 +2,21 @@ import type {
   Connection,
   EndpointRef,
   LogicUnit,
-  LUI,
   PortKey,
   ExecutionBinding,
-  ProviderRef,
 } from './types';
 import type {
   ExternalTargetIdentity,
   InterpreterPlan,
   ResolvedStack,
 } from './types';
-import { formatExternalTarget, formatFeatureRef } from './types';
+import { formatExternalTarget, formatFeatureRef, providerKey } from './types';
 
 const isLuEndpoint = (endpoint: EndpointRef): boolean =>
   endpoint.owner.kind === 'lu';
 
 const isLuiEndpoint = (endpoint: EndpointRef, luiId: string): boolean =>
   endpoint.owner.kind === 'lui' && endpoint.owner.luiId === luiId;
-
-const providerKey = (provider: ProviderRef): string =>
-  `${provider.namespace}/${provider.key}${provider.version ? `@${provider.version}` : ''}`;
 
 const targetMatchesBinding = (
   target: ExternalTargetIdentity,
@@ -71,8 +66,13 @@ const assertRequiredFeatureManifest = (
 };
 
 const getSingleExternalLui = (
-  luis: Record<string, LUI>,
-): [string, LUI & { target: ExternalTargetIdentity & { kind: 'external' } }] => {
+  luis: LogicUnit['core']['luis'],
+): [
+  string,
+  LogicUnit['core']['luis'][string] & {
+    target: ExternalTargetIdentity & { kind: 'external' };
+  },
+] => {
   const entries = Object.entries(luis);
 
   if (entries.length !== 1) {
@@ -85,7 +85,12 @@ const getSingleExternalLui = (
     throw new Error('S1 supports only an external provider target.');
   }
 
-  return [luiId, lui as LUI & { target: ExternalTargetIdentity & { kind: 'external' } }];
+  return [
+    luiId,
+    lui as LogicUnit['core']['luis'][string] & {
+      target: ExternalTargetIdentity & { kind: 'external' };
+    },
+  ];
 };
 
 const collectInputMap = (

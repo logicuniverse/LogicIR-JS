@@ -1,5 +1,6 @@
 import type {
   CompletionPolicy,
+  ExtensionRecord,
   InterpreterPlan,
   LogicUnit,
   ResolvedStack,
@@ -38,7 +39,7 @@ export const createInterpreterPlan = (
 
   const [luiId, lui] = entries[0];
   const completionExtension = lui.extensions?.find(
-    (extension) => extension.key === 'completion-policy',
+    (extension: ExtensionRecord) => extension.key === 'completion-policy',
   );
 
   if (!completionExtension) {

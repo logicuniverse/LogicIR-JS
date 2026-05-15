@@ -1,9 +1,24 @@
 import type {
   CatalogEntry,
+  CoreSchemaVersionSelector,
+  ExecutionProfileDefinition,
   FeatureDefinition,
-  ProfileDefinition,
+  IRPipelineProfileDefinition,
+  ProjectionProfileDefinition,
+  SoftwareProfileCatalogEntry,
   StackDefinition,
 } from './types';
+
+const diagnostics = {
+  unsupportedRequiredContract: 'fail',
+  unsupportedFeature: 'fail',
+  unsafeFallback: 'fail',
+} as const;
+
+const acceptedCoreVersions: CoreSchemaVersionSelector = {
+  kind: 'one-of',
+  versions: ['0.0.0-draft'],
+};
 
 export const completionFeature: CatalogEntry<FeatureDefinition> = {
   namespace: 'logicir.software',
@@ -18,66 +33,32 @@ export const completionFeature: CatalogEntry<FeatureDefinition> = {
         key: 'completion-policy',
         attachment: 'lui',
         payloadSchema: {
-          type: 'object',
-          properties: {
-            kind: { enum: ['await-provider'] },
-            rejectMode: { enum: ['diagnostic'] },
+          kind: 'inline-json-schema',
+          schema: {
+            type: 'object',
+            properties: {
+              kind: { enum: ['await-provider'] },
+              rejectMode: { enum: ['diagnostic'] },
+            },
+            required: ['kind', 'rejectMode'],
           },
-          required: ['kind', 'rejectMode'],
         },
       },
     ],
   },
 };
 
-export const basicSoftwareIRProfile: CatalogEntry<ProfileDefinition> = {
-  namespace: 'logicir.profile',
-  key: 'basic-software-ir',
-  version: '0.0.0-s3',
-  definition: {
-    profileKind: 'ir-pipeline',
-    title: 'Basic software IR with completion',
-    featureContracts: [
-      {
-        feature: {
-          namespace: completionFeature.namespace,
-          key: completionFeature.key,
-          version: completionFeature.version,
-        },
-        requirement: 'required',
-      },
-    ],
-  },
-};
-
-export const toInterpreterPlanProfile: CatalogEntry<ProfileDefinition> = {
-  namespace: 'logicir.profile',
-  key: 'to-interpreter-plan',
-  version: '0.0.0-s3',
-  definition: {
-    profileKind: 'projection',
-    title: 'Interpreter plan with completion policy',
-    featureContracts: [
-      {
-        feature: {
-          namespace: completionFeature.namespace,
-          key: completionFeature.key,
-          version: completionFeature.version,
-        },
-        requirement: 'required',
-      },
-    ],
-  },
-};
-
-export const softwareInterpreterExecutionProfile: CatalogEntry<ProfileDefinition> =
+export const basicSoftwareIRProfile: CatalogEntry<IRPipelineProfileDefinition> =
   {
     namespace: 'logicir.profile',
-    key: 'software-interpreter-execution',
+    key: 'basic-software-ir',
     version: '0.0.0-s3',
     definition: {
-      profileKind: 'execution',
-      title: 'Software execution with awaited provider completion',
+      profileKind: 'ir-pipeline',
+      title: 'Basic software IR with completion',
+      input: 'logicir',
+      output: 'logicir',
+      acceptedCoreVersions,
       featureContracts: [
         {
           feature: {
@@ -88,9 +69,87 @@ export const softwareInterpreterExecutionProfile: CatalogEntry<ProfileDefinition
           requirement: 'required',
         },
       ],
+      stages: [
+        {
+          key: 'core-validate',
+          capability: { namespace: 'logicir.pipeline', key: 'core-validate' },
+          requirement: 'required',
+        },
+      ],
+      diagnostics,
+    },
+  };
+
+export const toInterpreterPlanProfile: CatalogEntry<ProjectionProfileDefinition> =
+  {
+    namespace: 'logicir.profile',
+    key: 'to-interpreter-plan',
+    version: '0.0.0-s3',
+    definition: {
+      profileKind: 'projection',
+      title: 'Interpreter plan with completion policy',
+      input: 'logicir',
+      output: 'executable-plan',
+      acceptedCoreVersions,
+      projectionTarget: {
+        namespace: 'logicir.projection-target',
+        key: 'software-interpreter-plan',
+        version: '0.0.0-s3',
+      },
+      artifactKinds: ['logicir.interpreter-plan.s3'],
+      featureContracts: [
+        {
+          feature: {
+            namespace: completionFeature.namespace,
+            key: completionFeature.key,
+            version: completionFeature.version,
+          },
+          requirement: 'required',
+        },
+      ],
+      stages: [
+        {
+          key: 'emit-completion-plan',
+          capability: {
+            namespace: 'logicir.projection',
+            key: 'interpreter-plan',
+          },
+          requirement: 'required',
+          produces: 'logicir.interpreter-plan.s3',
+        },
+      ],
+      diagnostics,
+    },
+  };
+
+export const softwareInterpreterExecutionProfile: CatalogEntry<ExecutionProfileDefinition> =
+  {
+    namespace: 'logicir.profile',
+    key: 'software-interpreter-execution',
+    version: '0.0.0-s3',
+    definition: {
+      profileKind: 'execution',
+      title: 'Software execution with awaited provider completion',
+      input: 'executable-plan',
+      output: 'execution',
+      executionTarget: 'interpreter',
+      environments: ['js-host'],
+      featureContracts: [
+        {
+          feature: {
+            namespace: completionFeature.namespace,
+            key: completionFeature.key,
+            version: completionFeature.version,
+          },
+          requirement: 'required',
+        },
+      ],
+      providerContracts: [],
+      bindings: [],
       policies: {
         completion: { kind: 'await-provider', rejectMode: 'diagnostic' },
       },
+      diagnostics,
     },
   };
 
@@ -120,7 +179,7 @@ export const basicSoftwareInterpreterStack: CatalogEntry<StackDefinition> = {
   },
 };
 
-export const profiles = [
+export const profiles: SoftwareProfileCatalogEntry[] = [
   basicSoftwareIRProfile,
   toInterpreterPlanProfile,
   softwareInterpreterExecutionProfile,

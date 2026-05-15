@@ -1,0 +1,8 @@
+{
+  "name": "logicir-ai-task-basic-hdl-sim-summary",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "verify": "node src/verify-summary.js"
+  }
+}
