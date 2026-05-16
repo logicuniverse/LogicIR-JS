@@ -5,12 +5,15 @@
 ## 必读顺序
 
 1. [`README.md`](../README.md): 仓库结构和正式 package 边界。
-2. [`dev/shared-rules.md`](shared-rules.md): 人 + AI 协作、sandbox、promotion 和验证规则。
-3. [`dev/operational-theory.md`](operational-theory.md): LogicIR 理论到工程实现的执行版，包含 AI 协同编辑和 edit transaction 前景。
-4. [`dev/schema-principles.md`](schema-principles.md): core、feature、extension、profile、projection 和 target-neutral 约束。
-5. [`dev/logicir-architecture.md`](logicir-architecture.md): LogicIR document、architecture definition、profile、stack、provider 和 execution 术语。
-6. [`dev/roadmap.md`](roadmap.md): 当前路线图、优先 stack、AI task round 和后续候选任务。
-7. 只在需要 promotion 或复盘时读取 [`ai/tasks/`](../ai/tasks/) 中的具体 task；不要把 task 输出当作正式实现。
+2. [`dev/shared-rules.md`](shared-rules.md): 人 + AI 协作、sandbox 和验证底线规则。
+3. [`dev/process.md`](process.md): 开发节奏、AI task、roadmap round、审阅和晋升操作规程。
+4. [`dev/operational-theory.md`](operational-theory.md): LogicIR 理论到工程实现的执行版，包含 AI 协同编辑和 edit transaction 前景。
+5. [`dev/schema-principles.md`](schema-principles.md): core、feature、extension、profile、projection 和 target-neutral 约束。
+6. [`dev/logicir-architecture.md`](logicir-architecture.md): LogicIR document、architecture definition、profile、stack、provider 和 execution 术语。
+7. [`dev/feature-catalog.md`](feature-catalog.md): 已确认和近期需要沉淀的 feature 方向。
+8. [`dev/roadmap.md`](roadmap.md): 当前确定推进的路线图、优先 stack、AI task round 和进度。
+9. [`dev/long-term-vision.md`](long-term-vision.md): 不确定的中长期愿景、研究分支和 pressure tests。
+10. 只在需要晋升或复盘时读取 [`ai/tasks/`](../ai/tasks/) 中的具体 task；不要把 task 输出当作正式实现。
 
 ## 当前正式状态
 
@@ -33,24 +36,27 @@
 - `basic-software-interpreter`: `LogicIR -> interpreter execution plan -> software engine run`。这是最高优先级。
 - `basic-hdl-sim`: `LogicIR -> Verilog HDL -> iverilog simulation`。这是第二优先级，用来约束 core 不吸收 JS runtime 假设。
 
-`basic-software-generated`、`basic-hdl-build`、netlist、mechanical、Python 等都暂缓或作为 north-star probe。
+`basic-software-generated` 和 `basic-hdl-build` 已知但暂缓；其它更远方向放在
+[`dev/long-term-vision.md`](long-term-vision.md)。
 
-中长期 pressure-test 方向已经记录在 [`dev/roadmap.md`](roadmap.md)，包括：
+不确定中长期 pressure-test 方向已经记录在
+[`dev/long-term-vision.md`](long-term-vision.md)，包括：
 
 - 显式资源和副作用管理。
 - No-GC / embedded / high-performance runtime memory model。
 - Catalog database、dependency index 和 AI tool-routing query。
-- Zero-to-LogicIR / edit transaction corpus。
+- Zero-to-LogicIR / edit transaction corpus，作为独立 research / dataset
+  分支，不是 LogicIR 的终极目标。
 
-这些方向目前都不驱动 core schema 变更。它们应先作为 feature/profile/tooling 或
-AI task 研究路线，等 validator、profile resolver、capability checker、software
-interpreter seed 和 HDL sim seed 稳定后再推进。
+这些方向目前都不驱动 core schema 变更，也不进入当前 roadmap 承诺。它们应先作为
+feature/profile/tooling 或 AI task 研究路线，等 validator、profile resolver、
+capability checker、software interpreter seed 和 HDL sim seed 稳定后再决定是否推进。
 
 ## 已有 AI Task 证据
 
-`ai/tasks/` 是全自动或半自动 AI 任务 sandbox。它们是 review material，不是正式项目结果。
+`ai/tasks/` 是全自动或半自动 AI 任务 sandbox。它们是审阅素材，不是正式项目结果。
 
-重点 review 入口：
+重点审阅入口：
 
 - [`ai/tasks/2026-05-14-basic-software-interpreter-summary/summary-report.md`](../ai/tasks/2026-05-14-basic-software-interpreter-summary/summary-report.md): S1-S5 software interpreter route 综述。
 - [`ai/tasks/2026-05-14-basic-hdl-sim-summary/summary-report.md`](../ai/tasks/2026-05-14-basic-hdl-sim-summary/summary-report.md): H1-H5 HDL sim route 综述。
@@ -62,7 +68,7 @@ interpreter seed 和 HDL sim seed 稳定后再推进。
 - S1-S5 证明 software interpreter 路线可行，但还不是一个正式集成 interpreter。
 - H1-H5 证明 Verilog HDL simulation 路线可行，但还不是一个正式 Verilog projector。
 - legacy coverage map 证明旧代码还有事件流、多 LUI plan、provider resolution、sequential/control-flow、structural composition、edit model、node catalog 等后续工作。
-- task-local schema/type subset 不能 promotion 为正式 schema；正式实现应 import `packages/core` 和 `packages/architecture` 的 accepted types。
+- task-local schema/type subset 不能晋升为正式 schema；正式实现应 import `packages/core` 和 `packages/architecture` 的 accepted types。
 
 ## AI 协同编辑原则
 
@@ -70,18 +76,20 @@ LogicIR 的长期价值不是让 AI 直接写更多目标代码，而是让 AI �
 
 ## 工作规则
 
-详细规则以 [`shared-rules.md`](shared-rules.md)、[`../ai/README.md`](../ai/README.md) 和 [`../ai/tasks/README.md`](../ai/tasks/README.md) 为准。快速摘要：
+详细规则以 [`shared-rules.md`](shared-rules.md)、[`process.md`](process.md)、
+[`../ai/README.md`](../ai/README.md) 和
+[`../ai/tasks/README.md`](../ai/tasks/README.md) 为准。快速摘要：
 
 - 正式项目文件在 `packages/`、`schema/`、`docs/`、`dev/`、`examples/`、`fixtures/`。
 - `/goal`、roadmap round、并行 agent 或大规模自动生成工作默认写入一个新的 `ai/tasks/YYYY-MM-DD-<task>/` 子目录；不确定或临时探索写入 `ai/scratch/`。
-- task 产物必须经人工 review 后，最小化 promotion 到正式目录；不要整包复制 task。
+- task 产物必须经人工审阅后，最小化晋升到正式目录；不要整包复制 task。
 - JS/TS task 要有 task-root `package.json` 和验证脚本；HDL task 要激活 `E:\oss-cad-suite\environment.ps1` 并直接运行 `iverilog`。
 
 ## 下一步建议
 
-当前最自然的 review 顺序：
+当前最自然的审阅顺序：
 
-1. Review `basic-software-interpreter` S1-S5 summary。写 promotion plan 前必须同时读取该 task 的 `summary-report.md`、`promotion-checklist.md` 和 legacy coverage map，再决定第一个正式 `packages/engines/software` 或 `packages/projectors/interpreter-plan` seed。
-2. Review `basic-hdl-sim` H1-H5 summary。写 promotion plan 前必须同时读取该 task 的 `summary-report.md`、`promotion-checklist.md`，并对照 legacy coverage / roadmap 缺口，再决定第一个正式 `packages/projectors/verilog` seed。
-3. Review legacy coverage map，把 S6+、H6+、edit transaction MVP 和 node catalog seed 放进 roadmap 或具体 plan；不要只凭 summary 判断 legacy 覆盖已完整。
-4. 做任何正式 promotion 前，先写或更新 `dev/plans/` 中的聚焦计划，并在计划里列出使用过的 summary、promotion checklist、coverage report 和 verification evidence。
+1. 审阅 `basic-software-interpreter` S1-S5 summary。写晋升计划前必须同时读取该 task 的 `summary-report.md`、`promotion-checklist.md` 和 legacy coverage map，再决定第一个正式 `packages/engines/software` 或 `packages/projectors/interpreter-plan` seed。
+2. 审阅 `basic-hdl-sim` H1-H5 summary。写晋升计划前必须同时读取该 task 的 `summary-report.md`、`promotion-checklist.md`，并对照 legacy coverage / roadmap 缺口，再决定第一个正式 `packages/projectors/verilog` seed。
+3. 审阅 legacy coverage map，把 S6+、H6+、edit transaction MVP 和 node catalog seed 放进 roadmap 或具体 plan；不要只凭 summary 判断 legacy 覆盖已完整。
+4. 做任何正式晋升前，先写或更新 `dev/plans/` 中的聚焦计划，并在计划里列出使用过的 summary、promotion checklist、coverage report 和 verification evidence。

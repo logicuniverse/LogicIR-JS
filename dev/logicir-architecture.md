@@ -2,7 +2,7 @@
 
 这份文档定义 LogicIR schema、profile、projection 和 execution support 的当前工作架构。它是后续 schema 工作的开发指南，不是生成的 schema artifact，也不替代 `docs/` 中的理论文档。
 
-职责边界：本文维护生态对象和兼容链条的术语；理论动机归 [`operational-theory.md`](operational-theory.md)，schema 设计规则归 [`schema-principles.md`](schema-principles.md)，阶段计划归 [`roadmap.md`](roadmap.md)。
+职责边界：本文维护生态对象和兼容链条的术语；理论动机归 [`operational-theory.md`](operational-theory.md)，schema 设计规则归 [`schema-principles.md`](schema-principles.md)，feature 方向归 [`feature-catalog.md`](feature-catalog.md)，开发流程归 [`process.md`](process.md)，阶段计划归 [`roadmap.md`](roadmap.md)，不确定的中长期愿景归 [`long-term-vision.md`](long-term-vision.md)。
 
 ## 主要可移植数据
 
@@ -19,34 +19,11 @@ Feature definition、profile definition、stack definition、capability definiti
 
 语言无关的 specification surface 位于 [`schema/architecture/`](../schema/architecture/)。这里的 schema 是 content-only：只包含 JSON-serializable config、policy 和 payload-schema data；不要求 document wrapper；不包含 factory、helper function、callback、provider、runtime implementation，也不使用 TypeScript 泛型或 utility type 作为 schema 抽象。Catalog identity、namespace、version、indexing、persistence、file layout 和 database key 属于 architecture definition schema 之外的 registry、package、index export 或 application layer。
 
-文件是交换、版本管理、review 和离线携带的必要载体，但它不适合作为 LogicIR
-长期依赖分析和查询的唯一 substrate。LogicIR 的对象天然是拓扑和关系：LU 到
-LUI target、Connection 到 EndpointRef、Requirement 到 Fulfillment、Closure 到
-inner core、Feature 到 Extension、Profile 到 required capability、Provider 到
-contract、Edit transaction 到 changed region。随着项目增长，这些关系需要被
-索引、查询、比较、追踪 lineage 和增量更新。
+文件是交换、版本管理、审阅和离线携带的必要载体；catalog database、dependency index 和 AI tool-routing query 是工具层方向，不是 core schema，也不是当前 architecture definition 的必需字段。相关中长期设想统一放在 [`long-term-vision.md`](long-term-vision.md)。
 
-因此，长期 architecture 应允许一个 `logicir catalog / registry database`
-作为正式工具层对象。它可以由文件导入，也可以导出为文件；但在分析、AI 协作、
-promotion review、影响面查询、provider discovery、fixture coverage 和 migration
-场景中，数据库或规则查询层会比单纯文件树更合适。这个 database 不是 core
-schema，也不是唯一 storage 规定；它属于 catalog/index/query tooling。
+## 远期压力测试入口
 
-对 AI 协作来说，catalog / dependency database 还应承担 tool-routing 和
-review-context query 的角色。Agent 不应该每次都靠阅读大量文本重新猜测项目状态；
-它应该能查询当前 intent 涉及哪些 LU、feature、profile、provider、fixtures、
-prior tasks、allowed write scope 和 verification commands。这样 AI 才能更准确地
-选择 core validator、type checker、Verilog `iverilog` smoke、software engine
-smoke、promotion checklist 或其它工具，并减少把 archive-only evidence 当成当前
-schema、把 sandbox code 当成正式实现、或遗漏必要验证路径的风险。
-
-## 北极星，不是项目计划
-
-长期北极星是 heterogeneous system realization：一个 LogicIR document 可以描述系统的逻辑拓扑，而 profile、feature、extension 和 provider 可以把不同部分 realization 成 software、HDL/FPGA/ASIC logic、circuit/netlist artifact、external service、mechanical assembly、product enclosure 或其它 domain artifact。
-
-这只是架构压力测试，不是当前项目计划。它要求 core 足够宽，能表示稳定逻辑拓扑；但不能把 target-domain detail 拉进 core。Physical footprint、pin map、electrical rule、board constraint、mechanical dimension、material、enclosure geometry、manufacturing constraint、placement、routing 和 tool-specific export format 都应放在 namespaced feature、extension record、projection profile、execution/realization binding 中。
-
-当前主要 stack 仍然是 software 和 Verilog HDL。Circuit/netlist、mechanical design 和 product enclosure 路线是参考 probe 和未来 extension path。它们有助于检查 architecture 是否保持 target-neutral 和可扩展，但不应驱动 core schema 改动，除非它们揭示了缺失的 target-neutral topology relation。
+LogicIR architecture 需要保持 target-neutral，能够承受 software、HDL、service、circuit/netlist、mechanical assembly 或其它 realization 路线的压力测试；但这些方向不能把 target-domain detail 拉进 core。当前实现仍以 `basic-software-interpreter` 和 `basic-hdl-sim` 为主线，其它不确定方向只在 [`long-term-vision.md`](long-term-vision.md) 中维护。
 
 ## 通用载体生态
 
@@ -58,11 +35,10 @@ LogicIR 不应被实现成单个大格式、单个大 runtime 或单个通用编
 - **Validator / resolver / capability checker** 承载机械检查和安全失败。
 - **Projector / compiler** 承载到 interpreter plan、JS/TS、Verilog HDL、report、test 或其它 artifact 的 projection。
 - **Engine / provider registry** 承载 runtime realization 和外部能力履约。
-- **Catalog / dependency database** 承载 LU、feature、profile、provider、
-  fixture、edit transaction、version lineage 和 dependency reachability 的
-  索引与查询。
+- **Catalog / dependency index** 承载 LU、feature、profile、provider、
+  fixture、edit transaction 和 version lineage 的索引与查询；它属于工具层。
 - **Fixture / regression suite** 承载可重复验证证据。
-- **AI task / edit transaction / promotion flow** 承载 AI 自动探索、人类 review 和正式项目晋升。
+- **AI task / edit transaction / promotion flow** 承载 AI 自动探索、人类审阅和正式项目晋升。
 - **Visual / natural-language authoring** 承载用户和 AI 在不同 level 上共同构造 partial LogicIR 的入口。
 
 因此，LogicIR 的统一性不来自“所有目标都共用同一种最终语言”，而来自同一个结构化逻辑对象可以被不同工具验证、变换、投影、执行、审查和继续编辑。这个生态目标服务 AI + 可计算工业时代，但它不是当前每个 package 的即时实现要求；近期工作仍以 `basic-software-interpreter` 和 `basic-hdl-sim` 的最小闭环为准。

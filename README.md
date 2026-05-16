@@ -62,14 +62,19 @@ If a new AI session is asked to "read the existing project", it should not start
 by recursively reading every task sandbox. Use this order:
 
 1. Read [`dev/handoff.md`](dev/handoff.md).
-2. Read [`dev/shared-rules.md`](dev/shared-rules.md).
+2. Read [`dev/shared-rules.md`](dev/shared-rules.md) and
+   [`dev/process.md`](dev/process.md).
 3. Read [`dev/operational-theory.md`](dev/operational-theory.md),
    [`dev/schema-principles.md`](dev/schema-principles.md), and
    [`dev/logicir-architecture.md`](dev/logicir-architecture.md) as needed for
    the task.
-4. Read [`dev/roadmap.md`](dev/roadmap.md) before starting roadmap or `/goal`
+4. Read [`dev/feature-catalog.md`](dev/feature-catalog.md) when feature scope
+   or promotion is involved.
+5. Read [`dev/roadmap.md`](dev/roadmap.md) before starting roadmap or `/goal`
    work.
-5. Read specific [`ai/tasks/`](ai/tasks) directories only as sandbox evidence
+6. Read [`dev/long-term-vision.md`](dev/long-term-vision.md) only for
+   uncertain long-term research or pressure-test directions.
+7. Read specific [`ai/tasks/`](ai/tasks) directories only as sandbox evidence
    for review or promotion. Task output is not accepted project source until a
    human reviews and promotes the smallest useful pieces.
 

@@ -2,7 +2,12 @@
 
 这份文档把 [docs/essay.md](../docs/essay.md) 中对工程实现有直接约束力的部分提取出来。它不是新的理论来源；它是给 schema、projection、runtime 和工具设计使用的执行版理论。
 
-职责边界：本文维护理论到工程的原则和 north-star；具体 ecosystem 术语归 [`logicir-architecture.md`](logicir-architecture.md)，具体 schema 规则归 [`schema-principles.md`](schema-principles.md)，具体执行顺序归 [`roadmap.md`](roadmap.md)。
+职责边界：本文维护理论到工程的稳定原则；具体 ecosystem 术语归
+[`logicir-architecture.md`](logicir-architecture.md)，具体 schema 规则归
+[`schema-principles.md`](schema-principles.md)，已确认 feature 方向归
+[`feature-catalog.md`](feature-catalog.md)，当前进度归
+[`roadmap.md`](roadmap.md)，不确定的中长期愿景归
+[`long-term-vision.md`](long-term-vision.md)。
 
 ## 来源优先级
 
@@ -32,10 +37,6 @@ AI 和可计算工业是两股不同但相互放大的力量：
 这个定位可以借用工业史类比，但内部文档应保持克制：不是宣称 LogicIR 等同于牛顿定律或麦克斯韦方程组，而是承认一个行业从作坊走向大工业，通常需要可共享、可计算、可验证的基础表示和规律框架。机械工业需要可计算的力学对象，无线通信需要可计算的电磁模型；AI + 可计算工业同样需要比代码文本更显式的逻辑载体。
 
 没有这种载体时，AI 与人类只能围绕代码文本、prompt、README、局部测试和人工 review 猜测意图；有了这种载体后，软件、HDL、执行计划、测试、文档、可视化编辑器和 AI 协作都可以成为同一个逻辑对象的 projection、verification 或 edit workflow。
-
-中长期可以参考 `Zero-to-CAD: Agentic Synthesis of Interpretable CAD Programs at Million-Scale Without Real Data` 的方法论：用 agentic synthesis、执行/验证反馈和 synthetic corpus curation 生成可解释程序数据。LogicIR 对应的方向是 zero-to-LogicIR，但它依赖 core validator、profile resolver、capability checker、software interpreter、HDL simulation 和 edit transaction seed 先形成最小闭环；因此它是中长期 research / dataset 路线，不是近期主线实现。
-
-如果 zero-to-LogicIR 形成足够高质量的 transaction corpus，还可以支持极小的本地模型：模型不需要自由生成大段代码，而是根据 scope、typed holes、catalog 和 diagnostics 预测候选 edit operation。Web IDE 可以用 WebGPU/WASM 在本地运行这种 micro-agent，并用本地 validator、catalog lookup 和用户确认兜底。这样既减少服务器资源，也更符合 LogicIR 的结构化编辑模型。
 
 ## 既有生态优先接入
 
@@ -81,7 +82,7 @@ LogicIR 的一个核心价值是把 AI 从“直接生成或修改目标代码�
 
 这个方向比直接 vibe coding 更强的地方在于：AI 编辑的对象不再是自由文本代码，而是带 schema、边界、feature contract、provider contract 和验证结果的逻辑结构。人类 review 的对象也不只是代码 diff，而是一次带有 intent、scope、operations、validation 和 tests 的可追踪 edit transaction。
 
-## 显式资源和副作用管理
+## 显式资源和副作用
 
 传统文本编程中，资源和副作用往往隐藏在函数体、库调用、闭包捕获、全局变量、
 异步回调或框架生命周期里。人和 AI 只能通过代码阅读、类型提示、命名约定和测试
@@ -90,8 +91,8 @@ LogicIR 的一个核心价值是把 AI 从“直接生成或修改目标代码�
 这种隐式性会让 projection、测试、迁移、权限控制、嵌入式部署和 AI 自动编辑都变
 困难。
 
-LogicIR 的优势是可以把这些原本藏在文本中的约束提升为显式结构。资源和副作用
-不应该进入 core schema，但应该成为 feature、profile、provider contract、
+LogicIR 的稳定原则是：这些原本藏在文本中的约束可以被提升为显式结构。资源和
+副作用不应该进入 core schema，但可以成为 feature、profile、provider contract、
 execution binding 和 capability checker 能够理解的对象：
 
 - **Resource**: file、socket、database connection、lock、timer、thread、
@@ -108,7 +109,7 @@ region、arena 和 no-GC lifetime 只是资源管理的一个子问题；更一�
 某个 LUI 或 closure 需要哪些外部能力、会产生哪些可观察行为、这些行为如何被
 排序、隔离、验证、替换和投影。
 
-这条线可以带来传统文本编程很难稳定获得的能力：
+显式化之后，可以得到传统文本编程很难稳定获得的能力：
 
 - Projector 可以在 HDL、embedded、no-GC、serverless 或 deterministic replay
   target 上拒绝 unsupported effects，而不是静默生成错误 artifact。
@@ -122,10 +123,12 @@ region、arena 和 no-GC lifetime 只是资源管理的一个子问题；更一�
 - No-GC / embedded target 可以把 memory、handle、subscription 和 teardown
   统一纳入 lifetime check。
 
-因此，LogicIR 相比传统文本编程的一个长期优势不是“把所有副作用消除”，而是把
-副作用和资源依赖显式化、局部化、可检查化。Core 仍只保存 target-neutral topology
-和 requirement/fulfillment 关系；资源和副作用的具体语义应由 namespaced feature、
-profile contract、provider contract 和 execution policy 承载。
+因此，LogicIR 相比传统文本编程的一个优势不是“把所有副作用消除”，而是把
+副作用和资源依赖显式化、局部化、可检查化。Core 仍只保存 target-neutral
+topology 和 requirement/fulfillment 关系；资源和副作用的具体语义应由
+namespaced feature、profile contract、provider contract 和 execution policy
+承载。具体 feature 规划和 pressure test 归
+[long-term-vision.md](long-term-vision.md)。
 
 ## Partial IR 和 Typed Holes
 

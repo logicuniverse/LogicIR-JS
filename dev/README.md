@@ -12,10 +12,13 @@
 
 - [handoff.md](handoff.md): 新 AI 会话或新协作者的当前状态交接入口。
 - [shared-rules.md](shared-rules.md): 人与 AI 都要遵守的共同规则。
+- [process.md](process.md): 开发节奏、AI task、roadmap round、审阅和晋升操作规程。
 - [operational-theory.md](operational-theory.md): 从完整 essay 提取出的工程执行版理论。
 - [schema-principles.md](schema-principles.md): 新 schema 的理论来源、历史实现边界和 projection target 约束。
 - [logicir-architecture.md](logicir-architecture.md): LogicIR document、feature、profile、stack、projection 和 execution 的生态架构说明。
-- [roadmap.md](roadmap.md): LogicIR feature、profile、stack、tool、projector、engine 和 provider 的项目级路线图。
+- [feature-catalog.md](feature-catalog.md): 已确认和近期需要沉淀的 feature 方向。
+- [roadmap.md](roadmap.md): 当前确定推进的 stack、tool、projector、engine、fixture 和 AI task 进度路线图。
+- [long-term-vision.md](long-term-vision.md): 不确定的中长期愿景、研究分支和 architecture pressure tests。
 - [plans/](plans/): 设计计划目录。重大 schema、API、运行时语义或投影语义调整先在这里写清楚。
 - [`../ai/skills/logicir-schema-designer/`](../ai/skills/logicir-schema-designer/): 可复用的 LogicIR 设计 skill 源目录。它是自包含发布源，可以重复少量核心规则；普通开发规则以本目录前几篇文档为准。
 
@@ -23,8 +26,11 @@
 
 1. 新会话交接先读 [handoff.md](handoff.md)。
 2. 通用协作规则读 [shared-rules.md](shared-rules.md)。
-3. 理论到工程实现的映射读 [operational-theory.md](operational-theory.md)。
-4. schema、feature、projection 或 runtime 设计读 [schema-principles.md](schema-principles.md)。
-5. profile、stack、provider、execution binding 等生态概念读 [logicir-architecture.md](logicir-architecture.md)。
-6. 项目对象清单和阶段优先级读 [roadmap.md](roadmap.md)。
-7. 重大变更的实施计划写入 [plans/](plans/)；AI 全自动探索写入 [`../ai/tasks/`](../ai/tasks/)。
+3. 开发流程和晋升规则读 [process.md](process.md)。
+4. 理论到工程实现的映射读 [operational-theory.md](operational-theory.md)。
+5. schema、projection 或 runtime 设计读 [schema-principles.md](schema-principles.md)。
+6. feature 方向读 [feature-catalog.md](feature-catalog.md)。
+7. profile、stack、provider、execution binding 等生态概念读 [logicir-architecture.md](logicir-architecture.md)。
+8. 当前阶段优先级和进度读 [roadmap.md](roadmap.md)。
+9. 不确定中长期方向读 [long-term-vision.md](long-term-vision.md)。
+10. 重大变更的实施计划写入 [plans/](plans/)；AI 全自动探索写入 [`../ai/tasks/`](../ai/tasks/)。

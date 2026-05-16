@@ -1,13 +1,19 @@
 # LogicIR 路线图
 
-这份路线图是项目协调文档，用来描述 LogicIR 的 feature、profile、stack、
-tool、projector、compiler、engine、fixture 和 AI task 的建设顺序。
+这份路线图是项目协调文档，用来跟踪 LogicIR 当前确定要推进的 profile、stack、
+tool、projector、compiler、engine、fixture 和 AI task 建设顺序。
 
 它不是 schema 权威。已确认的数据结构由 `packages/` 下的 TS 源包维护，
 语言无关的规范和生成产物入口在 `schema/` 下。具体实现仍需要写入
 `dev/plans/` 中的聚焦计划，或者先放进 `ai/tasks/` 下的隔离 AI task。
 
-职责边界：本文维护建设顺序和候选任务；理论原则归 [`operational-theory.md`](operational-theory.md)，生态术语归 [`logicir-architecture.md`](logicir-architecture.md)，schema 规则归 [`schema-principles.md`](schema-principles.md)。
+职责边界：本文维护当前确定推进的建设顺序和验收进度；开发流程归
+[`process.md`](process.md)，理论原则归
+[`operational-theory.md`](operational-theory.md)，生态术语归
+[`logicir-architecture.md`](logicir-architecture.md)，schema 规则归
+[`schema-principles.md`](schema-principles.md)，feature 方向归
+[`feature-catalog.md`](feature-catalog.md)，不确定的中长期愿景归
+[`long-term-vision.md`](long-term-vision.md)。
 
 ## 验收主线
 
@@ -40,20 +46,7 @@ tool、projector、compiler、engine、fixture 和 AI task 的建设顺序。
 4. **暂缓或作为 HDL sim 子集：`basic-hdl-build`**
    - 只生成 Verilog 的价值不如 simulation 闭环。Synthesis/build 更晚再处理。
 
-开发节奏：
-
-- 每一轮都必须端到端打通，而不是先堆完整 feature catalog、profile 或 engine。
-- 每一轮只增加少量语义，保持可 review、可 promotion。
-- 每一轮至少包含：LogicIR fixture、最小 profile/stack 声明、validator/resolver
-  检查、projection 或 execution plan、runtime/`iverilog` 验证、diagnostic 记录。
-- 每一轮必须声明本轮支持的 LU kind、每种 kind 的处理入口、明确拒绝的
-  kind，以及 unsupported 时的 diagnostic。不能把 `LUCore.luis` 默认拍平成
-  eager node list；只有 profile 明确声明 flatten/lowering 并保留语义时才
-  可以生成平面 execution plan。
-- 每一轮都可以作为一个 `/goal` AI task，在 `ai/tasks/YYYY-MM-DD-<round>/`
-  中独立完成；task 结束时必须留下 `package.json`、fixture、verification 和
-  promotion checklist。
-- 不为下一轮提前实现复杂抽象。下一轮开始前再根据上一轮验证结果决定是否扩展。
+开发节奏和 AI task 操作规程见 [process.md](process.md)。
 
 ## 阶段 0：仓库和协议基础
 
@@ -145,87 +138,30 @@ transaction”。这条线同时服务内部 AI task 和未来外部用户工具
 - task 输出包含 transaction report，说明每一步修改的 intent、scope 和验收。
 
 这条线不替代 S1/S2/H1 等端到端 round；它应该先在这些 round 的 fixture 上
-实验，确认稳定后再 promotion 到正式 tool/package。
+实验，确认稳定后再晋升到正式 tool/package。
 
-## 阶段 2：Feature Catalog
+## 阶段 2：Feature 固化
 
-目标：定义小而可复用的语义 feature。Feature 不是 stack。software 和 HDL
-在语义重叠时可以引用同一个 feature。
+目标：把已经由 task 验证过、近期主线确实需要的 feature 收窄成正式 schema、
+profile contract 和 tool behavior。Feature 名称、状态和边界统一维护在
+[feature-catalog.md](feature-catalog.md)；本路线图只跟踪推进动作。
 
-### 共享 Feature
+近期推进动作：
 
-初始共享 feature：
+- 审阅已有 type-system package seed，决定哪些 checker behavior、fixture 和
+  schema docs 可以进入正式验收。
+- 从 `basic-software-interpreter` S1-S5 summary 和 selected fixtures 提取
+  software feature 的最小可晋升切片。
+- 从 `basic-hdl-sim` H1-H5 summary 和 selected fixtures 提取 HDL feature 的
+  最小可晋升切片。
+- 为 shared diagnostics 和 value/default 行为建立最小正式 seed，并对照
+  software S5、HDL H4 和 capability checker 需求。
+- 每个 feature 晋升前先写或更新 `dev/plans/` 中的聚焦计划，明确
+  feature boundary、profile requiredness、tool/projector impact 和验证路径。
 
-- `logicir.type-system / core`: payload type reference、type declaration、
-  value shape checking 和 projection-facing type metadata。
-- `logicir.value / core`: literal value、constant payload、default value 和
-  value compatibility rules。
-- `logicir.diagnostics / unsupported-semantics`: 显式 unsupported semantic
-  marker，以及 profile/projector 使用的 rejection policy data。
-
-后续可能的共享 feature：
-
-- `logicir.control-flow / core`: branch、guard、loop、return、go-back，以及
-  保持在 core sequential `steps` 之外的 lowering metadata。
-- `logicir.adapter / core`: automatic adapter insertion 变成可审阅项目数据后，
-  用于记录显式 adapter/lowering trace。
-- `logicir.observation / core`: probe、trace、assertion 和非语义 observation
-  point。
-- `logicir.resources / core`: resource ownership、borrowing、sharing、
-  lifetime、teardown 和 provider-backed resource binding metadata。
-- `logicir.effects / core`: pure/impure classification、effect kind、
-  ordering、idempotency、replayability、cancellation、compensation 和 policy
-  hooks。
-
-### 面向 Software 的 Feature
-
-初始 software feature：
-
-- `logicir.software.completion / core`: completion、failure、cancellation 和
-  thenable-compatible await 语义，作为 projection/runtime contract。
-- `logicir.software.invocation / core`: callable/service invocation 语义、
-  argument/result mapping 和 provider contract linkage。
-- `logicir.software.retained-current / core`: retained-current state surface、
-  current value read、update notification 和 state-store contract linkage。
-- `logicir.software.fulfillment / core`: provider fulfillment shape、static
-  startup binding，以及 dynamic/switchable provider 的显式 contract。
-- `logicir.software.error / core`: error propagation、recoverability 和
-  diagnostic/result mapping。
-
-后续可能的 software feature：
-
-- `logicir.software.lifecycle / core`: startup、shutdown、resource lifetime、
-  hook 和 teardown policy。
-- `logicir.software.scheduling / core`: scheduling policy、task queue、
-  concurrency limit 和 backpressure。
-- `logicir.software.transport / core`: service boundary、remote invocation、
-  message bus、serialization 和 distributed runtime hint。
-
-### 面向 HDL 的 Feature
-
-初始 HDL feature：
-
-- `logicir.hdl.signal / core`: bit/vector signal、signedness、packed shape 和
-  port signal metadata。
-- `logicir.hdl.module / core`: module boundary、instance naming、parameter
-  mapping 和 static structural constraint。
-- `logicir.hdl.clocking / core`: clock/reset domain 和 sequential process
-  binding。
-- `logicir.hdl.state / core`: register、retained hardware state、initial value
-  和 reset behavior。
-- `logicir.hdl.combinational / core`: combinational block constraint 和
-  continuous assignment constraint。
-- `logicir.hdl.elaboration / core`: generate-time structure、parameter 和
-  static binding constraint。
-- `logicir.hdl.structural-slices / core`: structural export anchor 和
-  slice-oriented hardware projection rule。
-
-后续可能的 HDL feature：
-
-- `logicir.hdl.simulation / core`: testbench hook、probe、waveform metadata 和
-  simulator integration。
-- `logicir.hdl.synthesis / core`: synthesis constraint、target family hint 和
-  synthesis diagnostic。
+暂不在 roadmap 中承诺的 feature 方向保留在 [feature-catalog.md](feature-catalog.md)
+或 [long-term-vision.md](long-term-vision.md)。它们进入实现前必须先形成聚焦 plan
+或 AI task，并带验收标准。
 
 ## 阶段 3：Profile
 
@@ -257,13 +193,11 @@ Profile 是单层兼容契约。Tool 实现 profile；用户通常选择 stack�
   software artifact。
 - `verilog-sim-execution`: 通过 simulator environment 消费 generated Verilog。
 
-后续可能的 profile：
+其它 profile 方向：
 
-- `authoring-to-canonical`
-- `distributed-software-ir`
-- `to-netlist`
-- `to-python`
-- `to-mechanical-report`
+暂不在 roadmap 中承诺。需要推进时先写入
+[feature-catalog.md](feature-catalog.md)、[long-term-vision.md](long-term-vision.md)
+或 `dev/plans/`。
 
 ## 阶段 4：Stack
 
@@ -280,7 +214,7 @@ Stack 把 profile 组合成用户可选 workflow。Stack 本身不是 capability
   - Projection profile: `to-verilog-hdl`
   - Execution profile: `verilog-sim-execution`
 
-暂缓 stack：
+暂缓但已知的 stack：
 
 - `basic-software-generated`
   - IR profile: `basic-software-ir`
@@ -291,12 +225,8 @@ Stack 把 profile 组合成用户可选 workflow。Stack 本身不是 capability
   - Projection profile: `to-verilog-hdl`
   - Execution profile: none
 
-后续 stack probe：
-
-- `software-distributed`
-- `hdl-synthesis`
-- `logicir-analysis-report`
-- `logicir-netlist-probe`
+其它 stack probe 先留在 [long-term-vision.md](long-term-vision.md)，不作为当前
+roadmap 承诺。
 
 ## 阶段 5：Tool
 
@@ -312,17 +242,15 @@ stack 名称声称支持。
 - `tools/type-system`: type registry 和 type checking。已启动。
 - `tools/fixture-runner`: 运行 validation/projection/execution fixture。
 
-后续 tool：
+暂缓但已知的 tool：
 
-- `tools/catalog-db`: LogicIR、architecture definition、provider、fixture、
-  edit transaction 和 verification metadata 的本地 catalog / registry index。
-- `tools/dependency-index`: LU/LUI、Connection、Requirement/Fulfillment、
-  Feature/Extension、Profile/Capability 和 Provider contract 的 reachability
-  查询。
 - `tools/migration`: schema migration 和 compat check。
 - `tools/lint`: authoring 和 style diagnostic。
-- `tools/report`: 面向人的 capability 和 projection report。
 - `tools/adapter-lowering`: 显式 adapter insertion 或 lowering analysis。
+
+Catalog database、dependency index、AI tool-routing query 和更宽的 report tooling
+暂不进入当前 roadmap 阶段，统一记录在
+[long-term-vision.md](long-term-vision.md)。
 
 ## 阶段 6：Projector 和 Compiler
 
@@ -421,7 +349,8 @@ Example 目录应保持小而可审阅：
 
 ## AI Task 候选
 
-全自动 AI task 应各自写入 `ai/tasks/` 下的一个子目录。适合的候选任务：
+全自动 AI task 的写入、验证、审阅和晋升规则见
+[process.md](process.md)。适合的候选任务：
 
 ### `basic-software-interpreter` Round
 
@@ -562,220 +491,10 @@ required。Type-system 可以作为 recommended 或 optional 出现在 profile �
   - 验收：补全过程不依赖硬编码目标代码；所有补全都能追溯到 feature、
     provider contract、profile requirement 或 type/signal metadata。
 
-晋升规则：
+## 非当前路线图
 
-- AI task output 只是素材。人工 promotion 时只迁移经过审阅的最小成果到
-  `packages/`、`schema/`、`examples/`、`fixtures/` 或 `dev/`，然后在正式
-  project context 中重新验证。
+不确定的中长期愿景、研究分支和 architecture pressure tests 不在 roadmap 中展开；
+统一放在 [long-term-vision.md](long-term-vision.md)。
 
-## 中长期：Zero-to-LogicIR
-
-`zero-to-LogicIR` 是中长期 research / dataset / training 分支，不是近期主线实现。它参考 `Zero-to-CAD: Agentic Synthesis of Interpretable CAD Programs at Million-Scale Without Real Data` 的思路：用 agentic synthesis、执行/验证反馈和 synthetic corpus curation，在缺少真实数据时构造高质量、可解释、可执行的训练样本。
-
-LogicIR 版本的目标不是直接训练模型写代码，而是生成和筛选可验证的 LogicIR edit transactions：
-
-```text
-intent / source code / partial IR
--> proposed LogicIR operation sequence
--> after LogicIR
--> schema/profile/type/capability validation
--> projection / execution / simulation
--> curated transaction corpus
-```
-
-前置条件：
-
-- Core validator。
-- Profile resolver。
-- Capability checker。
-- Type-system seed。
-- `basic-software-interpreter` formal seed。
-- `basic-hdl-sim` formal seed。
-- Edit transaction MVP。
-- Existing-code provider wrapping seed。
-
-候选阶段：
-
-1. **ZL1 transaction schema**: 定义样本记录结构，包括 intent、before、operations、after、validation、projection/execution result 和 rationale。
-2. **ZL2 synthetic fixture generator**: 生成 schema-valid LogicIR fixtures，覆盖 combinational、stateful、sequential 和 structural seed。
-3. **ZL3 verifier loop**: 接入 validator、profile resolver、capability checker、type checker、software smoke 和 HDL `iverilog` simulation。
-4. **ZL4 repair loop**: 根据 diagnostics 自动修复 LogicIR，并保留失败/修复轨迹。
-5. **ZL5 corpus curation**: 去重、难度分级、coverage matrix、quality gates 和 high-quality subset。
-6. **ZL6 model training**: 训练或微调 intent-to-LogicIR、code-to-LogicIR、partial-to-complete 和 diagnostic-to-repair 能力。
-7. **ZL7 local micro-agent**: 训练或蒸馏一个面向 Web IDE 的小模型，专注预测局部 LogicIR edit operations，而不是通用代码生成。它应能结合 current scope、typed holes、catalog、diagnostics 和 validator feedback 生成候选 transaction。
-
-### WebGPU / 本地模型预期
-
-`zero-to-LogicIR` 的一个重要远期收益是让 Web IDE 使用本地小模型完成高频、低延迟、可验证的逻辑编辑，减少服务器资源依赖：
-
-```text
-Web IDE
--> current scope / partial IR / typed holes
--> local model proposes edit transaction
--> local validator / catalog / type checker filters
--> user accepts or rejects
-```
-
-这个方向可行的前提是 LogicIR 输出空间被 schema、feature/profile、provider catalog 和 validator 强约束。小模型不需要理解或生成完整工程；它可以先专注于 provider binding、port/type 补全、connection patch、diagnostic repair、naming/organization 等局部任务。复杂 synthesis 仍可交给云端大模型或 agentic task。
-
-这个分支应先以 `ai/tasks/` research task 形式探索。只有当工具链验证闭环稳定后，才考虑正式 package、dataset 或公开文档。
-
-## 中长期：No-GC / 高性能运行时内存模型
-
-`no-gc-runtime-memory` 是中长期 projection / runtime pressure test，不是近期
-主线实现，也不是 core schema 变更需求。它面向 C/C++、no-GC WASM、嵌入式、
-实时系统和其它高性能运行环境，用来验证 LogicIR 在没有宿主 GC 的情况下，
-能否安全地投影到 deterministic lifetime、ownership 和 memory release 模型。
-
-这条线的重点不是把引用计数写进 core，而是研究 profile、feature、projection
-policy 和 execution runtime strategy 如何表达并验证：
-
-- 哪些值可以静态分配、栈分配、arena/region 分配或复用。
-- 哪些值需要 heap ownership、共享引用或跨 closure / async / event-stream
-  生命周期。
-- 什么时候可以使用 reference counting，什么时候应优先使用 region、
-  arena、linear/borrow-like ownership 或显式 adapter。
-- 是否允许 reference cycle；如果允许，需要 weak reference、cycle policy 或
-  diagnostic。
-- property、stateful LU、structural composition、event stream 和 closure capture
-  在 no-GC target 上的 lifetime 约束。
-- projector 遇到无法保持内存语义的结构时，应 fail diagnostic、要求 lowering，
-  还是插入显式 adapter。
-
-候选 AI task：
-
-- `no-gc-memory-pressure-test`
-  - 目标：选择一小组 LogicIR fixtures，尝试投影成 task-local C-like 或
-    no-GC WASM-like runtime plan。
-  - 必需内容：ownership/lifetime feature 草案、RC/region/arena 策略对比、
-    cycle rejection fixture、property/stateful/event-stream lifetime fixture、
-    diagnostic report。
-  - 验收：task-local checker 能标出哪些 fixture 可静态或 region 管理，哪些需要
-    RC，哪些因为 cycle、escaping closure 或 async lifetime 不可安全投影。
-
-这条线应等 core validator、profile resolver、capability checker、
-basic-software-interpreter seed 和 basic-hdl-sim seed 稳定后再启动。它的价值是
-提前保护 LogicIR 对高性能和嵌入式系统的适配空间，而不是现在扩张 core。
-
-## 中长期：显式资源和副作用管理
-
-`explicit-resource-effect-management` 是中长期 feature/profile/capability 路线，
-优先级高于具体 no-GC 内存策略，但仍不属于近期主线实现。它用于把传统文本编程
-中隐藏在代码体和库调用里的资源依赖、副作用、权限、生命周期和可重放性显式化。
-
-这条线不要求 core schema 增加资源或 effect 字段；它应通过 feature extension、
-profile contract、provider contract、execution binding、capability checker 和
-diagnostic 实现。候选资源和副作用包括：
-
-- file、socket、database、lock、timer、thread、GPU handle、device handle、
-  subscription、state store 和 external service session。
-- network request、file IO、database mutation、event emission、logging、
-  metrics、time/random/env access、UI/DOM mutation、hardware register access
-  和 external service call。
-- resource ownership、borrowing、sharing、teardown、scope binding、
-  deterministic lifetime 和 no-GC target compatibility。
-- effect ordering、idempotency、replayability、cancellation、compensation、
-  sandbox/mock policy 和人工确认策略。
-
-候选 AI task：
-
-- `explicit-effects-resources-pressure-test`
-  - 目标：选择 software interpreter、HDL rejection、domain provider、reactive
-    runtime 和 no-GC memory 的代表性 fixtures，给它们添加 task-local
-    resource/effect declarations。
-  - 必需内容：resource/effect feature 草案、profile requirement 草案、
-    capability checker seed、mock provider binding、pure/impure diagnostic、
-    HDL unsupported-effect rejection。
-  - 验收：task-local checker 能区分 pure computation、provider invocation、
-    state mutation、event emission、external IO 和 resource lifetime；对 HDL
-    或 no-GC target 不支持的 effect 给出结构化 diagnostic。
-
-这条线的长期价值是让 LogicIR 在测试、权限、安全审查、AI edit review、
-distributed runtime、嵌入式和高性能 target 上都比传统文本编程更可控。
-
-## 中长期：Catalog Database 和依赖查询
-
-`logicir-catalog-db` 是中长期 tooling / platform 路线。它的目标不是把 core
-schema 改成数据库格式，而是承认文件树不适合独自承担 LogicIR 的长期查询、
-影响面分析、依赖追踪、版本 lineage、provider discovery 和 AI 协作上下文。
-
-LogicIR 的核心数据天然是关系型和图状的：
-
-- `LogicUnit -> LUI target`
-- `Connection -> EndpointRef`
-- `Requirement -> Fulfillment -> Closure / upstream reachability`
-- `Closure -> inner LogicUnit`
-- `Feature -> ExtensionRecord`
-- `Profile -> required Feature / Capability / ProviderContract`
-- `Provider -> Capability / Contract`
-- `Fixture -> Feature / Stack / VerificationResult`
-- `EditTransaction -> changed region / before / after / validation`
-- `SchemaVersion -> migration / compatibility`
-
-这些关系可以继续以文件作为交换和 review 载体，但正式 tooling 应能把它们导入
-catalog database，支持查询：
-
-- 改某个 provider contract 会影响哪些 LU、profile、stack 和 fixtures。
-- 某个 feature 或 extension 被哪些 LogicUnit 使用。
-- 某条 fulfillment path 是否经过指定 closure 或 upstream supplier。
-- 哪些 LogicUnit 使用 software-only effect，不能投影到 HDL。
-- 哪些 edit transaction 修改过某个 boundary、connection 或 requirement。
-- 哪些 legacy node/function 已被 wrapper、replica 或 fixture 覆盖。
-- 哪些 schema version 需要 migration。
-
-候选实现路线：
-
-- 第一阶段使用 SQLite，服务本地 CLI、AI task、review 和 CI。
-- 复杂 reachability 可以先用 SQL recursive CTE；必要时再评估 Datalog、
-  Souffle、Postgres 或 graph database。
-- 文件仍是可移植 artifact；database 是索引、查询和协作加速层。
-
-候选 AI task：
-
-- `logicir-catalog-db-pressure-test`
-  - 目标：从当前 `packages/`、`ai/tasks/material-index.md` 和 selected fixtures
-    导入一个 task-local SQLite catalog。
-  - 必需内容：schema 草案、importer、dependency queries、impact report、
-    legacy coverage/query demo。
-  - 验收：能回答至少五类依赖问题，例如 provider impact、feature usage、
-    fulfillment reachability、fixture coverage 和 edit transaction changed region。
-
-这条线对 AI 协作尤其重要：AI 不应每次都从文件文本和 grep 中重建上下文。长期
-工具应能把相关 LU、feature、provider、fixtures、历史 transaction 和 review
-状态作为结构化 query result 提供给 agent。
-
-进一步的 AI tool-routing query 应回答：
-
-- 当前 intent 影响哪些 LU、feature、profile、provider 和 stack。
-- 哪些 task 是可 review 素材，哪些只是 archive-only / reference-only evidence。
-- 当前 scope 的允许写入位置和只读参考位置是什么。
-- 需要运行哪些验证工具，例如 core validator、type checker、software smoke、
-  Verilog `iverilog`、profile resolver 或 capability checker。
-- 哪些 fixtures、diagnostics、promotion checklist 和 prior edit transactions
-  应作为本次 agent work 的上下文。
-
-这个能力不是为了替代人类 review，而是为了让 AI 更少依赖文本猜测，更准确地调用
-工具、控制改动范围、补齐验证路径，并输出更可审查的 transaction 或 promotion
-proposal。
-
-## 暂不作为项目计划
-
-以下只是 north-star probe，不是近期必做：
-
-- Circuit/netlist projection。
-- PCB 或 board-level realization。
-- Mechanical assembly 和 product enclosure。
-- Python runtime/projection。
-- No-GC / embedded / high-performance runtime memory management。
-- Explicit resource and side-effect management。
-- Catalog database / dependency index / query tooling。
-- 超出 basic provider 和 transport seam 的 distributed runtime。
-- Visual editor productization。
-- 面向外部读者的公开定位文档，例如 `docs/logicir-as-universal-carrier.md`，
-  用来解释 LogicIR 作为 AI + 可计算工业时代的可验证逻辑通用载体。这个
-  主题已经先沉淀在 `dev/operational-theory.md` 和
-  `dev/logicir-architecture.md`，等 `basic-software-interpreter` 与
-  `basic-hdl-sim` 的正式 seed 跑通后再提炼到 `docs/`。
-
-这些方向适合做 architecture pressure test，但除非它们揭示了缺失的
-target-neutral topology relation，否则不应驱动 core schema 改动。
+这些方向只有在形成明确计划、验收标准和审阅路径后，才进入 `dev/plans/`、
+`ai/tasks/` 或本 roadmap。

@@ -1,8 +1,8 @@
-# basic-software-interpreter Seed Plan
+# basic-software-interpreter 种子计划
 
 ## 目标
 
-把 `basic-software-interpreter` S1-S5 sandbox 中已经验证过的最小能力，提升为正式 package seed 的实施计划。这个计划不直接 promotion 整个 sandbox，也不把旧 engine 或 task-local algorithm 当成 schema 真理。
+把 `basic-software-interpreter` S1-S5 sandbox 中已经验证过的最小能力，提升为正式 package seed 的实施计划。这个计划不直接晋升整个 sandbox，也不把旧 engine 或 task-local algorithm 当成 schema 真理。
 
 第一阶段目标是建立一个可 build、可测试、可继续扩展的正式 seed：
 
@@ -24,18 +24,18 @@ LogicIR fixture
 - S1-S5 task 的 `README.md`、`source-map.md`、`verification.md` 和 `promotion-checklist.md`
 - `packages/legacy/engine` 作为旧实现证据，不作为正式形状来源
 
-## Promotion 切片
+## 晋升切片
 
-首轮只 promotion 这些最小切片：
+首轮只晋升这些最小切片：
 
-1. Shared diagnostic shape and report helper。
-2. Minimal profile resolver seed。
-3. Minimal interpreter-plan data shape。
+1. 共享 diagnostic shape 和 report helper。
+2. 最小 profile resolver seed。
+3. 最小 interpreter-plan data shape。
 4. Provider invocation engine path。
 5. Memory state-store provider path。
 6. 改写后的正式 regression fixtures，使用 `packages/core` 和 `packages/architecture` accepted types。
 
-暂不 promotion：
+暂不晋升：
 
 - S1-S5 整个 task 目录。
 - task-local schema/type subset。
@@ -44,7 +44,7 @@ LogicIR fixture
 - S1-S5 algorithm as mandatory engine architecture。
 - old-code-inspired behavior as schema truth。
 
-## 建议 package 边界
+## 建议 Package 边界
 
 首轮可以拆成两个正式 package，也可以先只建一个 package，但边界必须清楚：
 
@@ -100,7 +100,7 @@ LogicIR fixture
 - Retained-current 是 port contact capability 与 software state-store provider 的 realization seed。
 - Diagnostic 是 profile/capability/engine failure 的安全失败路径，不是 core 字段。
 
-## Legacy 边界
+## 旧代码边界
 
 旧代码可以提供：
 
@@ -140,5 +140,4 @@ LogicIR fixture
 - S12 sequential-basic。
 - S13 control-flow。
 
-进入第二阶段前，需要先 review 首轮 package API 是否足够小、是否避免了 task-local algorithm lock-in。
-
+进入第二阶段前，需要先审阅首轮 package API 是否足够小、是否避免了 task-local algorithm lock-in。
