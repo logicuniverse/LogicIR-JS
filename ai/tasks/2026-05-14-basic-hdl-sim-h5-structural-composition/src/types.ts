@@ -3,6 +3,8 @@ export type {
   FeatureUse,
   LogicUnit,
   Port,
+  PullPort,
+  PushPort,
 } from '@logic-universe/logic-ir-core';
 
 export type HdlSignalPayload = {
@@ -34,7 +36,7 @@ export type HdlLibraryModule = {
   moduleName: string;
   ports: {
     [portKey: string]: {
-      boundary: 'input' | 'output';
+      direction: 'input' | 'output';
       signal: HdlSignalPayload;
     };
   };

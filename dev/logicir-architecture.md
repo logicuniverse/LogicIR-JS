@@ -17,7 +17,28 @@ Generated code、Verilog 文件、report、executable plan、provider、compiler
 
 Feature definition、profile definition、stack definition、capability definition、tool capability definition、provider contract、provider capability declaration、stage、policy 和 execution binding 的 TypeScript authoring source 位于 [`packages/architecture/src/types.ts`](../packages/architecture/src/types.ts)。
 
-语言无关的 specification surface 位于 [`schema/architecture/`](../schema/architecture/)。这里的 schema 是 content-only：只包含 JSON-serializable config、policy 和 payload-schema data；不要求 document wrapper；不包含 factory、helper function、callback、provider、runtime implementation 或 TypeScript generic schema abstraction。Catalog identity、namespace、version、indexing、persistence、file layout 和 database key 属于 architecture definition schema 之外的 registry、package、index export 或 application layer。
+语言无关的 specification surface 位于 [`schema/architecture/`](../schema/architecture/)。这里的 schema 是 content-only：只包含 JSON-serializable config、policy 和 payload-schema data；不要求 document wrapper；不包含 factory、helper function、callback、provider、runtime implementation，也不使用 TypeScript 泛型或 utility type 作为 schema 抽象。Catalog identity、namespace、version、indexing、persistence、file layout 和 database key 属于 architecture definition schema 之外的 registry、package、index export 或 application layer。
+
+文件是交换、版本管理、review 和离线携带的必要载体，但它不适合作为 LogicIR
+长期依赖分析和查询的唯一 substrate。LogicIR 的对象天然是拓扑和关系：LU 到
+LUI target、Connection 到 EndpointRef、Requirement 到 Fulfillment、Closure 到
+inner core、Feature 到 Extension、Profile 到 required capability、Provider 到
+contract、Edit transaction 到 changed region。随着项目增长，这些关系需要被
+索引、查询、比较、追踪 lineage 和增量更新。
+
+因此，长期 architecture 应允许一个 `logicir catalog / registry database`
+作为正式工具层对象。它可以由文件导入，也可以导出为文件；但在分析、AI 协作、
+promotion review、影响面查询、provider discovery、fixture coverage 和 migration
+场景中，数据库或规则查询层会比单纯文件树更合适。这个 database 不是 core
+schema，也不是唯一 storage 规定；它属于 catalog/index/query tooling。
+
+对 AI 协作来说，catalog / dependency database 还应承担 tool-routing 和
+review-context query 的角色。Agent 不应该每次都靠阅读大量文本重新猜测项目状态；
+它应该能查询当前 intent 涉及哪些 LU、feature、profile、provider、fixtures、
+prior tasks、allowed write scope 和 verification commands。这样 AI 才能更准确地
+选择 core validator、type checker、Verilog `iverilog` smoke、software engine
+smoke、promotion checklist 或其它工具，并减少把 archive-only evidence 当成当前
+schema、把 sandbox code 当成正式实现、或遗漏必要验证路径的风险。
 
 ## 北极星，不是项目计划
 
@@ -37,6 +58,9 @@ LogicIR 不应被实现成单个大格式、单个大 runtime 或单个通用编
 - **Validator / resolver / capability checker** 承载机械检查和安全失败。
 - **Projector / compiler** 承载到 interpreter plan、JS/TS、Verilog HDL、report、test 或其它 artifact 的 projection。
 - **Engine / provider registry** 承载 runtime realization 和外部能力履约。
+- **Catalog / dependency database** 承载 LU、feature、profile、provider、
+  fixture、edit transaction、version lineage 和 dependency reachability 的
+  索引与查询。
 - **Fixture / regression suite** 承载可重复验证证据。
 - **AI task / edit transaction / promotion flow** 承载 AI 自动探索、人类 review 和正式项目晋升。
 - **Visual / natural-language authoring** 承载用户和 AI 在不同 level 上共同构造 partial LogicIR 的入口。
@@ -134,7 +158,7 @@ incremental、compiled、reactive、distributed 或 target-specific realization
 可以不同，但必须在 profile、feature、lowering trace 或 engine capability 中
 显式声明，并证明没有丢失对应 LU kind 的可观察语义。
 
-- `combinational`: 当前 software baseline 从 `primary-result` / return contact
+- `combinational`: 当前 software baseline 从 `ports.result` / return contact
   lazy pull，按连接反向读取依赖；Verilog HDL 投影为 continuous assignment、
   组合表达式或 `always_comb`，不得引入 clock/register。
 - `sequential`: core 表达 pipeline / step list。当前 software baseline 按

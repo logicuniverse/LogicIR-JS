@@ -2,22 +2,11 @@ import type { LogicUnit, Port } from './types';
 import type { ClosureProviderRegistry } from './types';
 
 const input: Port = {
-  boundary: 'input',
-  interaction: {
-    pullReadable: true,
-    pushNotifiable: false,
-    retainedCurrent: false,
-  },
+  contact: 'pull',
 };
 
 const output: Port = {
-  boundary: 'output',
-  role: 'primary-result',
-  interaction: {
-    pullReadable: true,
-    pushNotifiable: false,
-    retainedCurrent: false,
-  },
+  contact: 'pull',
 };
 
 const makeFixture = (mode: 'closure' | 'upstream'): LogicUnit => ({
@@ -37,7 +26,10 @@ const makeFixture = (mode: 'closure' | 'upstream'): LogicUnit => ({
         units: {
           increment: {
             kind: 'combinational',
-            ports: { value: input, result: output },
+            ports: {
+              inputs: { value: input },
+              result: output,
+            },
             requirements: {},
           },
         },
@@ -47,16 +39,16 @@ const makeFixture = (mode: 'closure' | 'upstream'): LogicUnit => ({
   core: {
     kindOrganization: { kind: 'combinational' },
     ports: {
-      value: input,
+      inputs: { value: input },
       result: output,
     },
     closures: {
       localIncrement: {
-        forwardedPortKeys: { inputs: ['value'], outputs: ['result'] },
+        forwardedPortKeys: { inputs: ['value'], pushOutputs: [] },
         core: {
           kindOrganization: { kind: 'combinational' },
           ports: {
-            value: input,
+            inputs: { value: input },
             result: output,
           },
           connections: {},
@@ -74,7 +66,7 @@ const makeFixture = (mode: 'closure' | 'upstream'): LogicUnit => ({
           unitKey: 'increment',
         },
         ports: {
-          value: input,
+          inputs: { value: input },
           result: output,
         },
         fulfillments: {
@@ -97,15 +89,18 @@ const makeFixture = (mode: 'closure' | 'upstream'): LogicUnit => ({
     },
     connections: {
       valueToIncrement: {
-        from: { owner: { kind: 'lu' }, portKey: 'value' },
-        to: { owner: { kind: 'lui', luiId: 'increment' }, portKey: 'value' },
+        from: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'value' } },
+        to: {
+          owner: { kind: 'lui', luiId: 'increment' },
+          port: { kind: 'input', key: 'value' },
+        },
       },
       incrementToResult: {
         from: {
           owner: { kind: 'lui', luiId: 'increment' },
-          portKey: 'result',
+          port: { kind: 'result' },
         },
-        to: { owner: { kind: 'lu' }, portKey: 'result' },
+        to: { owner: { kind: 'lu' }, port: { kind: 'result' } },
       },
     },
   },

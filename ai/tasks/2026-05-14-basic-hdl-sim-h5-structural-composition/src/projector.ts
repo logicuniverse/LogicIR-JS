@@ -18,6 +18,8 @@ import { baselineInterpretation } from './types';
 
 const GENERATED_DIR = 'generated';
 
+type HdlPortEntry = [string, 'input' | 'output', Port];
+
 const isRecord = (value: unknown): value is { [key: string]: unknown } =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
@@ -164,9 +166,18 @@ const structuralPayloadOf = (logicUnit: LogicUnit): StructuralPayload => {
 
 const knownSignalsOf = (logicUnit: LogicUnit, structure: StructuralPayload) =>
   new Set([
-    ...Object.keys(logicUnit.core.ports),
+    ...Object.keys(logicUnit.core.ports.inputs),
+    ...Object.keys(outputPortsOf(logicUnit)),
     ...structure.wires.map((wire) => wire.name),
   ]);
+
+const outputPortsOf = (logicUnit: LogicUnit): { [key: string]: Port } => {
+  if (!('outputs' in logicUnit.core.ports)) {
+    throw new Error('H5 expects a structural LogicUnit with output ports.');
+  }
+
+  return logicUnit.core.ports.outputs;
+};
 
 const validateStructure = (
   logicUnit: LogicUnit,
@@ -223,7 +234,7 @@ const emitLibraryModule = (module: HdlLibraryModule): string => {
   const declarations = portKeys.map((portKey, index) => {
     const port = module.ports[portKey];
     const comma = index === portKeys.length - 1 ? '' : ',';
-    return `  ${port.boundary} wire${signalRange(port.signal)} ${portKey}${comma}`;
+    return `  ${port.direction} wire${signalRange(port.signal)} ${portKey}${comma}`;
   });
 
   return [
@@ -236,12 +247,12 @@ const emitLibraryModule = (module: HdlLibraryModule): string => {
 };
 
 const emitPortDeclaration = (
-  [portKey, port]: [string, Port],
+  [portKey, direction, port]: HdlPortEntry,
   index: number,
-  all: [string, Port][],
+  all: HdlPortEntry[],
 ): string => {
   const comma = index === all.length - 1 ? '' : ',';
-  return `  ${port.boundary} wire${signalRange(portSignalOf(portKey, port))} ${portKey}${comma}`;
+  return `  ${direction} wire${signalRange(portSignalOf(portKey, port))} ${portKey}${comma}`;
 };
 
 const emitWireDeclaration = (wire: StructuralWire): string =>
@@ -259,11 +270,23 @@ const emitModules = (
   logicUnit: LogicUnit,
   options: HdlEmitOptions,
 ): string => {
+  if (logicUnit.core.kindOrganization.kind !== 'structural') {
+    throw new Error('H5 expects a structural LogicUnit.');
+  }
+
   const structure = structuralPayloadOf(logicUnit);
   validateStructure(logicUnit, structure, options.libraryModules);
 
   const moduleName = moduleNameOf(logicUnit);
-  const portEntries = Object.entries(logicUnit.core.ports);
+  const outputs = outputPortsOf(logicUnit);
+  const portEntries: HdlPortEntry[] = [
+    ...Object.entries(logicUnit.core.ports.inputs).map(
+      ([key, port]): HdlPortEntry => [key, 'input', port],
+    ),
+    ...Object.entries(outputs).map(
+      ([key, port]): HdlPortEntry => [key, 'output', port],
+    ),
+  ];
 
   return [
     ...options.libraryModules.map(emitLibraryModule),
@@ -315,13 +338,13 @@ const emitTestbench = (
   logicUnit: LogicUnit,
   testVectors: HdlTestVector[],
 ): string => {
+  if (logicUnit.core.kindOrganization.kind !== 'structural') {
+    throw new Error('H5 expects a structural LogicUnit.');
+  }
+
   const moduleName = moduleNameOf(logicUnit);
-  const inputKeys = Object.entries(logicUnit.core.ports)
-    .filter(([, port]) => port.boundary === 'input')
-    .map(([portKey]) => portKey);
-  const outputKeys = Object.entries(logicUnit.core.ports)
-    .filter(([, port]) => port.boundary === 'output')
-    .map(([portKey]) => portKey);
+  const inputKeys = Object.keys(logicUnit.core.ports.inputs);
+  const outputKeys = Object.keys(outputPortsOf(logicUnit));
   const regs = inputKeys.map((inputKey) => `  reg ${inputKey};`);
   const wires = outputKeys.map((outputKey) => `  wire ${outputKey};`);
   const dutConnections = [...inputKeys, ...outputKeys]

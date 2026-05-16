@@ -33,14 +33,20 @@ const getOperation = (logicUnit: LogicUnit): HdlOperationPayload => {
 };
 
 const inputPorts = (logicUnit: LogicUnit): PortKey[] =>
-  Object.entries(logicUnit.core.ports)
-    .filter(([, port]) => port.boundary === 'input')
-    .map(([key]) => key);
+  Object.keys(logicUnit.core.ports.inputs);
 
-const outputPorts = (logicUnit: LogicUnit): PortKey[] =>
-  Object.entries(logicUnit.core.ports)
-    .filter(([, port]) => port.boundary === 'output')
-    .map(([key]) => key);
+const outputPorts = (logicUnit: LogicUnit): PortKey[] => {
+  const result =
+    'result' in logicUnit.core.ports ? logicUnit.core.ports.result : undefined;
+
+  if (!result) {
+    throw new Error('H1 expects a result port.');
+  }
+
+  return result.pins?.kind === 'keyed'
+    ? result.pins.keys
+    : ['result'];
+};
 
 const emitModule = (logicUnit: LogicUnit): string => {
   const inputs = inputPorts(logicUnit);

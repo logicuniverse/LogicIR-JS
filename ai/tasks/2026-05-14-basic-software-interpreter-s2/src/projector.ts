@@ -1,4 +1,5 @@
 import type {
+  EndpointRef,
   ExtensionRecord,
   InterpreterPlan,
   LogicUnit,
@@ -35,6 +36,20 @@ const requiredFeatureDeclared = (
   );
 };
 
+const inputKey = (endpoint: EndpointRef): string => {
+  if (endpoint.port.kind !== 'input') {
+    throw new Error('Expected an input endpoint.');
+  }
+  return endpoint.port.key;
+};
+
+const outputKey = (endpoint: EndpointRef): string => {
+  if (endpoint.port.kind !== 'output') {
+    throw new Error('Expected an output endpoint.');
+  }
+  return endpoint.port.key;
+};
+
 const inputFromLu = (
   logicUnit: LogicUnit,
   luiId: string,
@@ -43,16 +58,18 @@ const inputFromLu = (
   const connection = Object.values(logicUnit.core.connections).find(
     (entry) =>
       entry.from.owner.kind === 'lu' &&
+      entry.from.port.kind === 'input' &&
       entry.to.owner.kind === 'lui' &&
       entry.to.owner.luiId === luiId &&
-      entry.to.portKey === portKey,
+      entry.to.port.kind === 'input' &&
+      entry.to.port.key === portKey,
   );
 
   if (!connection) {
     throw new Error(`Missing LU input connection for ${luiId}.${portKey}`);
   }
 
-  return connection.from.portKey;
+  return inputKey(connection.from);
 };
 
 const outputToLu = (
@@ -64,7 +81,9 @@ const outputToLu = (
     (entry) =>
       entry.from.owner.kind === 'lui' &&
       entry.from.owner.luiId === luiId &&
-      entry.from.portKey === portKey &&
+      entry.from.port.kind === 'output' &&
+      entry.from.port.key === portKey &&
+      entry.to.port.kind === 'output' &&
       entry.to.owner.kind === 'lu',
   );
 
@@ -72,7 +91,7 @@ const outputToLu = (
     throw new Error(`Missing LU output connection for ${luiId}.${portKey}`);
   }
 
-  return connection.to.portKey;
+  return outputKey(connection.to);
 };
 
 export const createInterpreterPlan = (

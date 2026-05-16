@@ -1,22 +1,12 @@
 import type { LogicUnit, Port } from './types';
 
 const input: Port = {
-  boundary: 'input',
-  interaction: {
-    pullReadable: true,
-    pushNotifiable: false,
-    retainedCurrent: false,
-  },
+  contact: 'pull',
 };
 
 const output: Port = {
-  boundary: 'output',
-  role: 'primary-result',
-  interaction: {
-    pullReadable: true,
-    pushNotifiable: false,
-    retainedCurrent: false,
-  },
+  contact: 'pull',
+  pins: { kind: 'keyed', keys: ['doubled'] },
 };
 
 export const asyncDoubleLogicUnit: LogicUnit = {
@@ -32,8 +22,10 @@ export const asyncDoubleLogicUnit: LogicUnit = {
   core: {
     kindOrganization: { kind: 'combinational' },
     ports: {
-      value: input,
-      doubled: output,
+      inputs: {
+        value: input,
+      },
+      result: output,
     },
     closures: {},
     luis: {
@@ -45,8 +37,10 @@ export const asyncDoubleLogicUnit: LogicUnit = {
           key: 'double',
         },
         ports: {
-          value: input,
-          doubled: output,
+          inputs: {
+            value: input,
+          },
+          result: output,
         },
         fulfillments: {},
         extensions: [
@@ -63,15 +57,23 @@ export const asyncDoubleLogicUnit: LogicUnit = {
     },
     connections: {
       valueToDouble: {
-        from: { owner: { kind: 'lu' }, portKey: 'value' },
-        to: { owner: { kind: 'lui', luiId: 'asyncDouble' }, portKey: 'value' },
+        from: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'value' } },
+        to: {
+          owner: { kind: 'lui', luiId: 'asyncDouble' },
+          port: { kind: 'input', key: 'value' },
+        },
       },
       doubleToOutput: {
         from: {
           owner: { kind: 'lui', luiId: 'asyncDouble' },
-          portKey: 'doubled',
+          port: { kind: 'result' },
+          payloadPath: ['doubled'],
         },
-        to: { owner: { kind: 'lu' }, portKey: 'doubled' },
+        to: {
+          owner: { kind: 'lu' },
+          port: { kind: 'result' },
+          payloadPath: ['doubled'],
+        },
       },
     },
   },

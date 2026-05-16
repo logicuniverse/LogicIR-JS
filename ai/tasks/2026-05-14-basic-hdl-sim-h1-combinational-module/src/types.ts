@@ -6,6 +6,7 @@ export type {
   LUI,
   Port,
   PortKey,
+  PullPort,
 } from '@logic-universe/logic-ir-core';
 
 export type HdlSignalPayload = {

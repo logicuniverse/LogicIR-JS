@@ -37,15 +37,15 @@ ai/tasks/YYYY-MM-DD-<task>/
 
 ## 状态
 
-- `draft`: 正在处理。
+- `in-progress`: 正在处理，尚未 ready for review。
 - `ready-for-review`: task output 已经足够进入人工 review；必要的 JS/TS
   和/或 Verilog HDL 验证路径已经运行，或者已记录 concrete blocker；
   `verification.md`、`promotion-checklist.md` 和 `../material-index.md`
   都已同步。
-- `reviewed`: 人类已经 review，并标出可 promotion 的最小片段。
-- `closed`: 这个 sandbox 不再继续处理。
+- `promoted`: 选定部分已 review 并移入正式目录。
+- `archived`: 保留为证据，但不应驱动当前工作。
 
-当前状态: `draft`
+当前状态: `in-progress`
 
 ## 阅读顺序
 

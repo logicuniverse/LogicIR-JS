@@ -17,11 +17,12 @@
 - 新 schema 必须表达 LogicIR 的拓扑、边界语义、Requirement/Fulfillment、Closure、Projection/Runtime 分离。
 - 新 schema 不能只服务 JS runtime，也不能把某一个 projector 的实现便利当成 schema 的核心语义。
 - Projection target 只约束 schema 的可表达性和边界语义，不要求当前阶段立即实现所有 projector。
-- Core 可以表达 target-neutral 的端口 contact capability，例如 readable、notifiable、retained-current；但不能规定这些能力在 JS runtime 或 HDL 中的具体实现位置和机制。
+- Schema TS authoring source 不能使用 TypeScript 泛型或 utility type 作为 schema 抽象，包括 `Base<T>`、`Record<K, V>`、`Exclude<T, U>`、`Pick`、`Omit`、`Partial` 等。需要显式写出可序列化 object、union、intersection、array 和 index-signature 类型；如果重复结构过多，优先接受少量重复，而不是引入 TS-only abstraction。
+- Core 可以表达 target-neutral 的端口 contact kind：`pull`、`push`、`property`。`property` 是 retained-current reactive contact；core 不能规定这些能力在 JS runtime 或 HDL 中的具体实现位置和机制。
 - Core 可以表达嵌套 payload 的逻辑寻址，例如 object path、array index、bus lane 或包裹总线字段；但不能把深层 payload 结构自动提升为 nested core pins 或 target-specific type system。
 - Core 可以表达 structural `exportAnchors` 作为 named spatial slices，并允许 `Connection + payloadPath` 支撑 slice 间 bus-style routing；但不能把某个分布式 runtime 的 RX/TX 端口生成、placement、transport、scheduling 或 serialization 规则固定为 core schema。
 - X 轴仍然是 unit-level boundary drive。端口 contact capability 不能反向变成新的 X 轴方向。
-- Core 的 port surface 使用单一 `PortKey` namespace；`input` / `output` 是 port boundary，不是两套独立 key 空间。
+- Core 的 port surface 使用 kind-specific slots：`inputs`、合法时存在的 `outputs`，以及合法时存在的 `result`。`inputs` / `outputs` 内部使用 `PortKey` map；`result` 是独立槽位，不是端口 role。`combinational` 只有 `inputs + result`，不能有普通 `outputs`；多个组合结果通过 `result.pins` 和 `payloadPath` 表达。
 - Core sequential organization 只保存 `steps: LUIId[]`，表达 pipeline/step list，不表达一般分支控制流图。`GoBackIf`、`ReturnIf`、guard、branch、async 或调度语义必须走 feature extension 或 projection lowering。
 - `LUCore.kindOrganization.kind` 决定 runtime、projector 和 compiler 的首层处理策略。Core 只保存 target-neutral organization skeleton；software interpreter、generated software、Verilog HDL 或其它 target 的具体处理方式必须由 profile、feature、lowering 或 engine 实现声明。不能把 `LUCore.luis` 默认拍平成 eager node list，也不能把某个 target 的执行策略反向写成 core 字段。
 
@@ -45,7 +46,7 @@ LogicIR schema 应该像长期协议一样演进：稳定核心、命名空间�
 - Projection 实现不是单一函数，而是一组声明过的能力集合。
 - Projector 必须声明支持的 core version、features、LU kinds、fulfillment forms 和 target constraints。它可以接受 stack/profile 名称，但必须解析为具体 features、stages、policies 和 provider contracts。
 - Projector 只能在声明能力覆盖 schema 需求时执行 projection；否则必须返回结构化 diagnostic。
-- Projector、compiler 和 execution engine 必须按 LU kind 分派处理，并声明自己采用的 realization strategy。当前 basic 路线把 `combinational` 作为 primary-result lazy pull / 组合逻辑，把 `sequential` 作为 pipeline/step list，把 `stateful` 作为 durable retained-current/current state realization，把 `structural` 作为 composition function / elaboration result realization；这些是 baseline，不是唯一算法。任何 flatten/lowering 成平面执行计划或采用其它执行模型的行为，都必须是显式、可诊断、可验证的 projection step，并证明没有丢失对应 LU kind 的可观察语义。
+- Projector、compiler 和 execution engine 必须按 LU kind 分派处理，并声明自己采用的 realization strategy。当前 basic 路线把 `combinational` 作为 `ports.result` lazy pull / 组合逻辑，把 `sequential` 作为 pipeline/step list，把 `stateful` 作为 durable property/current state realization，把 `structural` 作为 composition function / elaboration result realization；这些是 baseline，不是唯一算法。任何 flatten/lowering 成平面执行计划或采用其它执行模型的行为，都必须是显式、可诊断、可验证的 projection step，并证明没有丢失对应 LU kind 的可观察语义。
 - JS/TS runtime feature 可以定义 async、subscription、host native、runtime state、error/lifecycle 等软件实现细节。
 - Verilog HDL feature 可以定义 module boundary、clock/reset、combinational block、sequential block、generate/elaboration-time 结构和静态绑定约束。
 

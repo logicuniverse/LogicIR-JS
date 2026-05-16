@@ -6,6 +6,21 @@ AI task 输出是证据，不是权威。下面的分类只说明哪些内容适
 promotion 输入、哪些只适合作为后续设计参考、哪些应该归档保留。不要整包
 promote 一个 task 目录。
 
+## 当前 schema 同步状态
+
+- `review-first` 的 05-14 basic software S1-S5、05-14 basic HDL H1-H5、05-15
+  algebraic type-system 和 05-15 edit transaction MVP 已同步到当前 core
+  端口模型：`Port.contact`、`EndpointRef.port`、kind-specific `PortSurface`。
+- `combinational` task fixture 不再声明普通 `ports.outputs`；组合逻辑只有
+  `ports.inputs + ports.result`，多个结果通过 `result.pins` 和
+  `payloadPath` 表达。
+- 除 05-13 历史归档外，05-14 / 05-15 task 的 LogicIR core fixture 已同步到
+  当前 schema。task-local execution plan、HDL library module、headless runtime
+  等仍可能使用自己的 `portKey`、`direction` 或消息 `role` 字段；这些不是
+  core `EndpointRef` 或 `Port` schema。
+- 05-13 tasks 仍可能保留 `boundary/interaction/portKey/primary-result` 等历史
+  写法；它们只能作为 IR schema 稳定前的历史证据，不能作为当前 schema 示例。
+
 ## Review 分类
 
 - `review-first`: 近期优先人工 review，并且可能窄范围 promotion。
@@ -34,7 +49,7 @@ promote 一个 task 目录。
 | Stack 和 feature 早期探索 | `2026-05-13-basic-software-hdl-stacks` | `archive-only` | IR schema 稳定前探索。只保留为历史上下文；后续 schema-aligned summaries 和 coverage map 已经替代它用于 review/promotion。 |
 | 早期 software runtime 探索 | `2026-05-13-latest-schema-software-runtime` | `archive-only` | IR schema 稳定前 runtime sketch。不要用于 promotion planning；优先看 S1-S5 和 software summary。 |
 | 早期 projection stack goal | `2026-05-13-projection-stack-goal` | `archive-only` | IR schema 稳定前 projection/stack 探索。不要直接 promote，也不要作为当前 review 输入。 |
-| Latest-schema engine replica | `2026-05-14-latest-schema-engine-replica` | `reference-only` | 用来比较旧 engine 复刻选择。验证行为优先看 S1-S5 和 stdlib replica。 |
+| Latest-schema engine replica | `2026-05-14-latest-schema-engine-replica` | `reference-only` | 已同步到当前 core fixture，用来比较旧 engine 复刻选择。验证行为优先看 S1-S5 和 stdlib replica。 |
 | Round schema alignment | `2026-05-14-round-schema-alignment` | `reference-only` | 作为各 round schema alignment 清理的证据。 |
 
 ## 推荐 review 顺序

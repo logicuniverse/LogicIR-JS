@@ -171,6 +171,11 @@ transaction”。这条线同时服务内部 AI task 和未来外部用户工具
   用于记录显式 adapter/lowering trace。
 - `logicir.observation / core`: probe、trace、assertion 和非语义 observation
   point。
+- `logicir.resources / core`: resource ownership、borrowing、sharing、
+  lifetime、teardown 和 provider-backed resource binding metadata。
+- `logicir.effects / core`: pure/impure classification、effect kind、
+  ordering、idempotency、replayability、cancellation、compensation 和 policy
+  hooks。
 
 ### 面向 Software 的 Feature
 
@@ -309,6 +314,11 @@ stack 名称声称支持。
 
 后续 tool：
 
+- `tools/catalog-db`: LogicIR、architecture definition、provider、fixture、
+  edit transaction 和 verification metadata 的本地 catalog / registry index。
+- `tools/dependency-index`: LU/LUI、Connection、Requirement/Fulfillment、
+  Feature/Extension、Profile/Capability 和 Provider contract 的 reachability
+  查询。
 - `tools/migration`: schema migration 和 compat check。
 - `tools/lint`: authoring 和 style diagnostic。
 - `tools/report`: 面向人的 capability 和 projection report。
@@ -366,7 +376,7 @@ Provider 规则：
 Engine 要求：
 
 - Engine 必须按 LU kind 分派执行，并声明采用的 realization strategy。当前
-  basic-software-interpreter baseline 是：`combinational` 从 `primary-result` /
+  basic-software-interpreter baseline 是：`combinational` 从 `ports.result` /
   return contact lazy pull；`sequential` 按 `kindOrganization.steps` 作为
   pipeline 推进，不是一般分支图，只能通过明确 feature/lowering 支持
   go-back 和 early-return；`stateful` 产出 durable retained-current/current
@@ -375,8 +385,8 @@ Engine 要求：
 - Engine 可以消费 projector 生成的 execution plan，但该 plan 必须保留或显式
   记录原 LU kind 语义。若 plan 是 flatten/lowering 后的形态，必须有对应
   diagnostic 或 lowering trace 说明语义如何保持。
-- `Port.interaction.pushNotifiable` 不等于主动执行 provider；
-  `pullReadable` 不等于预先求值所有可读节点。端口 capability 只约束边界和
+- `Port.contact === 'push'` 不等于主动执行 provider；
+  `Port.contact === 'pull'` 不等于预先求值所有可读节点。端口 contact 只约束边界和
   connection compatibility；执行入口由 LU kind、profile 和 engine strategy
   决定。
 
@@ -423,7 +433,7 @@ Example 目录应保持小而可审阅：
      profile resolver、interpreter execution plan、software engine smoke。
    - legacy 参考：`Provider`、`Projection`、旧 runtime invocation 相关代码。
    - LU kind 要求：只支持 `combinational`；projection/engine 必须从
-     `primary-result` lazy pull，按连接读取依赖；额外未连接 LUI 不应被执行；
+     `ports.result` lazy pull，按连接读取依赖；额外未连接 LUI 不应被执行；
      其它 kind 必须 diagnostic 或明确 throw。
    - 验收：从 task 目录运行 JS/TS smoke，得到确定输出；smoke 必须证明不是
      eager run all nodes；不引入 type-system requiredness。
@@ -610,6 +620,144 @@ Web IDE
 
 这个分支应先以 `ai/tasks/` research task 形式探索。只有当工具链验证闭环稳定后，才考虑正式 package、dataset 或公开文档。
 
+## 中长期：No-GC / 高性能运行时内存模型
+
+`no-gc-runtime-memory` 是中长期 projection / runtime pressure test，不是近期
+主线实现，也不是 core schema 变更需求。它面向 C/C++、no-GC WASM、嵌入式、
+实时系统和其它高性能运行环境，用来验证 LogicIR 在没有宿主 GC 的情况下，
+能否安全地投影到 deterministic lifetime、ownership 和 memory release 模型。
+
+这条线的重点不是把引用计数写进 core，而是研究 profile、feature、projection
+policy 和 execution runtime strategy 如何表达并验证：
+
+- 哪些值可以静态分配、栈分配、arena/region 分配或复用。
+- 哪些值需要 heap ownership、共享引用或跨 closure / async / event-stream
+  生命周期。
+- 什么时候可以使用 reference counting，什么时候应优先使用 region、
+  arena、linear/borrow-like ownership 或显式 adapter。
+- 是否允许 reference cycle；如果允许，需要 weak reference、cycle policy 或
+  diagnostic。
+- property、stateful LU、structural composition、event stream 和 closure capture
+  在 no-GC target 上的 lifetime 约束。
+- projector 遇到无法保持内存语义的结构时，应 fail diagnostic、要求 lowering，
+  还是插入显式 adapter。
+
+候选 AI task：
+
+- `no-gc-memory-pressure-test`
+  - 目标：选择一小组 LogicIR fixtures，尝试投影成 task-local C-like 或
+    no-GC WASM-like runtime plan。
+  - 必需内容：ownership/lifetime feature 草案、RC/region/arena 策略对比、
+    cycle rejection fixture、property/stateful/event-stream lifetime fixture、
+    diagnostic report。
+  - 验收：task-local checker 能标出哪些 fixture 可静态或 region 管理，哪些需要
+    RC，哪些因为 cycle、escaping closure 或 async lifetime 不可安全投影。
+
+这条线应等 core validator、profile resolver、capability checker、
+basic-software-interpreter seed 和 basic-hdl-sim seed 稳定后再启动。它的价值是
+提前保护 LogicIR 对高性能和嵌入式系统的适配空间，而不是现在扩张 core。
+
+## 中长期：显式资源和副作用管理
+
+`explicit-resource-effect-management` 是中长期 feature/profile/capability 路线，
+优先级高于具体 no-GC 内存策略，但仍不属于近期主线实现。它用于把传统文本编程
+中隐藏在代码体和库调用里的资源依赖、副作用、权限、生命周期和可重放性显式化。
+
+这条线不要求 core schema 增加资源或 effect 字段；它应通过 feature extension、
+profile contract、provider contract、execution binding、capability checker 和
+diagnostic 实现。候选资源和副作用包括：
+
+- file、socket、database、lock、timer、thread、GPU handle、device handle、
+  subscription、state store 和 external service session。
+- network request、file IO、database mutation、event emission、logging、
+  metrics、time/random/env access、UI/DOM mutation、hardware register access
+  和 external service call。
+- resource ownership、borrowing、sharing、teardown、scope binding、
+  deterministic lifetime 和 no-GC target compatibility。
+- effect ordering、idempotency、replayability、cancellation、compensation、
+  sandbox/mock policy 和人工确认策略。
+
+候选 AI task：
+
+- `explicit-effects-resources-pressure-test`
+  - 目标：选择 software interpreter、HDL rejection、domain provider、reactive
+    runtime 和 no-GC memory 的代表性 fixtures，给它们添加 task-local
+    resource/effect declarations。
+  - 必需内容：resource/effect feature 草案、profile requirement 草案、
+    capability checker seed、mock provider binding、pure/impure diagnostic、
+    HDL unsupported-effect rejection。
+  - 验收：task-local checker 能区分 pure computation、provider invocation、
+    state mutation、event emission、external IO 和 resource lifetime；对 HDL
+    或 no-GC target 不支持的 effect 给出结构化 diagnostic。
+
+这条线的长期价值是让 LogicIR 在测试、权限、安全审查、AI edit review、
+distributed runtime、嵌入式和高性能 target 上都比传统文本编程更可控。
+
+## 中长期：Catalog Database 和依赖查询
+
+`logicir-catalog-db` 是中长期 tooling / platform 路线。它的目标不是把 core
+schema 改成数据库格式，而是承认文件树不适合独自承担 LogicIR 的长期查询、
+影响面分析、依赖追踪、版本 lineage、provider discovery 和 AI 协作上下文。
+
+LogicIR 的核心数据天然是关系型和图状的：
+
+- `LogicUnit -> LUI target`
+- `Connection -> EndpointRef`
+- `Requirement -> Fulfillment -> Closure / upstream reachability`
+- `Closure -> inner LogicUnit`
+- `Feature -> ExtensionRecord`
+- `Profile -> required Feature / Capability / ProviderContract`
+- `Provider -> Capability / Contract`
+- `Fixture -> Feature / Stack / VerificationResult`
+- `EditTransaction -> changed region / before / after / validation`
+- `SchemaVersion -> migration / compatibility`
+
+这些关系可以继续以文件作为交换和 review 载体，但正式 tooling 应能把它们导入
+catalog database，支持查询：
+
+- 改某个 provider contract 会影响哪些 LU、profile、stack 和 fixtures。
+- 某个 feature 或 extension 被哪些 LogicUnit 使用。
+- 某条 fulfillment path 是否经过指定 closure 或 upstream supplier。
+- 哪些 LogicUnit 使用 software-only effect，不能投影到 HDL。
+- 哪些 edit transaction 修改过某个 boundary、connection 或 requirement。
+- 哪些 legacy node/function 已被 wrapper、replica 或 fixture 覆盖。
+- 哪些 schema version 需要 migration。
+
+候选实现路线：
+
+- 第一阶段使用 SQLite，服务本地 CLI、AI task、review 和 CI。
+- 复杂 reachability 可以先用 SQL recursive CTE；必要时再评估 Datalog、
+  Souffle、Postgres 或 graph database。
+- 文件仍是可移植 artifact；database 是索引、查询和协作加速层。
+
+候选 AI task：
+
+- `logicir-catalog-db-pressure-test`
+  - 目标：从当前 `packages/`、`ai/tasks/material-index.md` 和 selected fixtures
+    导入一个 task-local SQLite catalog。
+  - 必需内容：schema 草案、importer、dependency queries、impact report、
+    legacy coverage/query demo。
+  - 验收：能回答至少五类依赖问题，例如 provider impact、feature usage、
+    fulfillment reachability、fixture coverage 和 edit transaction changed region。
+
+这条线对 AI 协作尤其重要：AI 不应每次都从文件文本和 grep 中重建上下文。长期
+工具应能把相关 LU、feature、provider、fixtures、历史 transaction 和 review
+状态作为结构化 query result 提供给 agent。
+
+进一步的 AI tool-routing query 应回答：
+
+- 当前 intent 影响哪些 LU、feature、profile、provider 和 stack。
+- 哪些 task 是可 review 素材，哪些只是 archive-only / reference-only evidence。
+- 当前 scope 的允许写入位置和只读参考位置是什么。
+- 需要运行哪些验证工具，例如 core validator、type checker、software smoke、
+  Verilog `iverilog`、profile resolver 或 capability checker。
+- 哪些 fixtures、diagnostics、promotion checklist 和 prior edit transactions
+  应作为本次 agent work 的上下文。
+
+这个能力不是为了替代人类 review，而是为了让 AI 更少依赖文本猜测，更准确地调用
+工具、控制改动范围、补齐验证路径，并输出更可审查的 transaction 或 promotion
+proposal。
+
 ## 暂不作为项目计划
 
 以下只是 north-star probe，不是近期必做：
@@ -618,6 +766,9 @@ Web IDE
 - PCB 或 board-level realization。
 - Mechanical assembly 和 product enclosure。
 - Python runtime/projection。
+- No-GC / embedded / high-performance runtime memory management。
+- Explicit resource and side-effect management。
+- Catalog database / dependency index / query tooling。
 - 超出 basic provider 和 transport seam 的 distributed runtime。
 - Visual editor productization。
 - 面向外部读者的公开定位文档，例如 `docs/logicir-as-universal-carrier.md`，

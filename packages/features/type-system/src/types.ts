@@ -3,15 +3,16 @@
  *
  * These are serializable data shapes for a target-neutral type feature. They do
  * not contain runtime validators, host-language functions, or projection
- * implementation details.
+ * implementation details. They also must not use TypeScript generics or
+ * utility types as schema abstraction.
  */
 
 import type {
   CompositionAnchorKey,
   CompositionOutletKey,
+  EndpointPortRef,
   LUIId,
   PayloadPath,
-  PortKey,
   RequirementServiceKey,
   RequirementUnitKey,
 } from '@logic-universe/logic-ir-core';
@@ -135,7 +136,7 @@ export type AlgebraicTypeExpression =
     }
   | {
       kind: 'object';
-      fields: Record<TypeFieldKey, ObjectField>;
+      fields: { [key: TypeFieldKey]: ObjectField };
       index?: ObjectIndexSignature;
       exact?: boolean;
     }
@@ -149,7 +150,7 @@ export type AlgebraicTypeExpression =
   | {
       kind: 'tagged-union';
       tag: TypeTagKey;
-      variants: Record<string, AlgebraicTypeExpression>;
+      variants: { [tag: string]: AlgebraicTypeExpression };
     }
   | { kind: 'ref'; ref: TypeRef }
   | {
@@ -178,7 +179,7 @@ export type TypeImport = {
 export type TypeDefinitionsPayload = {
   schemaVersion: LogicIRTypeSystemSchemaVersion;
   imports?: TypeImport[];
-  definitions: Record<TypeName, TypeDefinition>;
+  definitions: { [name: TypeName]: TypeDefinition };
 };
 
 export type PayloadPathTypeBinding = {
@@ -217,7 +218,7 @@ export type RequirementTypeBindingTarget =
       kind: 'port';
       serviceKey?: RequirementServiceKey;
       unitKey: RequirementUnitKey;
-      portKey: PortKey;
+      port: EndpointPortRef;
       payloadPath?: PayloadPath;
     };
 

@@ -56,19 +56,20 @@ ai/tasks/YYYY-MM-DD-<task>/
 - 从正式 workspace package import task 输出；
 - 把 task 文件当作 schema 权威或 accepted implementation。
 
-## 必需内容
+## 推荐内容
 
-每个 task 目录应包含：
+新 task 应尽量从 [`../templates/task/`](../templates/task/) 开始，并包含：
 
 - `README.md`: 目标、scope、status 和阅读方式。
 - `source-map.md`: 使用过的现有代码、文档和 legacy 证据。
 - `design-notes.md`: 理论映射、边界、替代方案、风险和 open questions。
-- `implementation/`: 代码实验、prototype 或 draft package shape。
-- `fixtures/`: task-local fixtures。
-- `docs/`: task-local 文档草稿。
-- `reports/`: 生成报告、diagnostics 或日志。
 - `verification.md`: 运行过的命令、结果和已知缺口。
 - `promotion-checklist.md`: 人工 review 后可以移入正式目录的最小 piece。
+
+如果 task 包含可运行代码、fixtures 或报告，可以使用模板中的
+`implementation/`、`fixtures/`、`docs/`、`reports/` 目录，也可以沿用已有任务常见
+的 `src/`、`generated/`、`docs/` 等 task-local 结构。关键要求是：目录含义清楚，
+`README.md` 说明阅读顺序，`source-map.md` 区分只读输入和 task 输出。
 
 每个 task 完成时还必须同步更新 [`material-index.md`](material-index.md)。
 `material-index.md` 是 `ai/tasks/` 的总目录和 review 队列，不是可选总结。

@@ -1,17 +1,12 @@
-import type { HdlSignalPayload, LogicUnit, Port } from './types';
+import type { HdlSignalPayload, LogicUnit, PullPort } from './types';
 
 const signal = (width: number, signed = false): HdlSignalPayload => ({
   width,
   signed,
 });
 
-const input = (width: number): Port => ({
-  boundary: 'input',
-  interaction: {
-    pullReadable: true,
-    pushNotifiable: false,
-    retainedCurrent: false,
-  },
+const input = (width: number): PullPort => ({
+  contact: 'pull',
   extensions: [
     {
       featureKey: 'hdlSignal',
@@ -21,14 +16,9 @@ const input = (width: number): Port => ({
   ],
 });
 
-const output = (width: number): Port => ({
-  boundary: 'output',
-  role: 'primary-result',
-  interaction: {
-    pullReadable: true,
-    pushNotifiable: false,
-    retainedCurrent: false,
-  },
+const output = (width: number): PullPort => ({
+  contact: 'pull',
+  pins: { kind: 'keyed', keys: ['y'] },
   extensions: [
     {
       featureKey: 'hdlSignal',
@@ -56,9 +46,8 @@ export const add4LogicUnit: LogicUnit = {
   core: {
     kindOrganization: { kind: 'combinational' },
     ports: {
-      a: input(4),
-      b: input(4),
-      y: output(4),
+      inputs: { a: input(4), b: input(4) },
+      result: output(4),
     },
     closures: {},
     connections: {},
@@ -71,9 +60,8 @@ export const add4LogicUnit: LogicUnit = {
           key: 'add',
         },
         ports: {
-          a: input(4),
-          b: input(4),
-          y: output(4),
+          inputs: { a: input(4), b: input(4) },
+          result: output(4),
         },
         fulfillments: {},
         extensions: [

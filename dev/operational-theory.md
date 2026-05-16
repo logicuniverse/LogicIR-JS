@@ -81,6 +81,52 @@ LogicIR 的一个核心价值是把 AI 从“直接生成或修改目标代码�
 
 这个方向比直接 vibe coding 更强的地方在于：AI 编辑的对象不再是自由文本代码，而是带 schema、边界、feature contract、provider contract 和验证结果的逻辑结构。人类 review 的对象也不只是代码 diff，而是一次带有 intent、scope、operations、validation 和 tests 的可追踪 edit transaction。
 
+## 显式资源和副作用管理
+
+传统文本编程中，资源和副作用往往隐藏在函数体、库调用、闭包捕获、全局变量、
+异步回调或框架生命周期里。人和 AI 只能通过代码阅读、类型提示、命名约定和测试
+间接推断：这里是否打开文件、持有 socket、读取时间、写数据库、触发网络请求、
+修改 DOM、发出事件、访问随机数、持有 GPU handle、更新外部设备或改变持久状态。
+这种隐式性会让 projection、测试、迁移、权限控制、嵌入式部署和 AI 自动编辑都变
+困难。
+
+LogicIR 的优势是可以把这些原本藏在文本中的约束提升为显式结构。资源和副作用
+不应该进入 core schema，但应该成为 feature、profile、provider contract、
+execution binding 和 capability checker 能够理解的对象：
+
+- **Resource**: file、socket、database connection、lock、timer、thread、
+  GPU handle、device handle、state store、subscription、external service session
+  等需要创建、借用、共享、关闭或释放的实体。
+- **Effect**: network request、file IO、database write、event emission、
+  logging、metrics、time/random/env access、UI/DOM mutation、hardware register
+  access、external service call 等可观察行为。
+- **Policy**: 当前 profile 是否允许该资源或副作用，是否需要 provider binding，
+  是否可缓存、可重放、可取消、可补偿、幂等、sandboxed、mockable 或必须人工确认。
+
+显式资源和副作用管理比单纯内存管理更宽。内存 ownership、reference counting、
+region、arena 和 no-GC lifetime 只是资源管理的一个子问题；更一般的问题是：
+某个 LUI 或 closure 需要哪些外部能力、会产生哪些可观察行为、这些行为如何被
+排序、隔离、验证、替换和投影。
+
+这条线可以带来传统文本编程很难稳定获得的能力：
+
+- Projector 可以在 HDL、embedded、no-GC、serverless 或 deterministic replay
+  target 上拒绝 unsupported effects，而不是静默生成错误 artifact。
+- Test runner 可以根据 provider contract 自动替换 file/network/database/AI
+  provider，并保留 capability gap diagnostic。
+- AI 编辑器可以知道哪些区域是 pure、哪些区域会修改外部世界、哪些 edit 需要更高
+  review 等级。
+- Security policy 可以基于声明过的 capability 检查，而不是扫描代码猜测权限。
+- Distributed runtime 可以识别哪些 resource/effect 需要远程边界、序列化、
+  retry、compensation 或 idempotency。
+- No-GC / embedded target 可以把 memory、handle、subscription 和 teardown
+  统一纳入 lifetime check。
+
+因此，LogicIR 相比传统文本编程的一个长期优势不是“把所有副作用消除”，而是把
+副作用和资源依赖显式化、局部化、可检查化。Core 仍只保存 target-neutral topology
+和 requirement/fulfillment 关系；资源和副作用的具体语义应由 namespaced feature、
+profile contract、provider contract 和 execution policy 承载。
+
 ## Partial IR 和 Typed Holes
 
 LogicIR authoring 应允许暂时不完整，但不允许语义无边界地空缺。一个空位应该有明确接口，例如：
@@ -137,7 +183,7 @@ X 轴描述边界如何被推进：
 - **Pull (-X)**: 通过读取、采样、请求、锁存或门控推进。
 - **Push (+X)**: 外部到达、通知、事件或交付可以直接推进。
 
-X 轴是 LU/LUI 的 unit-level boundary drive，不是端口 API 形状的枚举。端口层单独描述 contact capability：是否可读取当前值、是否可接收/发出变化通知、是否承诺 retained-current 语义。`retained-current` 表示可读取的值具有最新当前值语义；它可以由 source、sink 或 projector 插入的 adapter 实现，core 只约束可观察边界语义。
+X 轴是 LU/LUI 的 unit-level boundary drive，不是端口 API 形状的枚举。端口层单独描述 contact kind：`pull`、`push` 或 `property`。`property` 是 retained-current reactive contact：可读取最新当前值、可通知更新，并且必须有初始化当前值；它可以由 source、sink 或 projector 插入的 adapter 实现，core 只约束可观察边界语义。
 
 Y 轴描述当前层如何跨时间存在：
 
@@ -170,7 +216,7 @@ LU kind 的可观察语义。
 
 | LU kind | Core organization | Software interpreter / execution plan | Generated software | Verilog HDL projection |
 | --- | --- | --- | --- | --- |
-| `combinational` | 当前值映射；`kindOrganization.kind = combinational`；通常有一个 `primary-result` 输出。 | 当前 software-interpreter baseline 是从 `primary-result` / return contact 开始 lazy pull，沿 `Connection` 反向读取依赖，只计算被需要的相关 LUI；其它策略可以预分析、拓扑排序或编译表达式，但不能把 unrelated LUI 的运行变成可观察副作用。 | 生成纯函数、可内联表达式或已优化求值计划；不引入状态、订阅、clock 或 runtime lifecycle。 | 生成 continuous assignment、组合表达式或 `always_comb`；不得引入寄存器、clock/reset 或隐式 state。 |
+| `combinational` | 当前值映射；`kindOrganization.kind = combinational`；只有 `ports.inputs` 和一个 `ports.result` pull 结果槽位；多个结果通过 `result.pins` / `payloadPath` 表达。 | 当前 software-interpreter baseline 是从 `ports.result` / return contact 开始 lazy pull，沿 `Connection` 反向读取依赖，只计算被需要的相关 LUI；其它策略可以预分析、拓扑排序或编译表达式，但不能把 unrelated LUI 的运行变成可观察副作用。 | 生成纯函数、可内联表达式或已优化求值计划；不引入状态、订阅、clock 或 runtime lifecycle。 | 生成 continuous assignment、组合表达式或 `always_comb`；不得引入寄存器、clock/reset 或隐式 state。 |
 | `sequential` | `kindOrganization.steps: LUIId[]` 是最小有序推进骨架。 | 当前 software-interpreter baseline 是按 `steps` 作为 pipeline 推进。旧实现允许 `GoBackIf` 调整 step index，允许 `ReturnIf` 提前返回；这是可复用的 control extension 证据，不是唯一控制模型。completion/await、go-back、early-return 等属于 software feature 或 lowering metadata，不属于 core step 字段。 | 生成 pipeline runner、step runner、state machine、async workflow 或其它等价 realization；调度、await、异常传播必须来自 profile/feature policy。 | 需要 clocking/state contract；生成 edge-triggered process、寄存器转移或 FSM；没有 clock/reset/state feature 时应 diagnostic，而不是降级成组合逻辑。 |
 | `stateful` | 驻留状态逻辑；core 只说明 stateful organization，不规定 store 实现。 | 当前 software-interpreter baseline 是对 stateful LUIs 逐个独立运行，收集 property/current 返回值并写入 durable retained-current state。其它 store、reactive、incremental 或 event-loop 策略可以不同，但必须保留 stateful boundary、current read 和 durable/update 语义。 | 生成带私有状态、store handle 或 host binding 的 module/class/function closure；每个 stateful unit 的 durable/current 结果边界必须清楚，生命周期和并发策略由 feature/profile 决定。 | 映射为 register/state variable、reset/initial behavior 和 sequential update；必须有 clocking/state HDL contract。 |
 | `structural` | anchors/outlets、`exportAnchors`、`externalOutlets`、`exportAnchorFills`、`luiFills` 描述结构显现和 composition。 | 当前 software-interpreter baseline 是对 structural/composable LUIs 逐个独立运行，结果是 composition function / composable return；root composition function 之后再用 context 和 inputs 生成结构结果。其它 materialization、diff、incremental composition 或 host-specific builder 可以不同，但必须保留 structural composition surface。 | 生成 composable function、组件/布局/tree construction、module assembly 或 host-specific composition artifact。 | 生成 module instance、wire、hierarchy、generate/elaboration structure；structural slices 可以 lowering 为子系统或层级模块。 |
@@ -187,10 +233,11 @@ Composable / structural 走 `projectCompositions`，逐个 project
 这些旧实现细节可以指导近期 basic-software-interpreter，但不决定新 schema
 命名，也不排除更好的 projector / engine 实现路线。
 
-因此，`Port.interaction.pushNotifiable` 只说明 contact 能接收或发出通知，
-不等于 provider 应被主动执行；`pullReadable` 只说明 contact 可读，也不等于
-所有可读节点都应预先求值。执行入口由 LU kind 和 profile 决定，端口
-capability 只约束连接和可观察边界。
+因此，`Port.contact === 'push'` 只说明 contact 能接收或发出通知，
+不等于 provider 应被主动执行；`Port.contact === 'pull'` 只说明 contact 可读，
+也不等于所有可读节点都应预先求值。`property` 是 pull+push+retained-current
+语义的一种 contact，不是普通输出，也不是端口 role。执行入口由 LU kind 和
+profile 决定，端口 contact 只约束连接和可观察边界。
 
 ## 需求履约：Z
 
@@ -217,7 +264,7 @@ Requirement fulfillment 不能被普通数据流、命名查找、参数传递�
 新 schema 至少必须能显式表达：
 
 - 有界 LUs 和局部 LUIs。
-- Ports、pins、port interaction capabilities、port discipline、addressable endpoint refs。
+- Ports、pins、port contact kind、port discipline、addressable endpoint refs。
 - In-plane connections。
 - LU kind 和 kind-specific organization。
 - Requirement services 和 requirement units。
@@ -232,16 +279,16 @@ Requirement fulfillment 不能被普通数据流、命名查找、参数传递�
 
 Endpoint refs 应支持 port-level 以及 payload-level 寻址：
 
-- `owner + portKey` 定位一个边界 contact。
-- 每个 owner 的 port surface 是一个 `PortKey` namespace；`input` 和 `output` 不是两套 key 空间，而是同一 `Port` 上的 `boundary` 属性。
-- `payloadPath` 定位该 port payload 内部的嵌套位置，例如 object field、array item、bus lane 或包裹总线字段。
-- `Port.pins` 只声明第一层可见 pin surface；pin 继承 port 的 boundary 和 interaction。
-- `Port.boundary` 是 port 在 owner 边界上的侧别，而 `Connection.from/to` 是相对当前 `LUCore` 图的流向。当前 LU/Closure 的 input boundary 是图内 source，当前 LU/Closure 的 output boundary 是图内 sink；子 LUI 的 input boundary 是图内 sink，子 LUI 的 output boundary 是图内 source。
+- `owner + port` 定位一个边界 contact，其中 `port` 可以是 `input(key)`、`output(key)` 或 `result`。
+- 每个 owner 的 port surface 按槽位组织为 `inputs`、`outputs` 和可能存在的 `result`。`inputs` / `outputs` 内部使用 `PortKey` map；`result` 是独立槽位，不使用 `PortKey`。
+- `payloadPath` 定位该 port payload 内部的嵌套位置，例如 object field、array item、bus lane、result pin 或包裹总线字段。
+- `Port.pins` 只声明第一层可见 pin surface；`input`、`output` 和独立的 `result` 槽位都可以声明 pins。pin 继承 port 的 endpoint slot 和 contact kind。
+- `EndpointRef.port.kind` 是 port 在 owner 边界上的槽位，而 `Connection.from/to` 是相对当前 `LUCore` 图的流向。当前 LU/Closure 的 input endpoint 是图内 source，当前 LU/Closure 的 output/result endpoint 是图内 sink；子 LUI 的 input endpoint 是图内 sink，子 LUI 的 output/result endpoint 是图内 source。
 - `payloadPath` 的后续段是逻辑 payload address，由 target LUI、feature extension 或 projector 解释，不自动变成 nested core pins。
 - `from.payloadPath` 在 pull-readable flow 中是 source payload selector，在 push-notifiable flow 中是 source payload path filter/prefix。
 - `to.payloadPath` 在 pull-readable flow 中是 target payload assembly location，在 push-notifiable flow 中是 target payload path prefix/remap。
-- Single-driver 检查应按 target endpoint path overlap 判断：同一 `owner + portKey` 下，whole-port 与任意 sub-path 冲突，重复 path 冲突，parent/child path 冲突；不同 sibling lanes 可以分别连接。
-- 如果深层 payload 需要独立拓扑、不同 boundary/interaction 或独立身份，应引入中间 LUI，而不是把 pin 层变成完整子图。
+- Single-driver 检查应按 target endpoint path overlap 判断：同一 `owner + port` 下，whole-port 与任意 sub-path 冲突，重复 path 冲突，parent/child path 冲突；不同 sibling lanes 可以分别连接。
+- 如果深层 payload 需要独立拓扑、不同 endpoint slot / contact kind 或独立身份，应引入中间 LUI，而不是把 pin 层变成完整子图。
 - `payloadPath` 只做寻址和路径映射，不做计算、fan-in、merge、pack/unpack 语义；这些需要 LUI 或 profile 声明为 required / conditional-required 的 feature extension。
 
 ## Structural 空间切片和分布式投影
@@ -291,7 +338,7 @@ Verilog HDL 不要求 LogicIR 退化成 HDL schema；它要求核心拓扑和边
 
 - `packages/legacy/engine/src/types/models.ts` 说明旧 V1 把 schema、runtime convenience 和 projection 便利混在一起。
 - `PortKind.Pull/Push` 可作为旧版 boundary/contact 实现参考，但新 schema 应区分 unit-level X 轴和 port-level contact capability。
-- `Property` 是旧实现中 retained-current contact 的证据：它把可读取当前值、变化通知和最新值缓存绑在一起。新 core 可以表达 retained-current 语义，但 JS store/subscription/cache 机制仍属于 runtime feature 或 projector implementation。
+- `Property` 是旧实现中 retained-current contact 的证据：它把可读取当前值、变化通知和最新值缓存绑在一起。新 core 用 `Port.contact === 'property'` 表达这个语义，但 JS store/subscription/cache 机制仍属于 runtime feature 或 projector implementation。
 - `SequentialStep` 是 sequential kind organization 的早期形态；`isAwaited` 偏 JS async projection。
 - `dependencies`、`Provider`、`SovereignSource`、`AbstractLUT`、`closures` 是 Z 轴旧近似实现。
 - `packages/legacy/engine/src/types/runtime.ts` 中的 `Thenable`、`subscribe`、`StateStore`、`LUProjectorPlugin` 属于 JS runtime projection，不应进入 core schema。

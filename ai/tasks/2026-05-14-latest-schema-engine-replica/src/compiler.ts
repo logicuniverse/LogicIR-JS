@@ -40,6 +40,27 @@ const isLuEndpoint = (endpoint: EndpointRef): boolean =>
 const isLuiEndpoint = (endpoint: EndpointRef, luiId: string): boolean =>
   endpoint.owner.kind === 'lui' && endpoint.owner.luiId === luiId;
 
+const firstPayloadSegment = (endpoint: EndpointRef): string | undefined => {
+  const segment = endpoint.payloadPath?.[0];
+  return segment === undefined ? undefined : String(segment);
+};
+
+const remainingPayloadPath = (
+  endpoint: EndpointRef,
+): (string | number)[] | undefined => {
+  if (endpoint.port.kind !== 'result' || !endpoint.payloadPath) {
+    return endpoint.payloadPath;
+  }
+  return endpoint.payloadPath.length > 1 ? endpoint.payloadPath.slice(1) : undefined;
+};
+
+const endpointValueKey = (endpoint: EndpointRef): PortKey => {
+  if (endpoint.port.kind === 'input' || endpoint.port.kind === 'output') {
+    return endpoint.port.key;
+  }
+  return firstPayloadSegment(endpoint) ?? 'result';
+};
+
 const collectInputMap = (
   logicUnit: LogicUnit,
   luiId: string,
@@ -47,11 +68,15 @@ const collectInputMap = (
   const result: Record<PortKey, PortMapping> = {};
 
   for (const connection of Object.values(logicUnit.core.connections)) {
-    if (isLuEndpoint(connection.from) && isLuiEndpoint(connection.to, luiId)) {
-      result[connection.to.portKey] = {
-        portKey: connection.from.portKey,
-        payloadPath: connection.from.payloadPath,
-        targetPayloadPath: connection.to.payloadPath,
+    if (
+      isLuEndpoint(connection.from) &&
+      isLuiEndpoint(connection.to, luiId) &&
+      connection.to.port.kind === 'input'
+    ) {
+      result[connection.to.port.key] = {
+        portKey: endpointValueKey(connection.from),
+        payloadPath: remainingPayloadPath(connection.from),
+        targetPayloadPath: remainingPayloadPath(connection.to),
       };
     }
   }
@@ -67,10 +92,10 @@ const collectOutputMap = (
 
   for (const connection of Object.values(logicUnit.core.connections)) {
     if (isLuiEndpoint(connection.from, luiId) && isLuEndpoint(connection.to)) {
-      result[connection.to.portKey] = {
-        portKey: connection.from.portKey,
-        payloadPath: connection.from.payloadPath,
-        targetPayloadPath: connection.to.payloadPath,
+      result[endpointValueKey(connection.to)] = {
+        portKey: endpointValueKey(connection.from),
+        payloadPath: remainingPayloadPath(connection.from),
+        targetPayloadPath: remainingPayloadPath(connection.to),
       };
     }
   }
@@ -79,14 +104,29 @@ const collectOutputMap = (
 };
 
 const inputPorts = (logicUnit: LogicUnit): string[] =>
-  Object.entries(logicUnit.core.ports)
-    .filter(([, port]) => port.boundary === 'input')
-    .map(([key]) => key);
+  Object.keys(logicUnit.core.ports.inputs);
 
-const outputPorts = (logicUnit: LogicUnit): string[] =>
-  Object.entries(logicUnit.core.ports)
-    .filter(([, port]) => port.boundary === 'output')
-    .map(([key]) => key);
+const resultPortKeys = (logicUnit: LogicUnit): string[] => {
+  const ports = logicUnit.core.ports;
+  if (!('result' in ports) || !ports.result) {
+    return [];
+  }
+  const pins = ports.result.pins;
+  if (pins?.kind === 'keyed') {
+    return pins.keys;
+  }
+  if (pins?.kind === 'indexed') {
+    return Array.from({ length: pins.count }, (_, index) => String(index));
+  }
+  return ['result'];
+};
+
+const outputPorts = (logicUnit: LogicUnit): string[] => [
+  ...('outputs' in logicUnit.core.ports
+    ? Object.keys(logicUnit.core.ports.outputs)
+    : []),
+  ...resultPortKeys(logicUnit),
+];
 
 export const compileLogicUnit = (logicUnit: LogicUnit): InterpreterPlan => {
   const diagnostics: InterpreterPlan['diagnostics'] = [];

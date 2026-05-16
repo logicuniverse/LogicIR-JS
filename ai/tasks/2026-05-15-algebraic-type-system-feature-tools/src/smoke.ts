@@ -118,9 +118,17 @@ const cases: SmokeCase[] = [
   {
     name: 'reads LogicIR port payload types',
     run: () => {
+      const result =
+        'result' in fixtureLogicUnit.core.ports
+          ? fixtureLogicUnit.core.ports.result
+          : undefined;
+      if (!result) {
+        return false;
+      }
       const type = readPayloadType(
         fixtureLogicUnit,
-        fixtureLogicUnit.core.ports.userOut,
+        result,
+        ['userOut'],
       );
       return type?.kind === 'ref';
     },

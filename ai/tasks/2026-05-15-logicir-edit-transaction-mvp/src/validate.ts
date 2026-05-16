@@ -3,6 +3,7 @@ import type {
   ExtensionRecord,
   LogicUnit,
   Port,
+  PortSurface,
 } from '@logic-universe/logic-ir-core';
 import { hashJson, stableStringify } from './hash';
 import { replayTransaction } from './replay';
@@ -70,32 +71,58 @@ const validatePort = (port: unknown, path: JsonPath): Diagnostic[] => {
     return [diagnostic('INVALID_PORT', 'Port must be a record.', path)];
   }
 
-  if (port.boundary !== 'input' && port.boundary !== 'output') {
+  if (
+    port.contact !== 'pull' &&
+    port.contact !== 'push' &&
+    port.contact !== 'property'
+  ) {
     diagnostics.push(
-      diagnostic('INVALID_PORT_BOUNDARY', 'Port boundary must be input or output.', [
+      diagnostic('INVALID_PORT_CONTACT', 'Port contact must be pull, push, or property.', [
         ...path,
-        'boundary',
+        'contact',
       ]),
     );
   }
 
-  if (!isRecord(port.interaction)) {
-    diagnostics.push(
-      diagnostic('INVALID_PORT_INTERACTION', 'Port interaction must be a record.', [
-        ...path,
-        'interaction',
-      ]),
-    );
-    return diagnostics;
-  }
-
-  for (const key of ['pullReadable', 'pushNotifiable', 'retainedCurrent']) {
-    if (typeof port.interaction[key] !== 'boolean') {
+  if (port.pins !== undefined) {
+    if (!isRecord(port.pins)) {
       diagnostics.push(
         diagnostic(
-          'INVALID_PORT_INTERACTION_FLAG',
-          `Port interaction.${key} must be boolean.`,
-          [...path, 'interaction', key],
+          'INVALID_PORT_PINS',
+          'Port pins must be a record when present.',
+          [...path, 'pins'],
+        ),
+      );
+    } else if (port.pins.kind === 'indexed') {
+      const count = port.pins.count;
+      if (typeof count !== 'number' || !Number.isInteger(count) || count < 1) {
+        diagnostics.push(
+          diagnostic(
+            'INVALID_PORT_PINS',
+            'Indexed pins must declare a positive integer count.',
+            [...path, 'pins', 'count'],
+          ),
+        );
+      }
+    } else if (port.pins.kind === 'keyed') {
+      if (
+        !Array.isArray(port.pins.keys) ||
+        !port.pins.keys.every((item) => typeof item === 'string')
+      ) {
+        diagnostics.push(
+          diagnostic(
+            'INVALID_PORT_PINS',
+            'Keyed pins must declare string keys.',
+            [...path, 'pins', 'keys'],
+          ),
+        );
+      }
+    } else {
+      diagnostics.push(
+        diagnostic(
+          'INVALID_PORT_PINS',
+          'Port pins kind must be indexed or keyed.',
+          [...path, 'pins', 'kind'],
         ),
       );
     }
@@ -104,17 +131,126 @@ const validatePort = (port: unknown, path: JsonPath): Diagnostic[] => {
   return diagnostics;
 };
 
+const validatePortMap = (
+  value: unknown,
+  path: JsonPath,
+  allowedContacts: string[],
+): Diagnostic[] => {
+  if (!isRecord(value)) {
+    return [diagnostic('INVALID_PORT_MAP', 'Port map must be a record.', path)];
+  }
+
+  return Object.entries(value).flatMap(([portKey, port]) => {
+    const diagnostics = validatePort(port, [...path, portKey]);
+    if (
+      isRecord(port) &&
+      typeof port.contact === 'string' &&
+      !allowedContacts.includes(port.contact)
+    ) {
+      diagnostics.push(
+        diagnostic(
+          'INVALID_PORT_CONTACT_FOR_SLOT',
+          `Port contact ${port.contact} is not allowed in this slot.`,
+          [...path, portKey, 'contact'],
+        ),
+      );
+    }
+    return diagnostics;
+  });
+};
+
 const validatePortSurface = (
   surface: unknown,
   path: JsonPath,
+  kind: unknown,
 ): Diagnostic[] => {
   if (!isRecord(surface)) {
     return [diagnostic('INVALID_PORT_SURFACE', 'Port surface must be a record.', path)];
   }
 
-  return Object.entries(surface).flatMap(([portKey, port]) =>
-    validatePort(port, [...path, portKey]),
-  );
+  if (kind === 'combinational') {
+    const diagnostics = validatePortMap(surface.inputs, [...path, 'inputs'], ['pull']);
+
+    if (Object.prototype.hasOwnProperty.call(surface, 'outputs')) {
+      diagnostics.push(
+        diagnostic(
+          'INVALID_COMBINATIONAL_OUTPUTS',
+          'Combinational ports must not declare ordinary outputs; use result and result.pins.',
+          [...path, 'outputs'],
+        ),
+      );
+    }
+
+    diagnostics.push(...validatePort(surface.result, [...path, 'result']));
+    if (isRecord(surface.result) && surface.result.contact !== 'pull') {
+      diagnostics.push(
+        diagnostic(
+          'INVALID_RESULT_CONTACT',
+          'Combinational result must be a pull contact.',
+          [...path, 'result', 'contact'],
+        ),
+      );
+    }
+
+    return diagnostics;
+  }
+
+  if (kind === 'sequential') {
+    const diagnostics = [
+      ...validatePortMap(surface.inputs, [...path, 'inputs'], ['pull', 'push']),
+      ...validatePortMap(surface.outputs, [...path, 'outputs'], ['push']),
+    ];
+    if (surface.result !== undefined) {
+      diagnostics.push(...validatePort(surface.result, [...path, 'result']));
+      if (isRecord(surface.result) && surface.result.contact !== 'pull') {
+        diagnostics.push(
+          diagnostic(
+            'INVALID_RESULT_CONTACT',
+            'Sequential result must be a pull contact.',
+            [...path, 'result', 'contact'],
+          ),
+        );
+      }
+    }
+    return diagnostics;
+  }
+
+  if (kind === 'stateful') {
+    return [
+      ...validatePortMap(surface.inputs, [...path, 'inputs'], ['pull', 'push']),
+      ...validatePortMap(surface.outputs, [...path, 'outputs'], ['push', 'property']),
+    ];
+  }
+
+  if (kind === 'structural') {
+    return [
+      ...validatePortMap(surface.inputs, [...path, 'inputs'], ['pull', 'push', 'property']),
+      ...validatePortMap(surface.outputs, [...path, 'outputs'], ['push']),
+    ];
+  }
+
+  return [
+    diagnostic(
+      'INVALID_PORT_SURFACE_KIND',
+      'Cannot validate port surface without a supported LU/LUI kind.',
+      path,
+    ),
+  ];
+};
+
+const readFromSurface = (
+  ports: PortSurface,
+  endpoint: EndpointRef,
+): Port | undefined => {
+  if (endpoint.port.kind === 'input') {
+    return ports.inputs[endpoint.port.key];
+  }
+
+  if (endpoint.port.kind === 'output') {
+    return 'outputs' in ports ? ports.outputs[endpoint.port.key] : undefined;
+  }
+
+  return 'result' in ports ? ports.result : undefined;
 };
 
 const readPort = (
@@ -122,32 +258,32 @@ const readPort = (
   endpoint: EndpointRef,
 ): Port | undefined => {
   if (endpoint.owner.kind === 'lu') {
-    return logicUnit.core.ports[endpoint.portKey];
+    return readFromSurface(logicUnit.core.ports, endpoint);
   }
 
   if (endpoint.owner.kind === 'lui') {
-    return logicUnit.core.luis[endpoint.owner.luiId]?.ports[endpoint.portKey];
+    const lui = logicUnit.core.luis[endpoint.owner.luiId];
+    return lui ? readFromSurface(lui.ports, endpoint) : undefined;
   }
 
-  return logicUnit.core.closures[endpoint.owner.closureId]?.core.ports[
-    endpoint.portKey
-  ];
+  const closure = logicUnit.core.closures[endpoint.owner.closureId];
+  return closure ? readFromSurface(closure.core.ports, endpoint) : undefined;
 };
 
-const isSourceEndpoint = (endpoint: EndpointRef, port: Port): boolean => {
-  if (endpoint.owner.kind === 'lu') {
-    return port.boundary === 'input';
+const isSourceEndpoint = (endpoint: EndpointRef): boolean => {
+  if (endpoint.owner.kind === 'lu' || endpoint.owner.kind === 'closure') {
+    return endpoint.port.kind === 'input';
   }
 
-  return port.boundary === 'output';
+  return endpoint.port.kind === 'output' || endpoint.port.kind === 'result';
 };
 
-const isSinkEndpoint = (endpoint: EndpointRef, port: Port): boolean => {
-  if (endpoint.owner.kind === 'lu') {
-    return port.boundary === 'output';
+const isSinkEndpoint = (endpoint: EndpointRef): boolean => {
+  if (endpoint.owner.kind === 'lu' || endpoint.owner.kind === 'closure') {
+    return endpoint.port.kind === 'output' || endpoint.port.kind === 'result';
   }
 
-  return port.boundary === 'input';
+  return endpoint.port.kind === 'input';
 };
 
 const endpointKey = (endpoint: EndpointRef): string =>
@@ -171,7 +307,7 @@ const validateConnections = (logicUnit: LogicUnit): Diagnostic[] => {
           ['core', 'connections', connectionId, 'from'],
         ),
       );
-    } else if (!isSourceEndpoint(connection.from, sourcePort)) {
+    } else if (!isSourceEndpoint(connection.from)) {
       diagnostics.push(
         diagnostic(
           'INVALID_SOURCE_DIRECTION',
@@ -189,7 +325,7 @@ const validateConnections = (logicUnit: LogicUnit): Diagnostic[] => {
           ['core', 'connections', connectionId, 'to'],
         ),
       );
-    } else if (!isSinkEndpoint(connection.to, targetPort)) {
+    } else if (!isSinkEndpoint(connection.to)) {
       diagnostics.push(
         diagnostic(
           'INVALID_TARGET_DIRECTION',
@@ -242,15 +378,30 @@ const validateExtensionFeatures = (logicUnit: LogicUnit): Diagnostic[] => {
   checkExtensions(logicUnit, []);
   checkExtensions(logicUnit.core, ['core']);
 
-  for (const [portKey, port] of Object.entries(logicUnit.core.ports)) {
-    checkExtensions(port, ['core', 'ports', portKey]);
-  }
+  const checkPortSurfaceExtensions = (
+    ports: PortSurface,
+    path: JsonPath,
+  ): void => {
+    for (const [portKey, port] of Object.entries(ports.inputs)) {
+      checkExtensions(port, [...path, 'inputs', portKey]);
+    }
+
+    if ('outputs' in ports) {
+      for (const [portKey, port] of Object.entries(ports.outputs)) {
+        checkExtensions(port, [...path, 'outputs', portKey]);
+      }
+    }
+
+    if ('result' in ports) {
+      checkExtensions(ports.result, [...path, 'result']);
+    }
+  };
+
+  checkPortSurfaceExtensions(logicUnit.core.ports, ['core', 'ports']);
 
   for (const [luiId, lui] of Object.entries(logicUnit.core.luis)) {
     checkExtensions(lui, ['core', 'luis', luiId]);
-    for (const [portKey, port] of Object.entries(lui.ports)) {
-      checkExtensions(port, ['core', 'luis', luiId, 'ports', portKey]);
-    }
+    checkPortSurfaceExtensions(lui.ports, ['core', 'luis', luiId, 'ports']);
   }
 
   for (const [connectionId, connection] of Object.entries(
@@ -308,8 +459,6 @@ export const validateLogicUnit = (value: JsonValue): ValidationResult => {
     };
   }
 
-  diagnostics.push(...validatePortSurface(value.core.ports, ['core', 'ports']));
-
   if (!isRecord(value.core.kindOrganization)) {
     diagnostics.push(
       diagnostic(
@@ -324,6 +473,14 @@ export const validateLogicUnit = (value: JsonValue): ValidationResult => {
         'UNSUPPORTED_KIND',
         'This MVP validator only accepts combinational LogicUnit fixtures.',
         ['core', 'kindOrganization', 'kind'],
+      ),
+    );
+  } else {
+    diagnostics.push(
+      ...validatePortSurface(
+        value.core.ports,
+        ['core', 'ports'],
+        value.core.kindOrganization.kind,
       ),
     );
   }
@@ -361,7 +518,9 @@ export const validateLogicUnit = (value: JsonValue): ValidationResult => {
       );
     }
 
-    diagnostics.push(...validatePortSurface(lui.ports, ['core', 'luis', luiId, 'ports']));
+    diagnostics.push(
+      ...validatePortSurface(lui.ports, ['core', 'luis', luiId, 'ports'], lui.kind),
+    );
 
     if (!isRecord(lui.fulfillments as unknown)) {
       diagnostics.push(

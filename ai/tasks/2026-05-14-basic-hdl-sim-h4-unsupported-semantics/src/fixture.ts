@@ -12,7 +12,10 @@ export const softwareInvocationLogicUnit: LogicUnit = {
   requirements: {},
   core: {
     kindOrganization: { kind: 'combinational' },
-    ports: {},
+    ports: {
+      inputs: {},
+      result: { contact: 'pull' },
+    },
     connections: {},
     closures: {},
     luis: {
@@ -23,7 +26,10 @@ export const softwareInvocationLogicUnit: LogicUnit = {
           namespace: 'logicir.examples.software',
           key: 'call-service',
         },
-        ports: {},
+        ports: {
+          inputs: {},
+          result: { contact: 'pull' },
+        },
         fulfillments: {},
       },
     },

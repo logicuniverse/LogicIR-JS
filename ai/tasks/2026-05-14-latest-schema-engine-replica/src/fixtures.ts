@@ -1,22 +1,78 @@
-import type { LogicUnit, Port } from './types';
+import type { EndpointRef, LogicUnit } from './types';
 
-const input = (retainedCurrent = false): Port => ({
-  boundary: 'input',
-  interaction: {
-    pullReadable: true,
-    pushNotifiable: false,
-    retainedCurrent,
-  },
+const input = () => ({ contact: 'pull' as const });
+const pushInput = () => ({ contact: 'push' as const });
+const pushOutput = () => ({ contact: 'push' as const });
+const propertyOutput = () => ({ contact: 'property' as const });
+
+const result = (...pins: string[]) =>
+  pins.length > 0
+    ? { contact: 'pull' as const, pins: { kind: 'keyed' as const, keys: pins } }
+    : { contact: 'pull' as const };
+
+const inputs = (...keys: string[]) =>
+  Object.fromEntries(keys.map((key) => [key, input()]));
+
+const pushInputs = (...keys: string[]) =>
+  Object.fromEntries(keys.map((key) => [key, pushInput()]));
+
+const propertyOutputs = (...keys: string[]) =>
+  Object.fromEntries(keys.map((key) => [key, propertyOutput()]));
+
+const pushOutputs = (...keys: string[]) =>
+  Object.fromEntries(keys.map((key) => [key, pushOutput()]));
+
+const luInput = (
+  key: string,
+  payloadPath?: (string | number)[],
+): EndpointRef => ({
+  owner: { kind: 'lu' },
+  port: { kind: 'input', key },
+  ...(payloadPath ? { payloadPath } : {}),
 });
 
-const output = (retainedCurrent = false): Port => ({
-  boundary: 'output',
-  role: 'primary-result',
-  interaction: {
-    pullReadable: true,
-    pushNotifiable: retainedCurrent,
-    retainedCurrent,
-  },
+const luOutput = (
+  key: string,
+  payloadPath?: (string | number)[],
+): EndpointRef => ({
+  owner: { kind: 'lu' },
+  port: { kind: 'output', key },
+  ...(payloadPath ? { payloadPath } : {}),
+});
+
+const luResult = (payloadPath?: (string | number)[]): EndpointRef => ({
+  owner: { kind: 'lu' },
+  port: { kind: 'result' },
+  ...(payloadPath ? { payloadPath } : {}),
+});
+
+const luiInput = (
+  luiId: string,
+  key: string,
+  payloadPath?: (string | number)[],
+): EndpointRef => ({
+  owner: { kind: 'lui', luiId },
+  port: { kind: 'input', key },
+  ...(payloadPath ? { payloadPath } : {}),
+});
+
+const luiOutput = (
+  luiId: string,
+  key: string,
+  payloadPath?: (string | number)[],
+): EndpointRef => ({
+  owner: { kind: 'lui', luiId },
+  port: { kind: 'output', key },
+  ...(payloadPath ? { payloadPath } : {}),
+});
+
+const luiResult = (
+  luiId: string,
+  payloadPath?: (string | number)[],
+): EndpointRef => ({
+  owner: { kind: 'lui', luiId },
+  port: { kind: 'result' },
+  ...(payloadPath ? { payloadPath } : {}),
 });
 
 const featureManifest = {
@@ -39,10 +95,8 @@ export const combinationalFixture: LogicUnit = {
   core: {
     kindOrganization: { kind: 'combinational' },
     ports: {
-      left: input(),
-      right: input(),
-      override: input(),
-      sum: output(),
+      inputs: inputs('left', 'right', 'override'),
+      result: result('sum'),
     },
     closures: {},
     luis: {
@@ -54,30 +108,28 @@ export const combinationalFixture: LogicUnit = {
           key: 'add',
         },
         ports: {
-          left: input(),
-          right: input(),
-          override: input(),
-          sum: output(),
+          inputs: inputs('left', 'right', 'override'),
+          result: result('sum'),
         },
         fulfillments: {},
       },
     },
     connections: {
       leftToAdd: {
-        from: { owner: { kind: 'lu' }, portKey: 'left' },
-        to: { owner: { kind: 'lui', luiId: 'add' }, portKey: 'left' },
+        from: luInput('left'),
+        to: luiInput('add', 'left'),
       },
       rightToAdd: {
-        from: { owner: { kind: 'lu' }, portKey: 'right' },
-        to: { owner: { kind: 'lui', luiId: 'add' }, portKey: 'right' },
+        from: luInput('right'),
+        to: luiInput('add', 'right'),
       },
       overrideToAdd: {
-        from: { owner: { kind: 'lu' }, portKey: 'override' },
-        to: { owner: { kind: 'lui', luiId: 'add' }, portKey: 'override' },
+        from: luInput('override'),
+        to: luiInput('add', 'override'),
       },
       addToSum: {
-        from: { owner: { kind: 'lui', luiId: 'add' }, portKey: 'sum' },
-        to: { owner: { kind: 'lu' }, portKey: 'sum' },
+        from: luiResult('add', ['sum']),
+        to: luResult(['sum']),
       },
     },
   },
@@ -90,9 +142,8 @@ export const statefulRetainedFixture: LogicUnit = {
   core: {
     kindOrganization: { kind: 'stateful' },
     ports: {
-      next: input(),
-      current: output(true),
-      written: output(true),
+      inputs: inputs('next'),
+      outputs: propertyOutputs('current', 'written'),
     },
     closures: {},
     luis: {
@@ -103,7 +154,7 @@ export const statefulRetainedFixture: LogicUnit = {
           namespace: 'logicir.software.state-store',
           key: 'counter',
         },
-        ports: { current: output(true) },
+        ports: { inputs: {}, outputs: propertyOutputs('current') },
         fulfillments: {},
         extensions: [
           {
@@ -120,7 +171,7 @@ export const statefulRetainedFixture: LogicUnit = {
           namespace: 'logicir.software.state-store',
           key: 'counter',
         },
-        ports: { next: input(), written: output(true) },
+        ports: { inputs: inputs('next'), outputs: propertyOutputs('written') },
         fulfillments: {},
         extensions: [
           {
@@ -133,16 +184,16 @@ export const statefulRetainedFixture: LogicUnit = {
     },
     connections: {
       readToCurrent: {
-        from: { owner: { kind: 'lui', luiId: 'readCounter' }, portKey: 'current' },
-        to: { owner: { kind: 'lu' }, portKey: 'current' },
+        from: luiOutput('readCounter', 'current'),
+        to: luOutput('current'),
       },
       nextToWrite: {
-        from: { owner: { kind: 'lu' }, portKey: 'next' },
-        to: { owner: { kind: 'lui', luiId: 'writeCounter' }, portKey: 'next' },
+        from: luInput('next'),
+        to: luiInput('writeCounter', 'next'),
       },
       writeToWritten: {
-        from: { owner: { kind: 'lui', luiId: 'writeCounter' }, portKey: 'written' },
-        to: { owner: { kind: 'lu' }, portKey: 'written' },
+        from: luiOutput('writeCounter', 'written'),
+        to: luOutput('written'),
       },
     },
   },
@@ -154,7 +205,7 @@ export const asyncCompletionFixture: LogicUnit = {
   requirements: {},
   core: {
     kindOrganization: { kind: 'combinational' },
-    ports: { value: input(), doubled: output() },
+    ports: { inputs: inputs('value'), result: result('doubled') },
     closures: {},
     luis: {
       double: {
@@ -164,18 +215,18 @@ export const asyncCompletionFixture: LogicUnit = {
           namespace: 'logicir.examples.async',
           key: 'double',
         },
-        ports: { value: input(), doubled: output() },
+        ports: { inputs: inputs('value'), result: result('doubled') },
         fulfillments: {},
       },
     },
     connections: {
       valueToDouble: {
-        from: { owner: { kind: 'lu' }, portKey: 'value' },
-        to: { owner: { kind: 'lui', luiId: 'double' }, portKey: 'value' },
+        from: luInput('value'),
+        to: luiInput('double', 'value'),
       },
       doubleToOutput: {
-        from: { owner: { kind: 'lui', luiId: 'double' }, portKey: 'doubled' },
-        to: { owner: { kind: 'lu' }, portKey: 'doubled' },
+        from: luiResult('double', ['doubled']),
+        to: luResult(['doubled']),
       },
     },
   },
@@ -192,7 +243,7 @@ export const fulfillmentFixture: LogicUnit = {
         units: {
           increment: {
             kind: 'combinational',
-            ports: { value: input(), result: output() },
+            ports: { inputs: inputs('value'), result: result() },
             requirements: {},
           },
         },
@@ -201,13 +252,13 @@ export const fulfillmentFixture: LogicUnit = {
   },
   core: {
     kindOrganization: { kind: 'combinational' },
-    ports: { value: input(), local: output(), upstream: output() },
+    ports: { inputs: inputs('value'), result: result('local', 'upstream') },
     closures: {
       localIncrement: {
-        forwardedPortKeys: { inputs: ['value'], outputs: ['result'] },
+        forwardedPortKeys: { inputs: ['value'], pushOutputs: [] },
         core: {
           kindOrganization: { kind: 'combinational' },
-          ports: { value: input(), result: output() },
+          ports: { inputs: inputs('value'), result: result() },
           connections: {},
           closures: {},
           luis: {},
@@ -218,7 +269,7 @@ export const fulfillmentFixture: LogicUnit = {
       localIncrement: {
         kind: 'combinational',
         target: { kind: 'requirement', serviceKey: 'math', unitKey: 'increment' },
-        ports: { value: input(), result: output() },
+        ports: { inputs: inputs('value'), result: result() },
         fulfillments: {
           math: {
             kind: 'independent-units',
@@ -238,7 +289,7 @@ export const fulfillmentFixture: LogicUnit = {
       upstreamIncrement: {
         kind: 'combinational',
         target: { kind: 'requirement', serviceKey: 'math', unitKey: 'increment' },
-        ports: { value: input(), result: output() },
+        ports: { inputs: inputs('value'), result: result() },
         fulfillments: {
           math: {
             kind: 'independent-units',
@@ -268,20 +319,20 @@ export const fulfillmentFixture: LogicUnit = {
     },
     connections: {
       valueToLocal: {
-        from: { owner: { kind: 'lu' }, portKey: 'value' },
-        to: { owner: { kind: 'lui', luiId: 'localIncrement' }, portKey: 'value' },
+        from: luInput('value'),
+        to: luiInput('localIncrement', 'value'),
       },
       localToOut: {
-        from: { owner: { kind: 'lui', luiId: 'localIncrement' }, portKey: 'result' },
-        to: { owner: { kind: 'lu' }, portKey: 'local' },
+        from: luiResult('localIncrement'),
+        to: luResult(['local']),
       },
       valueToUpstream: {
-        from: { owner: { kind: 'lu' }, portKey: 'value' },
-        to: { owner: { kind: 'lui', luiId: 'upstreamIncrement' }, portKey: 'value' },
+        from: luInput('value'),
+        to: luiInput('upstreamIncrement', 'value'),
       },
       upstreamToOut: {
-        from: { owner: { kind: 'lui', luiId: 'upstreamIncrement' }, portKey: 'result' },
-        to: { owner: { kind: 'lu' }, portKey: 'upstream' },
+        from: luiResult('upstreamIncrement'),
+        to: luResult(['upstream']),
       },
     },
   },
@@ -293,7 +344,7 @@ export const sequentialControlFixture: LogicUnit = {
   requirements: {},
   core: {
     kindOrganization: { kind: 'sequential', steps: ['loop'] },
-    ports: { start: input(), result: output() },
+    ports: { inputs: inputs('start'), outputs: {}, result: result() },
     closures: {},
     luis: {
       loop: {
@@ -303,7 +354,7 @@ export const sequentialControlFixture: LogicUnit = {
           namespace: 'logicir.software.control-flow',
           key: 'loop-until',
         },
-        ports: { start: input(), result: output() },
+        ports: { inputs: inputs('start'), outputs: {}, result: result() },
         fulfillments: {},
         extensions: [
           {
@@ -321,12 +372,12 @@ export const sequentialControlFixture: LogicUnit = {
     },
     connections: {
       startToLoop: {
-        from: { owner: { kind: 'lu' }, portKey: 'start' },
-        to: { owner: { kind: 'lui', luiId: 'loop' }, portKey: 'start' },
+        from: luInput('start'),
+        to: luiInput('loop', 'start'),
       },
       loopToResult: {
-        from: { owner: { kind: 'lui', luiId: 'loop' }, portKey: 'result' },
-        to: { owner: { kind: 'lu' }, portKey: 'result' },
+        from: luiResult('loop'),
+        to: luResult(),
       },
     },
   },
@@ -338,7 +389,7 @@ export const payloadPathFixture: LogicUnit = {
   requirements: {},
   core: {
     kindOrganization: { kind: 'combinational' },
-    ports: { source: input(), picked: output() },
+    ports: { inputs: inputs('source'), result: result('picked') },
     closures: {},
     luis: {
       pick: {
@@ -348,30 +399,18 @@ export const payloadPathFixture: LogicUnit = {
           namespace: 'logicir.examples.payload',
           key: 'pick',
         },
-        ports: { value: input(), out: output() },
+        ports: { inputs: inputs('value'), result: result('out') },
         fulfillments: {},
       },
     },
     connections: {
       sourceToPick: {
-        from: {
-          owner: { kind: 'lu' },
-          portKey: 'source',
-          payloadPath: ['nested', 'value'],
-        },
-        to: { owner: { kind: 'lui', luiId: 'pick' }, portKey: 'value' },
+        from: luInput('source', ['nested', 'value']),
+        to: luiInput('pick', 'value'),
       },
       pickToOutput: {
-        from: {
-          owner: { kind: 'lui', luiId: 'pick' },
-          portKey: 'out',
-          payloadPath: ['payload', 'answer'],
-        },
-        to: {
-          owner: { kind: 'lu' },
-          portKey: 'picked',
-          payloadPath: ['value'],
-        },
+        from: luiResult('pick', ['out', 'payload', 'answer']),
+        to: luResult(['picked', 'value']),
       },
     },
   },
@@ -383,7 +422,7 @@ export const thenableCompletionFixture: LogicUnit = {
   requirements: {},
   core: {
     kindOrganization: { kind: 'combinational' },
-    ports: { value: input(), tripled: output() },
+    ports: { inputs: inputs('value'), result: result('tripled') },
     closures: {},
     luis: {
       triple: {
@@ -393,18 +432,18 @@ export const thenableCompletionFixture: LogicUnit = {
           namespace: 'logicir.examples.thenable',
           key: 'triple',
         },
-        ports: { value: input(), tripled: output() },
+        ports: { inputs: inputs('value'), result: result('tripled') },
         fulfillments: {},
       },
     },
     connections: {
       valueToTriple: {
-        from: { owner: { kind: 'lu' }, portKey: 'value' },
-        to: { owner: { kind: 'lui', luiId: 'triple' }, portKey: 'value' },
+        from: luInput('value'),
+        to: luiInput('triple', 'value'),
       },
       tripleToOutput: {
-        from: { owner: { kind: 'lui', luiId: 'triple' }, portKey: 'tripled' },
-        to: { owner: { kind: 'lu' }, portKey: 'tripled' },
+        from: luiResult('triple', ['tripled']),
+        to: luResult(['tripled']),
       },
     },
   },
@@ -416,7 +455,7 @@ export const emitFixture: LogicUnit = {
   requirements: {},
   core: {
     kindOrganization: { kind: 'stateful' },
-    ports: { message: input(), ack: output() },
+    ports: { inputs: pushInputs('message'), outputs: pushOutputs('ack') },
     closures: {},
     luis: {
       emitMessage: {
@@ -426,18 +465,18 @@ export const emitFixture: LogicUnit = {
           namespace: 'logicir.examples.events',
           key: 'emit-message',
         },
-        ports: { message: input(), ack: output() },
+        ports: { inputs: pushInputs('message'), outputs: pushOutputs('ack') },
         fulfillments: {},
       },
     },
     connections: {
       messageToEmitter: {
-        from: { owner: { kind: 'lu' }, portKey: 'message' },
-        to: { owner: { kind: 'lui', luiId: 'emitMessage' }, portKey: 'message' },
+        from: luInput('message'),
+        to: luiInput('emitMessage', 'message'),
       },
       emitterToAck: {
-        from: { owner: { kind: 'lui', luiId: 'emitMessage' }, portKey: 'ack' },
-        to: { owner: { kind: 'lu' }, portKey: 'ack' },
+        from: luiOutput('emitMessage', 'ack'),
+        to: luOutput('ack'),
       },
     },
   },
@@ -449,7 +488,7 @@ export const nestedInnerFixture: LogicUnit = {
   requirements: {},
   core: {
     kindOrganization: { kind: 'combinational' },
-    ports: { value: input(), result: output() },
+    ports: { inputs: inputs('value'), result: result() },
     closures: {},
     luis: {
       inc: {
@@ -459,18 +498,18 @@ export const nestedInnerFixture: LogicUnit = {
           namespace: 'logicir.examples.math',
           key: 'increment-nested',
         },
-        ports: { value: input(), result: output() },
+        ports: { inputs: inputs('value'), result: result() },
         fulfillments: {},
       },
     },
     connections: {
       valueToInc: {
-        from: { owner: { kind: 'lu' }, portKey: 'value' },
-        to: { owner: { kind: 'lui', luiId: 'inc' }, portKey: 'value' },
+        from: luInput('value'),
+        to: luiInput('inc', 'value'),
       },
       incToResult: {
-        from: { owner: { kind: 'lui', luiId: 'inc' }, portKey: 'result' },
-        to: { owner: { kind: 'lu' }, portKey: 'result' },
+        from: luiResult('inc'),
+        to: luResult(),
       },
     },
   },
@@ -482,13 +521,13 @@ export const nestedOuterFixture: LogicUnit = {
   requirements: {},
   core: {
     kindOrganization: { kind: 'combinational' },
-    ports: { value: input(), result: output() },
+    ports: { inputs: inputs('value'), result: result() },
     closures: {},
     luis: {
       nested: {
         kind: 'combinational',
         target: { kind: 'lu', luId: 'nested-inner' },
-        ports: { value: input(), result: output() },
+        ports: { inputs: inputs('value'), result: result() },
         fulfillments: {},
         extensions: [
           {
@@ -501,12 +540,12 @@ export const nestedOuterFixture: LogicUnit = {
     },
     connections: {
       valueToNested: {
-        from: { owner: { kind: 'lu' }, portKey: 'value' },
-        to: { owner: { kind: 'lui', luiId: 'nested' }, portKey: 'value' },
+        from: luInput('value'),
+        to: luiInput('nested', 'value'),
       },
       nestedToResult: {
-        from: { owner: { kind: 'lui', luiId: 'nested' }, portKey: 'result' },
-        to: { owner: { kind: 'lu' }, portKey: 'result' },
+        from: luiResult('nested'),
+        to: luResult(),
       },
     },
   },
@@ -518,7 +557,7 @@ export const reactiveSubscribeFixture: LogicUnit = {
   requirements: {},
   core: {
     kindOrganization: { kind: 'stateful' },
-    ports: { tick: input(), latest: output() },
+    ports: { inputs: pushInputs('tick'), outputs: propertyOutputs('latest') },
     closures: {},
     luis: {
       mirror: {
@@ -528,18 +567,18 @@ export const reactiveSubscribeFixture: LogicUnit = {
           namespace: 'logicir.examples.events',
           key: 'mirror-event',
         },
-        ports: { tick: input(), latest: output() },
+        ports: { inputs: pushInputs('tick'), outputs: propertyOutputs('latest') },
         fulfillments: {},
       },
     },
     connections: {
       tickToMirror: {
-        from: { owner: { kind: 'lu' }, portKey: 'tick' },
-        to: { owner: { kind: 'lui', luiId: 'mirror' }, portKey: 'tick' },
+        from: luInput('tick'),
+        to: luiInput('mirror', 'tick'),
       },
       mirrorToLatest: {
-        from: { owner: { kind: 'lui', luiId: 'mirror' }, portKey: 'latest' },
-        to: { owner: { kind: 'lu' }, portKey: 'latest' },
+        from: luiOutput('mirror', 'latest'),
+        to: luOutput('latest'),
       },
     },
   },
@@ -557,7 +596,7 @@ export const structuralCompositionFixture: LogicUnit = {
       exportAnchorFills: { root: { kind: 'empty' } },
       luiFills: {},
     },
-    ports: { label: input(), text: input(), root: output() },
+    ports: { inputs: inputs('label', 'text'), outputs: pushOutputs('root') },
     connections: {},
     closures: {},
     luis: {},

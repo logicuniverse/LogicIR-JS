@@ -2,6 +2,8 @@ export type {
   ExtensionRecord,
   LogicUnit,
   Port,
+  PropertyPort,
+  PullPort,
 } from '@logic-universe/logic-ir-core';
 
 export type SignalPayload = {

@@ -1,4 +1,5 @@
 import type {
+  EndpointRef,
   FulfillmentPlanNode,
   InterpreterPlan,
   LogicUnit,
@@ -22,6 +23,24 @@ const requiredFeaturesPresent = (
   );
 };
 
+const inputKey = (endpoint: EndpointRef): string => {
+  if (endpoint.port.kind !== 'input') {
+    throw new Error('Expected an input endpoint.');
+  }
+  return endpoint.port.key;
+};
+
+const outputLikeKey = (endpoint: EndpointRef): string => {
+  if (endpoint.port.kind === 'output') {
+    return endpoint.port.key;
+  }
+  if (endpoint.port.kind === 'result') {
+    const [first] = endpoint.payloadPath ?? [];
+    return typeof first === 'string' ? first : 'result';
+  }
+  throw new Error('Expected an output or result endpoint.');
+};
+
 const collectInputMap = (
   logicUnit: LogicUnit,
   luiId: string,
@@ -34,7 +53,7 @@ const collectInputMap = (
       connection.to.owner.kind === 'lui' &&
       connection.to.owner.luiId === luiId
     ) {
-      inputMap[connection.to.portKey] = connection.from.portKey;
+      inputMap[inputKey(connection.to)] = inputKey(connection.from);
     }
   }
 
@@ -53,7 +72,7 @@ const collectOutputMap = (
       connection.from.owner.luiId === luiId &&
       connection.to.owner.kind === 'lu'
     ) {
-      outputMap[connection.to.portKey] = connection.from.portKey;
+      outputMap[outputLikeKey(connection.to)] = outputLikeKey(connection.from);
     }
   }
 

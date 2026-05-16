@@ -8,8 +8,9 @@
  * database keys belong to the catalog or application layer.
  *
  * It must not contain helper functions, factories, classes, runtime callbacks,
- * tool implementations, or TypeScript-only schema abstractions such as
- * generics.
+ * tool implementations, or TypeScript generics / utility types as schema
+ * abstraction. Spell protocol shapes out with serializable object, union,
+ * intersection, array, and index-signature types.
  */
 
 import type {
@@ -337,7 +338,7 @@ export type LogicIRExecutionProfileDefinition =
 
 export type RealizedExecutionProfileDefinition =
   ExecutionProfileDefinitionBase & {
-    input: Exclude<ExecutionInputKind, 'logicir'>;
+    input: 'executable-plan' | 'artifact';
     acceptedCoreVersions?: CoreSchemaVersionSelector;
   };
 

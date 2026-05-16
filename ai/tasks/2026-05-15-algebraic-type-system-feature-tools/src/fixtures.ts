@@ -1,4 +1,4 @@
-import type { LogicUnit, Port } from '@logic-universe/logic-ir-core';
+import type { LogicUnit, PullPort } from '@logic-universe/logic-ir-core';
 import {
   TYPE_SYSTEM_EXTENSION_KEYS,
   TYPE_SYSTEM_FEATURE,
@@ -125,22 +125,15 @@ export const typeDefinitionsPayload: TypeDefinitionsPayload = {
 };
 
 const makePort = (
-  boundary: Port['boundary'],
   type: AlgebraicTypeExpression,
-  role?: Port['role'],
-): Port => ({
-  boundary,
-  role,
-  interaction: {
-    pullReadable: boundary === 'output',
-    pushNotifiable: false,
-    retainedCurrent: false,
-  },
+  pathTypes: { payloadPath: (string | number)[]; type: AlgebraicTypeExpression }[] = [],
+): PullPort => ({
+  contact: 'pull',
   extensions: [
     {
       featureKey: 'type',
       key: TYPE_SYSTEM_EXTENSION_KEYS.payloadType,
-      payload: { type },
+      payload: { type, pathTypes },
     },
   ],
 });
@@ -162,42 +155,61 @@ export const fixtureLogicUnit: LogicUnit = {
     kindOrganization: { kind: 'combinational' },
     closures: {},
     ports: {
-      userOut: makePort('output', {
-        kind: 'ref',
-        ref: { kind: 'definition', name: 'User' },
-      }),
-      userIn: makePort('input', {
-        kind: 'ref',
-        ref: { kind: 'definition', name: 'User' },
-      }),
-      numberOut: makePort('output', numberType),
-      intIn: makePort('input', intType),
-      intOut: makePort('output', intType),
-      numberIn: makePort('input', numberType),
-      stringOut: makePort('output', stringType),
-      boolIn: makePort('input', booleanType),
-      result: makePort('output', {
-        kind: 'ref',
-        ref: { kind: 'definition', name: 'Event' },
-      }, 'primary-result'),
+      inputs: {
+        userIn: makePort({
+          kind: 'ref',
+          ref: { kind: 'definition', name: 'User' },
+        }),
+        intIn: makePort(intType),
+        numberIn: makePort(numberType),
+        boolIn: makePort(booleanType),
+      },
+      result: makePort(
+        { kind: 'ref', ref: { kind: 'definition', name: 'Event' } },
+        [
+          {
+            payloadPath: ['userOut'],
+            type: { kind: 'ref', ref: { kind: 'definition', name: 'User' } },
+          },
+          { payloadPath: ['numberOut'], type: numberType },
+          { payloadPath: ['intOut'], type: intType },
+          { payloadPath: ['stringOut'], type: stringType },
+        ],
+      ),
     },
     luis: {},
     connections: {
       validUser: {
-        from: { owner: { kind: 'lu' }, portKey: 'userOut' },
-        to: { owner: { kind: 'lu' }, portKey: 'userIn' },
+        from: {
+          owner: { kind: 'lu' },
+          port: { kind: 'result' },
+          payloadPath: ['userOut'],
+        },
+        to: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'userIn' } },
       },
       invalidNumberToInteger: {
-        from: { owner: { kind: 'lu' }, portKey: 'numberOut' },
-        to: { owner: { kind: 'lu' }, portKey: 'intIn' },
+        from: {
+          owner: { kind: 'lu' },
+          port: { kind: 'result' },
+          payloadPath: ['numberOut'],
+        },
+        to: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'intIn' } },
       },
       validIntegerToNumber: {
-        from: { owner: { kind: 'lu' }, portKey: 'intOut' },
-        to: { owner: { kind: 'lu' }, portKey: 'numberIn' },
+        from: {
+          owner: { kind: 'lu' },
+          port: { kind: 'result' },
+          payloadPath: ['intOut'],
+        },
+        to: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'numberIn' } },
       },
       disjointStringBoolean: {
-        from: { owner: { kind: 'lu' }, portKey: 'stringOut' },
-        to: { owner: { kind: 'lu' }, portKey: 'boolIn' },
+        from: {
+          owner: { kind: 'lu' },
+          port: { kind: 'result' },
+          payloadPath: ['stringOut'],
+        },
+        to: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'boolIn' } },
         extensions: [
           {
             featureKey: 'type',
@@ -207,8 +219,12 @@ export const fixtureLogicUnit: LogicUnit = {
         ],
       },
       equivalentOverride: {
-        from: { owner: { kind: 'lu' }, portKey: 'stringOut' },
-        to: { owner: { kind: 'lu' }, portKey: 'boolIn' },
+        from: {
+          owner: { kind: 'lu' },
+          port: { kind: 'result' },
+          payloadPath: ['stringOut'],
+        },
+        to: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'boolIn' } },
         extensions: [
           {
             featureKey: 'type',

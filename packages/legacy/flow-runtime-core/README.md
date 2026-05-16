@@ -1,8 +1,7 @@
 # Flow Runtime Core Snapshot
 
-This is a curated legacy snapshot from:
-
-`D:\Projects\flow-monorepo\packages\ff-runtime-core`
+This is a curated legacy snapshot from the earlier FlowForge-era
+`packages/ff-runtime-core` package.
 
 It is kept as historical evidence for the software runtime side of LogicIR design. It is not an active package and should not be imported by current packages.
 
@@ -29,4 +28,3 @@ This snapshot is useful when reasoning about:
 - Subflow execution and old closure-like behavior.
 
 Do not treat this code as the current LogicIR schema authority. Runtime machinery such as thenables, subscriptions, stores, and hooks belongs in software features, execution profiles, or implementation packages, not in core schema.
-

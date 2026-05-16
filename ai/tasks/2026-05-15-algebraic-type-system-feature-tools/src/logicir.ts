@@ -136,15 +136,34 @@ export const getEndpointPort = (
   logicUnit: LogicUnit,
   endpoint: EndpointRef,
 ): Port | undefined => {
+  const readFromSurface = (
+    ports: LogicUnit['core']['ports'],
+  ): Port | undefined => {
+    switch (endpoint.port.kind) {
+      case 'input':
+        return ports.inputs[endpoint.port.key];
+      case 'output':
+        return 'outputs' in ports
+          ? ports.outputs[endpoint.port.key]
+          : undefined;
+      case 'result':
+        return 'result' in ports ? ports.result : undefined;
+    }
+  };
+
   switch (endpoint.owner.kind) {
     case 'lu':
-      return logicUnit.core.ports[endpoint.portKey];
+      return readFromSurface(logicUnit.core.ports);
     case 'lui':
-      return logicUnit.core.luis[endpoint.owner.luiId]?.ports[endpoint.portKey];
+      return logicUnit.core.luis[endpoint.owner.luiId]
+        ? readFromSurface(logicUnit.core.luis[endpoint.owner.luiId].ports)
+        : undefined;
     case 'closure':
-      return logicUnit.core.closures[endpoint.owner.closureId]?.core.ports[
-        endpoint.portKey
-      ];
+      return logicUnit.core.closures[endpoint.owner.closureId]
+        ? readFromSurface(
+            logicUnit.core.closures[endpoint.owner.closureId].core.ports,
+          )
+        : undefined;
   }
 };
 

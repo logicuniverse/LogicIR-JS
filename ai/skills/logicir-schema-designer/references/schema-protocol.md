@@ -1,112 +1,128 @@
 # Schema Protocol Reference
 
-Use this when designing schema evolution, compatibility, feature extensions,
-architecture definitions, profiles, stacks, tools, projectors, engines,
-providers, or capability declarations.
+设计 schema evolution、compatibility、feature extensions、architecture
+definitions、profiles、stacks、tools、projectors、engines、providers 或
+capability declarations 时使用本参考。
 
-## Long-Lived Protocol Model
+## 长期协议模型
 
-Treat LogicIR schema like a long-lived protocol:
+把 LogicIR schema 当成长生命周期协议：
 
-- Stable semantic core.
-- Serializable architecture definitions for features, profiles, stacks,
-  capabilities, provider contracts, provider capabilities, stages, policies,
-  and execution bindings.
-- Namespaced features and feature-scoped extensions.
-- Explicit capability declarations from tools, projectors, engines, and
-  providers.
-- Safe failure when declared semantics cannot be preserved.
+- 稳定 semantic core。
+- Serializable architecture definitions，用于描述 features、profiles、stacks、
+  capabilities、provider contracts、provider capabilities、stages、policies 和
+  execution bindings。
+- Namespaced features 与 feature-scoped extensions。
+- Tool、projector、engine 和 provider 的显式 capability declarations。
+- 当 declared semantics 无法保持时安全失败，而不是静默降级。
 
-## Core vs Feature Extension
+## Core 与 Feature Extension
 
-Core schema contains target-neutral logical topology semantics. Put a field in core only if removing or changing it changes whether the LogicIR object is the same logical topology.
+Core schema 只包含 target-neutral logical topology semantics。判断一个字段是否
+属于 core 的标准是：移除或改变它，是否会改变这个 LogicIR object 是否仍是同一个
+logical topology。
 
-Feature extensions contain target, host, runtime, tool, or domain constraints.
-Feature identity is the semantic capability unit; concrete payload kinds are
-extension points under that feature. Examples:
+Feature extensions 承载 target、host、runtime、tool 或 domain constraints。
+Feature identity 是语义能力单元；具体 payload kind 是该 feature 下的 extension
+point。例如：
 
-- Feature `logicir.type-system / core`, extension point `payload-type`.
-- Feature `logicir.software-runtime / core`, extension point `completion-policy`.
-- Feature `logicir.verilog-hdl / core`, extension point `clock-reset`.
-- Feature `logicir.distributed-runtime / core`, extension point `placement`.
-- Feature `logicir.verification / assertions`, extension point `assertion`.
+- Feature `logicir.type-system / core`，extension point `payload-type`。
+- Feature `logicir.software-runtime / core`，extension point `completion-policy`。
+- Feature `logicir.verilog-hdl / core`，extension point `clock-reset`。
+- Feature `logicir.distributed-runtime / core`，extension point `placement`。
+- Feature `logicir.verification / assertions`，extension point `assertion`。
 
-Profile and stack definitions are architecture content, not part of the
-canonical LogicIR object model. Profiles are single-layer compatibility
-contracts; stacks compose profiles for user-facing workflows.
+Profile 和 stack definitions 是 architecture content，不属于 canonical LogicIR
+object model。Profile 是 single-layer compatibility contract；stack 组合 profile
+形成 user-facing workflow。
+
+显式资源管理、副作用纪律、no-GC 内存策略、catalog database、dependency index 和
+AI tool-routing index 默认也不属于 core。它们应先作为 feature/profile/tooling
+问题处理；只有当它们暴露缺失的 target-neutral topology relation 时，才考虑
+core 变化。
 
 ## Architecture Definitions
 
-- Keep architecture schema pure JSON-serializable data.
-- Do not use document wrappers, factories, helper functions, callbacks,
-  providers, runtime implementations, or TypeScript generic schema abstractions.
-- Keep registry identity, namespace, version, indexing, persistence, package
-  layout, and database keys outside architecture content shapes.
-- Let feature definitions own extension points. Each extension point has one
-  attachment kind and one payload schema reference.
-- Let profiles define requiredness, stages, diagnostics, target constraints,
-  provider contracts, and bindings.
-- Let stacks compose profile identities; a stack is not a capability proof by
-  itself.
+- Architecture schema 保持 pure JSON-serializable data。
+- 不使用 document wrapper、factory、helper function、callback、provider、
+  runtime implementation 或 TypeScript generic / utility type 作为 schema
+  abstraction。
+- Schema authoring source 中，优先使用显式 serializable object、union、
+  intersection、array 和 index-signature types；不要用 `Base<T>`、
+  `Record<K, V>`、`Exclude<T, U>`、`Pick`、`Omit` 或 `Partial` 这类 TS-only
+  convenience。
+- Registry identity、namespace、version、indexing、persistence、package layout
+  和 database keys 保持在 architecture content shapes 之外。
+- Feature definitions 拥有 extension points。每个 extension point 有一个
+  attachment kind 和一个 payload schema reference。
+- Profiles 定义 requiredness、stages、diagnostics、target constraints、
+  provider contracts 和 bindings。
+- Stacks 组合 profile identities；stack 本身不是 capability proof。
 
-## Features and Extensions
+## Features 与 Extensions
 
-- Give each feature a stable identity, usually `namespace + key`.
-- Application-layer bundles may group features, but projectors must resolve them to concrete feature identities.
-- Each `LogicUnit` declares a local feature manifest that inlines feature namespace/key/version.
-- Extension records reference that manifest by local `featureKey` and use an extension key inside the resolved feature.
-- References to external namespace/key contracts may carry optional versions.
-- Feature definitions own extension-point schemas, including payload required
-  and optional fields.
-- Profiles mark feature and extension-point contracts as `required`,
-  `conditional-required`, `recommended`, or `optional` for a specific processing
-  layer.
-- `conditional-required` means required when the LogicIR input uses the relevant
-  semantic condition; otherwise not required.
-- Unsupported required or conditionally required contracts must fail with
-  diagnostic.
-- Unsupported recommended or optional contracts may be ignored only if profile
-  semantics remain unchanged.
-- Attach extensions to stable owner or relationship nodes. For internal helper positions such as sequential `steps`, composition leaves/values, pin children, or `kindOrganization` branch internals, use selector fields in the owner-level payload rather than adding extension arrays to the helper itself.
-- Kind-specific metadata should attach to `LUCore.extensions`; `kindOrganization` remains the target-neutral minimal organization skeleton.
+- 每个 feature 应有稳定 identity，通常是 `namespace + key`。
+- Application-layer bundle 可以组合 feature，但 projector 必须解析到具体
+  feature identities。
+- 每个 `LogicUnit` 声明本地 feature manifest，inline 保存 feature
+  namespace/key/version。
+- Extension record 通过 local `featureKey` 引用该 manifest，并使用已解析
+  feature 下的 extension key。
+- 指向外部 namespace/key contract 的 reference 可以携带 optional version。
+- Feature definitions 拥有 extension-point schemas，包括 payload required 和
+  optional fields。
+- Profiles 把 feature 与 extension-point contracts 标记为 `required`、
+  `conditional-required`、`recommended` 或 `optional`。
+- `conditional-required` 表示当 LogicIR input 使用相关语义条件时必须支持，
+  否则不要求支持。
+- Unsupported required 或 conditional-required contract 必须失败并返回
+  diagnostic。
+- Unsupported recommended 或 optional contract 只有在 profile semantics 保持
+  不变时才可忽略。
+- Extension 挂到稳定 owner 或 relationship nodes。对 sequential `steps`、
+  composition leaves/values、pin children、`kindOrganization` branch internals
+  这类 internal helper position，应在 owner-level payload 使用 selector 字段，
+  不要让 helper 自己挂 extension array。
+- Kind-specific metadata 应挂到 `LUCore.extensions`；`kindOrganization` 保持
+  target-neutral minimal organization skeleton。
 
 ## Versioning
 
-- Core schema stable releases default to additive changes.
-- Breaking core semantic changes require a major version.
-- Breaking changes require migration or compat-layer notes.
-- Profiles, stacks, features, and provider contracts may version independently
-  at the catalog/registry layer, but must state compatible core version ranges
-  and concrete feature identities when relevant.
+- Core schema stable release 默认做 additive changes。
+- Breaking core semantic changes 需要 major version。
+- Breaking changes 需要 migration 或 compat-layer notes。
+- Profiles、stacks、features 和 provider contracts 可以在 catalog/registry 层
+  独立 version，但必须声明 compatible core version ranges，并在需要时声明具体
+  feature identities。
 
 ## Capability Sets
 
-Tools, projectors, execution engines, and providers must declare relevant
-capabilities:
+Tools、projectors、execution engines 和 providers 必须声明相关 capabilities：
 
-- Supported core schema versions.
-- Supported concrete features.
-- Feature manifest resolution from local `featureKey` aliases to concrete feature identities.
-- Supported extension points under those features, checked against the selected
-  profile's requiredness contracts.
-- Supported LU kinds.
-- Supported fulfillment forms.
-- Target constraints and known semantic limits.
-- Supported profiles only after resolving them into concrete features, stages,
-  policies, provider contracts, and bindings.
+- Supported core schema versions。
+- Supported concrete features。
+- 从 local `featureKey` alias 到 concrete feature identity 的 feature manifest
+  resolution。
+- Supported extension points，并按 selected profile 的 requiredness contracts
+  检查。
+- Supported LU kinds。
+- Supported fulfillment forms。
+- Target constraints 和 known semantic limits。
+- 只有在把 profile 解析成 concrete features、stages、policies、provider
+  contracts 和 bindings 后，才能声明 supported profiles。
 
-Implementations must refuse work when required schema semantics or profile
-contracts exceed declared capability.
+Implementation 在 required schema semantics 或 profile contracts 超出 declared
+capability 时必须拒绝工作。
 
 ## Plan Checklist
 
-Every schema/projection plan must include:
+每个 schema/projection plan 必须包含：
 
-- Old implementation reference points.
-- Theory mapping.
-- Core/feature/extension/profile/stack boundary.
-- Required, conditional-required, recommended, or optional contract status.
-- Tool, projector, engine, and provider capability changes.
-- JS/TS runtime impact.
-- Verilog HDL impact.
-- Compatibility and migration strategy.
+- Old implementation reference points。
+- Theory mapping。
+- Core/feature/extension/profile/stack boundary。
+- Required、conditional-required、recommended 或 optional contract status。
+- Tool、projector、engine 和 provider capability changes。
+- JS/TS runtime impact。
+- Verilog HDL impact。
+- Compatibility 和 migration strategy。

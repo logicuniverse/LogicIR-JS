@@ -16,7 +16,8 @@ state is retained across runs.
 
 ## Boundary Decisions
 
-- `retainedCurrent` remains a port interaction capability in core-shaped data.
+- `property` remains a port contact capability in core-shaped data. It replaces
+  the older task-local retained-current boolean shape.
 - State-store identity and operation kind are retained-current feature payload.
   The task-local engine receives its state store as execution context; S2 does
   not need an architecture-level provider contract or execution binding.

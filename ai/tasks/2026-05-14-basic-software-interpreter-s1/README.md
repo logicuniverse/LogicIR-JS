@@ -9,8 +9,9 @@ stack/profile contract and returns a deterministic output.
 ## Interpretation Note
 
 This task is sandbox evidence, not schema or engine authority. Its
-primary-result lazy-pull engine path is the S1 baseline and a guard against
-accidental eager execution; it is not the only possible interpreter algorithm.
+`ports.result` lazy-pull engine path is the S1 baseline and a guard against
+accidental eager execution; result is a distinct endpoint slot, not an output
+role. This is not the only possible interpreter algorithm.
 Formal promotion may use a different plan or execution model if combinational
 semantics and unrelated-LUI non-observability are preserved and verified.
 

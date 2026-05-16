@@ -2,17 +2,13 @@ import type {
   HdlLibraryModule,
   HdlTestVector,
   LogicUnit,
-  Port,
+  PullPort,
+  PushPort,
   StructuralPayload,
 } from './types';
 
-const bitInput = (): Port => ({
-  boundary: 'input',
-  interaction: {
-    pullReadable: true,
-    pushNotifiable: false,
-    retainedCurrent: false,
-  },
+const bitInput = (): PullPort => ({
+  contact: 'pull',
   extensions: [
     {
       featureKey: 'hdlSignal',
@@ -22,13 +18,8 @@ const bitInput = (): Port => ({
   ],
 });
 
-const bitOutput = (): Port => ({
-  boundary: 'output',
-  interaction: {
-    pullReadable: true,
-    pushNotifiable: false,
-    retainedCurrent: false,
-  },
+const bitOutput = (): PushPort => ({
+  contact: 'push',
   extensions: [
     {
       featureKey: 'hdlSignal',
@@ -58,9 +49,9 @@ export const h5LibraryModules: HdlLibraryModule[] = [
   {
     moduleName: 'logicir_h5_and2',
     ports: {
-      a: { boundary: 'input', signal: { width: 1, signed: false } },
-      b: { boundary: 'input', signal: { width: 1, signed: false } },
-      y: { boundary: 'output', signal: { width: 1, signed: false } },
+      a: { direction: 'input', signal: { width: 1, signed: false } },
+      b: { direction: 'input', signal: { width: 1, signed: false } },
+      y: { direction: 'output', signal: { width: 1, signed: false } },
     },
     body: ['assign y = a & b;'],
   },
@@ -106,10 +97,14 @@ export const and3StructuralLogicUnit: LogicUnit = {
       luiFills: {},
     },
     ports: {
-      a: bitInput(),
-      b: bitInput(),
-      c: bitInput(),
-      y: bitOutput(),
+      inputs: {
+        a: bitInput(),
+        b: bitInput(),
+        c: bitInput(),
+      },
+      outputs: {
+        y: bitOutput(),
+      },
     },
     connections: {},
     closures: {},

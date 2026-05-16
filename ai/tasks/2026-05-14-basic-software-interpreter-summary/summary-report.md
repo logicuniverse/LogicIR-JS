@@ -63,9 +63,10 @@ Avoid promoting the task-local schema subsets. They were useful for sandbox
 speed, but formal code should import accepted types from `packages/`.
 
 Also avoid promoting any S1-S5 algorithm as the only valid runtime strategy:
-primary-result lazy pull, task-local state store, Promise-style completion,
-closure/upstream fulfillment, and S5 diagnostics are current baselines. They
-should be redesigned or retained intentionally during formal review.
+`ports.result` lazy pull, task-local state store, Promise-style completion,
+closure/upstream fulfillment, and S5 diagnostics are current baselines. Result
+is a distinct endpoint slot, not an output role. These baselines should be
+redesigned or retained intentionally during formal review.
 
 ## Recommended Follow-Up Rounds
 

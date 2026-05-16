@@ -1,22 +1,11 @@
 import type { LogicUnit, Port } from './types';
 
 const retainedInput: Port = {
-  boundary: 'input',
-  interaction: {
-    pullReadable: true,
-    pushNotifiable: false,
-    retainedCurrent: false,
-  },
+  contact: 'pull',
 };
 
 const retainedOutput: Port = {
-  boundary: 'output',
-  role: 'primary-result',
-  interaction: {
-    pullReadable: true,
-    pushNotifiable: true,
-    retainedCurrent: true,
-  },
+  contact: 'property',
   extensions: [
     {
       featureKey: 'retained',
@@ -39,9 +28,13 @@ export const counterCurrentLogicUnit: LogicUnit = {
   core: {
     kindOrganization: { kind: 'stateful' },
     ports: {
-      next: retainedInput,
-      current: retainedOutput,
-      written: retainedOutput,
+      inputs: {
+        next: retainedInput,
+      },
+      outputs: {
+        current: retainedOutput,
+        written: retainedOutput,
+      },
     },
     closures: {},
     luis: {
@@ -53,7 +46,10 @@ export const counterCurrentLogicUnit: LogicUnit = {
           key: 'counter',
         },
         ports: {
-          current: retainedOutput,
+          inputs: {},
+          outputs: {
+            current: retainedOutput,
+          },
         },
         fulfillments: {},
         extensions: [
@@ -72,8 +68,12 @@ export const counterCurrentLogicUnit: LogicUnit = {
           key: 'counter',
         },
         ports: {
-          next: retainedInput,
-          written: retainedOutput,
+          inputs: {
+            next: retainedInput,
+          },
+          outputs: {
+            written: retainedOutput,
+          },
         },
         fulfillments: {},
         extensions: [
@@ -89,23 +89,23 @@ export const counterCurrentLogicUnit: LogicUnit = {
       readToCurrent: {
         from: {
           owner: { kind: 'lui', luiId: 'readCounter' },
-          portKey: 'current',
+          port: { kind: 'output', key: 'current' },
         },
-        to: { owner: { kind: 'lu' }, portKey: 'current' },
+        to: { owner: { kind: 'lu' }, port: { kind: 'output', key: 'current' } },
       },
       nextToWrite: {
-        from: { owner: { kind: 'lu' }, portKey: 'next' },
+        from: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'next' } },
         to: {
           owner: { kind: 'lui', luiId: 'writeCounter' },
-          portKey: 'next',
+          port: { kind: 'input', key: 'next' },
         },
       },
       writeToWritten: {
         from: {
           owner: { kind: 'lui', luiId: 'writeCounter' },
-          portKey: 'written',
+          port: { kind: 'output', key: 'written' },
         },
-        to: { owner: { kind: 'lu' }, portKey: 'written' },
+        to: { owner: { kind: 'lu' }, port: { kind: 'output', key: 'written' } },
       },
     },
   },

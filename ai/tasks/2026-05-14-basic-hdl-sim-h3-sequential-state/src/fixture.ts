@@ -1,14 +1,9 @@
-import type { LogicUnit, Port } from './types';
+import type { LogicUnit, PropertyPort, PullPort } from './types';
 
 const signalPayload = (width: number) => ({ width, signed: false });
 
-const input = (width: number): Port => ({
-  boundary: 'input',
-  interaction: {
-    pullReadable: true,
-    pushNotifiable: false,
-    retainedCurrent: false,
-  },
+const input = (width: number): PullPort => ({
+  contact: 'pull',
   extensions: [
     {
       featureKey: 'hdlSignal',
@@ -18,14 +13,19 @@ const input = (width: number): Port => ({
   ],
 });
 
-const output = (width: number): Port => ({
-  boundary: 'output',
-  role: 'primary-result',
-  interaction: {
-    pullReadable: true,
-    pushNotifiable: true,
-    retainedCurrent: true,
-  },
+const output = (width: number): PullPort => ({
+  contact: 'pull',
+  extensions: [
+    {
+      featureKey: 'hdlSignal',
+      key: 'signal',
+      payload: signalPayload(width),
+    },
+  ],
+});
+
+const propertyOutput = (width: number): PropertyPort => ({
+  contact: 'property',
   extensions: [
     {
       featureKey: 'hdlSignal',
@@ -58,10 +58,13 @@ export const register4LogicUnit: LogicUnit = {
   core: {
     kindOrganization: { kind: 'sequential', steps: ['reg'] },
     ports: {
-      clk: input(1),
-      rst: input(1),
-      d: input(4),
-      q: output(4),
+      inputs: {
+        clk: input(1),
+        rst: input(1),
+        d: input(4),
+      },
+      outputs: {},
+      result: output(4),
     },
     closures: {},
     connections: {},
@@ -74,10 +77,14 @@ export const register4LogicUnit: LogicUnit = {
           key: 'register',
         },
         ports: {
-          clk: input(1),
-          rst: input(1),
-          d: input(4),
-          q: output(4),
+          inputs: {
+            clk: input(1),
+            rst: input(1),
+            d: input(4),
+          },
+          outputs: {
+            q: propertyOutput(4),
+          },
         },
         fulfillments: {},
         extensions: [

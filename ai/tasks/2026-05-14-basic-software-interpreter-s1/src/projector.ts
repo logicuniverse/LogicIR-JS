@@ -1,6 +1,7 @@
 import type {
   Connection,
   EndpointRef,
+  LUI,
   LogicUnit,
   PortKey,
   ExecutionBinding,
@@ -21,6 +22,26 @@ const isLuEndpoint = (endpoint: EndpointRef): boolean =>
 
 const isLuiEndpoint = (endpoint: EndpointRef, luiId: string): boolean =>
   endpoint.owner.kind === 'lui' && endpoint.owner.luiId === luiId;
+
+const inputKey = (endpoint: EndpointRef): PortKey => {
+  if (endpoint.port.kind !== 'input') {
+    throw new Error('Expected an input endpoint.');
+  }
+  return endpoint.port.key;
+};
+
+const outputLikeKey = (endpoint: EndpointRef): PortKey => {
+  if (endpoint.port.kind === 'output') {
+    return endpoint.port.key;
+  }
+
+  if (endpoint.port.kind === 'result') {
+    const [first] = endpoint.payloadPath ?? [];
+    return typeof first === 'string' ? first : 'result';
+  }
+
+  throw new Error('Expected an output or result endpoint.');
+};
 
 const targetMatchesBinding = (
   target: ExternalTargetIdentity,
@@ -50,7 +71,7 @@ const getSingleExternalLui = (
   luis: LogicUnit['core']['luis'],
 ): [
   string,
-  LogicUnit['core']['luis'][string] & {
+  LUI & {
     target: ExternalTargetIdentity & { kind: 'external' };
   },
 ] => {
@@ -68,7 +89,7 @@ const getSingleExternalLui = (
 
   return [
     luiId,
-    lui as LogicUnit['core']['luis'][string] & {
+    lui as LUI & {
       target: ExternalTargetIdentity & { kind: 'external' };
     },
   ];
@@ -82,7 +103,7 @@ const collectInputMap = (
 
   for (const connection of Object.values(connections)) {
     if (isLuEndpoint(connection.from) && isLuiEndpoint(connection.to, luiId)) {
-      inputMap[connection.to.portKey] = connection.from.portKey;
+      inputMap[inputKey(connection.to)] = inputKey(connection.from);
     }
   }
 
@@ -97,7 +118,7 @@ const collectOutputMap = (
 
   for (const connection of Object.values(connections)) {
     if (isLuiEndpoint(connection.from, luiId) && isLuEndpoint(connection.to)) {
-      outputMap[connection.to.portKey] = connection.from.portKey;
+      outputMap[outputLikeKey(connection.to)] = outputLikeKey(connection.from);
     }
   }
 
@@ -105,27 +126,27 @@ const collectOutputMap = (
 };
 
 const inputPorts = (logicUnit: LogicUnit): PortKey[] =>
-  Object.entries(logicUnit.core.ports)
-    .filter(([, port]) => port.boundary === 'input')
-    .map(([key]) => key);
+  Object.keys(logicUnit.core.ports.inputs);
 
-const outputPorts = (logicUnit: LogicUnit): PortKey[] =>
-  Object.entries(logicUnit.core.ports)
-    .filter(([, port]) => port.boundary === 'output')
-    .map(([key]) => key);
-
-const primaryOutputPort = (logicUnit: LogicUnit): PortKey => {
-  const entries = Object.entries(logicUnit.core.ports).filter(
-    ([, port]) => port.boundary === 'output' && port.role === 'primary-result',
-  );
-
-  if (entries.length !== 1) {
-    throw new Error(
-      `S1 requires exactly one primary-result output, got ${entries.length}`,
-    );
+const outputPorts = (logicUnit: LogicUnit): PortKey[] => {
+  if (!('result' in logicUnit.core.ports)) {
+    throw new Error('S1 requires a result slot.');
   }
 
-  return entries[0][0];
+  const result = logicUnit.core.ports.result;
+  if (!result) {
+    throw new Error('S1 requires a result slot.');
+  }
+
+  return result.pins?.kind === 'keyed' ? result.pins.keys : ['result'];
+};
+
+const primaryOutputPort = (logicUnit: LogicUnit): PortKey => {
+  const outputs = outputPorts(logicUnit);
+  if (outputs.length !== 1) {
+    throw new Error(`S1 requires exactly one result output, got ${outputs.length}`);
+  }
+  return outputs[0];
 };
 
 export const createInterpreterPlan = (
@@ -149,8 +170,8 @@ export const createInterpreterPlan = (
   return {
     key: 'add-pair.interpreter-plan.s1',
     stackKey: resolved.stackKey,
-    interpretation: baselineInterpretation('s1-primary-result-lazy-pull', [
-      'Combinational LU output is computed only when a demanded primary-result output is read.',
+    interpretation: baselineInterpretation('s1-result-lazy-pull', [
+      'Combinational LU output is computed only when a demanded ports.result value is read.',
       'Unused child LUI providers are not executed by this baseline interpreter plan.',
     ]),
     executionKind: 'combinational',

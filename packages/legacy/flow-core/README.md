@@ -1,8 +1,7 @@
 # Flow Core Snapshot
 
-This is a curated legacy snapshot from:
-
-`D:\Projects\flow-monorepo\packages\ff-core`
+This is a curated legacy snapshot from the earlier FlowForge-era
+`packages/ff-core` package.
 
 It is kept as historical evidence for editor-core, compiler/lowering, editing operations, and old standard node design. It is not an active package and should not be imported by current packages.
 

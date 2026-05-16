@@ -35,6 +35,17 @@
 
 `basic-software-generated`、`basic-hdl-build`、netlist、mechanical、Python 等都暂缓或作为 north-star probe。
 
+中长期 pressure-test 方向已经记录在 [`dev/roadmap.md`](roadmap.md)，包括：
+
+- 显式资源和副作用管理。
+- No-GC / embedded / high-performance runtime memory model。
+- Catalog database、dependency index 和 AI tool-routing query。
+- Zero-to-LogicIR / edit transaction corpus。
+
+这些方向目前都不驱动 core schema 变更。它们应先作为 feature/profile/tooling 或
+AI task 研究路线，等 validator、profile resolver、capability checker、software
+interpreter seed 和 HDL sim seed 稳定后再推进。
+
 ## 已有 AI Task 证据
 
 `ai/tasks/` 是全自动或半自动 AI 任务 sandbox。它们是 review material，不是正式项目结果。

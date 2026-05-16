@@ -1,4 +1,5 @@
 export type {
+  EndpointRef,
   LogicUnit,
   Port,
   RequirementServiceFulfillment,

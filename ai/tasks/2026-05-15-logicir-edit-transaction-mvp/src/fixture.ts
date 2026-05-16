@@ -1,4 +1,4 @@
-import type { LogicUnit, Port } from '@logic-universe/logic-ir-core';
+import type { LogicUnit, Port, PullPort } from '@logic-universe/logic-ir-core';
 import type {
   JsonValue,
   LogicIREditOperation,
@@ -9,22 +9,12 @@ import { baselineInterpretation } from './types';
 import { hashJson } from './hash';
 
 const inputPort: Port = {
-  boundary: 'input',
-  interaction: {
-    pullReadable: true,
-    pushNotifiable: false,
-    retainedCurrent: false,
-  },
+  contact: 'pull',
 };
 
-const outputPort: Port = {
-  boundary: 'output',
-  role: 'primary-result',
-  interaction: {
-    pullReadable: true,
-    pushNotifiable: false,
-    retainedCurrent: false,
-  },
+const outputPort: PullPort = {
+  contact: 'pull',
+  pins: { kind: 'keyed', keys: ['sum'] },
 };
 
 const hole = (
@@ -48,9 +38,11 @@ export const partialLogicUnit = {
   core: {
     kindOrganization: { kind: 'combinational' },
     ports: {
-      left: inputPort,
-      right: inputPort,
-      sum: outputPort,
+      inputs: {
+        left: inputPort,
+        right: inputPort,
+      },
+      result: outputPort,
     },
     closures: {},
     luis: {
@@ -72,9 +64,11 @@ export const completedLogicUnit: LogicUnit = {
   core: {
     kindOrganization: { kind: 'combinational' },
     ports: {
-      left: inputPort,
-      right: inputPort,
-      sum: outputPort,
+      inputs: {
+        left: inputPort,
+        right: inputPort,
+      },
+      result: outputPort,
     },
     closures: {},
     luis: {
@@ -87,9 +81,11 @@ export const completedLogicUnit: LogicUnit = {
           version: '0.0.0-mvp',
         },
         ports: {
-          left: inputPort,
-          right: inputPort,
-          sum: outputPort,
+          inputs: {
+            left: inputPort,
+            right: inputPort,
+          },
+          result: outputPort,
         },
         fulfillments: {},
         extensions: [],
@@ -99,31 +95,33 @@ export const completedLogicUnit: LogicUnit = {
       leftToAdd: {
         from: {
           owner: { kind: 'lu' },
-          portKey: 'left',
+          port: { kind: 'input', key: 'left' },
         },
         to: {
           owner: { kind: 'lui', luiId: 'add' },
-          portKey: 'left',
+          port: { kind: 'input', key: 'left' },
         },
       },
       rightToAdd: {
         from: {
           owner: { kind: 'lu' },
-          portKey: 'right',
+          port: { kind: 'input', key: 'right' },
         },
         to: {
           owner: { kind: 'lui', luiId: 'add' },
-          portKey: 'right',
+          port: { kind: 'input', key: 'right' },
         },
       },
       addToSum: {
         from: {
           owner: { kind: 'lui', luiId: 'add' },
-          portKey: 'sum',
+          port: { kind: 'result' },
+          payloadPath: ['sum'],
         },
         to: {
           owner: { kind: 'lu' },
-          portKey: 'sum',
+          port: { kind: 'result' },
+          payloadPath: ['sum'],
         },
       },
     },

@@ -43,9 +43,14 @@ const operationOf = (logicUnit: LogicUnit): HdlOperationPayload => {
 
 const emitModule = (logicUnit: LogicUnit): string => {
   const operation = operationOf(logicUnit);
-  const a = signalOf(logicUnit.core.ports.a);
-  const b = signalOf(logicUnit.core.ports.b);
-  const y = signalOf(logicUnit.core.ports.y);
+  const result =
+    'result' in logicUnit.core.ports ? logicUnit.core.ports.result : undefined;
+  if (!result) {
+    throw new Error('H2 expects a result port.');
+  }
+  const a = signalOf(logicUnit.core.ports.inputs.a);
+  const b = signalOf(logicUnit.core.ports.inputs.b);
+  const y = signalOf(result);
 
   if (a.width !== b.width || a.width !== y.width) {
     throw new Error('H2 expects matching input and output widths.');

@@ -1,12 +1,7 @@
-import type { LogicUnit, Port } from './types';
+import type { LogicUnit, PullPort } from './types';
 
-const bitInput = (): Port => ({
-  boundary: 'input',
-  interaction: {
-    pullReadable: true,
-    pushNotifiable: false,
-    retainedCurrent: false,
-  },
+const bitInput = (): PullPort => ({
+  contact: 'pull',
   extensions: [
     {
       featureKey: 'hdlSignal',
@@ -16,14 +11,9 @@ const bitInput = (): Port => ({
   ],
 });
 
-const bitOutput = (): Port => ({
-  boundary: 'output',
-  role: 'primary-result',
-  interaction: {
-    pullReadable: true,
-    pushNotifiable: false,
-    retainedCurrent: false,
-  },
+const bitOutput = (): PullPort => ({
+  contact: 'pull',
+  pins: { kind: 'keyed', keys: ['y'] },
   extensions: [
     {
       featureKey: 'hdlSignal',
@@ -51,9 +41,11 @@ export const and2LogicUnit: LogicUnit = {
   core: {
     kindOrganization: { kind: 'combinational' },
     ports: {
-      a: bitInput(),
-      b: bitInput(),
-      y: bitOutput(),
+      inputs: {
+        a: bitInput(),
+        b: bitInput(),
+      },
+      result: bitOutput(),
     },
     closures: {},
     luis: {
@@ -65,9 +57,11 @@ export const and2LogicUnit: LogicUnit = {
           key: 'and',
         },
         ports: {
-          a: bitInput(),
-          b: bitInput(),
-          y: bitOutput(),
+          inputs: {
+            a: bitInput(),
+            b: bitInput(),
+          },
+          result: bitOutput(),
         },
         fulfillments: {},
         extensions: [
@@ -81,16 +75,30 @@ export const and2LogicUnit: LogicUnit = {
     },
     connections: {
       aToAnd: {
-        from: { owner: { kind: 'lu' }, portKey: 'a' },
-        to: { owner: { kind: 'lui', luiId: 'andGate' }, portKey: 'a' },
+        from: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'a' } },
+        to: {
+          owner: { kind: 'lui', luiId: 'andGate' },
+          port: { kind: 'input', key: 'a' },
+        },
       },
       bToAnd: {
-        from: { owner: { kind: 'lu' }, portKey: 'b' },
-        to: { owner: { kind: 'lui', luiId: 'andGate' }, portKey: 'b' },
+        from: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'b' } },
+        to: {
+          owner: { kind: 'lui', luiId: 'andGate' },
+          port: { kind: 'input', key: 'b' },
+        },
       },
       andToY: {
-        from: { owner: { kind: 'lui', luiId: 'andGate' }, portKey: 'y' },
-        to: { owner: { kind: 'lu' }, portKey: 'y' },
+        from: {
+          owner: { kind: 'lui', luiId: 'andGate' },
+          port: { kind: 'result' },
+          payloadPath: ['y'],
+        },
+        to: {
+          owner: { kind: 'lu' },
+          port: { kind: 'result' },
+          payloadPath: ['y'],
+        },
       },
     },
   },

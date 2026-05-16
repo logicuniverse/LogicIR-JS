@@ -101,7 +101,7 @@ export const legacyCoverageRows: CoverageRow[] = [
     capability: 'legacy port id runtime table',
     legacyReference: 'packages/legacy/engine/src/utils.ts:getRuntimePorts',
     latestSchemaMapping:
-      'Latest core uses owner/portKey endpoint refs; runtime may derive indexes but does not store them in core.',
+      'Latest core uses owner plus EndpointRef.port endpoint refs; runtime may derive indexes but does not store them in core.',
     status: 'drop-intentionally',
     notes: 'Opaque port ids are an execution optimization, not a schema requirement.',
   },

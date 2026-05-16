@@ -1,22 +1,12 @@
 import type { LogicUnit, LogicUnitFixture, Port } from './types';
 
 const input: Port = {
-  boundary: 'input',
-  interaction: {
-    pullReadable: true,
-    pushNotifiable: false,
-    retainedCurrent: false,
-  },
+  contact: 'pull',
 };
 
 const output: Port = {
-  boundary: 'output',
-  role: 'primary-result',
-  interaction: {
-    pullReadable: true,
-    pushNotifiable: false,
-    retainedCurrent: false,
-  },
+  contact: 'pull',
+  pins: { kind: 'keyed', keys: ['sum'] },
 };
 
 const makeLogicUnit = (targetKey: string): LogicUnit => ({
@@ -32,22 +22,38 @@ const makeLogicUnit = (targetKey: string): LogicUnit => ({
   core: {
     kindOrganization: { kind: 'combinational' },
     ports: {
-      left: input,
-      right: input,
-      sum: output,
+      inputs: {
+        left: input,
+        right: input,
+      },
+      result: output,
     },
     connections: {
       leftToProvider: {
-        from: { owner: { kind: 'lu' }, portKey: 'left' },
-        to: { owner: { kind: 'lui', luiId: 'provider' }, portKey: 'left' },
+        from: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'left' } },
+        to: {
+          owner: { kind: 'lui', luiId: 'provider' },
+          port: { kind: 'input', key: 'left' },
+        },
       },
       rightToProvider: {
-        from: { owner: { kind: 'lu' }, portKey: 'right' },
-        to: { owner: { kind: 'lui', luiId: 'provider' }, portKey: 'right' },
+        from: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'right' } },
+        to: {
+          owner: { kind: 'lui', luiId: 'provider' },
+          port: { kind: 'input', key: 'right' },
+        },
       },
       providerToSum: {
-        from: { owner: { kind: 'lui', luiId: 'provider' }, portKey: 'sum' },
-        to: { owner: { kind: 'lu' }, portKey: 'sum' },
+        from: {
+          owner: { kind: 'lui', luiId: 'provider' },
+          port: { kind: 'result' },
+          payloadPath: ['sum'],
+        },
+        to: {
+          owner: { kind: 'lu' },
+          port: { kind: 'result' },
+          payloadPath: ['sum'],
+        },
       },
     },
     closures: {},
@@ -60,9 +66,11 @@ const makeLogicUnit = (targetKey: string): LogicUnit => ({
           key: targetKey,
         },
         ports: {
-          left: input,
-          right: input,
-          sum: output,
+          inputs: {
+            left: input,
+            right: input,
+          },
+          result: output,
         },
         fulfillments: {},
       },
