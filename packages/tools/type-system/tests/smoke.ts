@@ -161,7 +161,7 @@ const cases: SmokeCase[] = [
     run: () => {
       const payload: PayloadTypePayload = { type: stringType };
       const logicUnit = {
-        features: {
+        featureUses: {
           type: {
             namespace: 'logicir.type-system',
             key: 'core',

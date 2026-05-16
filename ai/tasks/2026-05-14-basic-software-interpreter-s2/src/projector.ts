@@ -24,7 +24,7 @@ const requiredFeatureDeclared = (
   logicUnit: LogicUnit,
   resolved: ResolvedStack,
 ): boolean => {
-  const declared = Object.values(logicUnit.features);
+  const declared = Object.values(logicUnit.featureUses);
 
   return resolved.requiredFeatures.every((contract) =>
     declared.some(

@@ -11,7 +11,7 @@ const resultPort: Port = {
 
 export const addPairLogicUnit: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: {},
+  featureUses: {},
   requirements: {},
   core: {
     kindOrganization: { kind: 'combinational' },

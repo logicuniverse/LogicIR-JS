@@ -33,7 +33,7 @@ const hole = (
 
 export const partialLogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: {},
+  featureUses: {},
   requirements: {},
   core: {
     kindOrganization: { kind: 'combinational' },
@@ -59,7 +59,7 @@ export const partialLogicUnit = {
 
 export const completedLogicUnit: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: {},
+  featureUses: {},
   requirements: {},
   core: {
     kindOrganization: { kind: 'combinational' },

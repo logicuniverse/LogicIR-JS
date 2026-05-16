@@ -202,7 +202,7 @@ Y 轴描述当前层如何跨时间存在：
 
 当前旧代码中的 `Composable` 更接近早期 structural/composition 实现痕迹，不应阻止新 schema 采用 `Structural`，也不应把旧 composition 算法固定成唯一实现。
 
-当前 core schema 的执行平面形状是：`LUCore.kindOrganization.kind` 是 LU kind 的唯一来源；`LUCore` 按该 kind 形成 discriminated union；每个 core 仍使用一个 `luis` map，但允许的 LUI kind 由外层 LU kind 约束。Sequential core 的最小组织数据是 `steps: LUIId[]`，只表达有序推进的 LUI 序列。它不是一般分支控制流图；旧实现中可见的 `GoBackIf` 和 `ReturnIf` 只是一个可借鉴的 pipeline 控制扩展路线。guard、branch、return、go-back、async/await 策略或可寻址 control-flow node 都不应进入 core sequential step 结构，应该由 feature extension 或 projection lowering 表达。
+当前 core schema 的执行平面形状是：`LUCore.kindOrganization.kind` 是 LU kind 的唯一来源；`LUCore` 按该 kind 形成 discriminated union；每个 core 仍使用一个 `luis` map，但允许的 LUI kind 由外层 LU kind 约束。Sequential core 的最小组织数据是 `steps: { luiId: LUIId }[]`，只表达有序推进的 LUI 序列。每个 step 目前只是一个显式对象形式的 LUI 引用；它不是一般分支控制流图。旧实现中可见的 `GoBackIf` 和 `ReturnIf` 只是一个可借鉴的 pipeline 控制扩展路线。guard、branch、return、go-back、async/await 策略或可寻址 control-flow node 都不应进入 core sequential step 结构，应该由 feature extension 或 projection lowering 表达。
 
 ## LU Kind Organization 的目标处理方式
 
@@ -220,7 +220,7 @@ LU kind 的可观察语义。
 | LU kind | Core organization | Software interpreter / execution plan | Generated software | Verilog HDL projection |
 | --- | --- | --- | --- | --- |
 | `combinational` | 当前值映射；`kindOrganization.kind = combinational`；只有 `ports.inputs` 和一个 `ports.result` pull 结果槽位；多个结果通过 `result.pins` / `payloadPath` 表达。 | 当前 software-interpreter baseline 是从 `ports.result` / return contact 开始 lazy pull，沿 `Connection` 反向读取依赖，只计算被需要的相关 LUI；其它策略可以预分析、拓扑排序或编译表达式，但不能把 unrelated LUI 的运行变成可观察副作用。 | 生成纯函数、可内联表达式或已优化求值计划；不引入状态、订阅、clock 或 runtime lifecycle。 | 生成 continuous assignment、组合表达式或 `always_comb`；不得引入寄存器、clock/reset 或隐式 state。 |
-| `sequential` | `kindOrganization.steps: LUIId[]` 是最小有序推进骨架。 | 当前 software-interpreter baseline 是按 `steps` 作为 pipeline 推进。旧实现允许 `GoBackIf` 调整 step index，允许 `ReturnIf` 提前返回；这是可复用的 control extension 证据，不是唯一控制模型。completion/await、go-back、early-return 等属于 software feature 或 lowering metadata，不属于 core step 字段。 | 生成 pipeline runner、step runner、state machine、async workflow 或其它等价 realization；调度、await、异常传播必须来自 profile/feature policy。 | 需要 clocking/state contract；生成 edge-triggered process、寄存器转移或 FSM；没有 clock/reset/state feature 时应 diagnostic，而不是降级成组合逻辑。 |
+| `sequential` | `kindOrganization.steps: { luiId: LUIId }[]` 是最小有序推进骨架。 | 当前 software-interpreter baseline 是按 `steps` 作为 pipeline 推进。旧实现允许 `GoBackIf` 调整 step index，允许 `ReturnIf` 提前返回；这是可复用的 control extension 证据，不是唯一控制模型。completion/await、go-back、early-return 等属于 software feature 或 lowering metadata，不属于 core step 字段。 | 生成 pipeline runner、step runner、state machine、async workflow 或其它等价 realization；调度、await、异常传播必须来自 profile/feature policy。 | 需要 clocking/state contract；生成 edge-triggered process、寄存器转移或 FSM；没有 clock/reset/state feature 时应 diagnostic，而不是降级成组合逻辑。 |
 | `stateful` | 驻留状态逻辑；core 只说明 stateful organization，不规定 store 实现。 | 当前 software-interpreter baseline 是对 stateful LUIs 逐个独立运行，收集 property/current 返回值并写入 durable retained-current state。其它 store、reactive、incremental 或 event-loop 策略可以不同，但必须保留 stateful boundary、current read 和 durable/update 语义。 | 生成带私有状态、store handle 或 host binding 的 module/class/function closure；每个 stateful unit 的 durable/current 结果边界必须清楚，生命周期和并发策略由 feature/profile 决定。 | 映射为 register/state variable、reset/initial behavior 和 sequential update；必须有 clocking/state HDL contract。 |
 | `structural` | `anchors`、`outlets`、`anchorFills`、`luiFills` 描述结构显现和 composition。 | 当前 software-interpreter baseline 是对 structural/composable LUIs 逐个独立运行，结果是 composition function / composable return；root composition function 之后再用 context 和 inputs 生成结构结果。其它 materialization、diff、incremental composition 或 host-specific builder 可以不同，但必须保留 structural composition surface。 | 生成 composable function、组件/布局/tree construction、module assembly 或 host-specific composition artifact。 | 生成 module instance、wire、hierarchy、generate/elaboration structure；structural slices 可以 lowering 为子系统或层级模块。 |
 
@@ -259,7 +259,7 @@ Requirement fulfillment 不能被普通数据流、命名查找、参数传递�
 
 - Closure 是附着在 LUI 上、用于本地履约某个 exposed requirement 的 wrapper。
 - Closure 内部包含可投影的逻辑 core，但 Closure 本身不是 LUI，也不是通用 runtime projection。
-- Closure 可以按 same-key 方式 forward 内部普通 ports，让数据或信号与外部拓扑连接。
+- Closure 可以按 same-key 方式 forward 内部普通 input ports 和 push output ports，让数据或信号与外部拓扑连接。这里的 `pushOutputs` 是 output 槽位中可 forward 的 push-only 子集；Closure 不 forward pull `result` 或 property output。
 - Closure 可以打开或限制供内部 requirement 继续解析的 supply environment。
 
 ## LogicIR 表示义务
@@ -280,13 +280,18 @@ Requirement fulfillment 不能被普通数据流、命名查找、参数传递�
 
 ## Endpoint 寻址
 
+这里使用 **Core Scope（核心作用域）** 表示一份 `LUCore` 的局部规则上下文。
+它可以是 root `LogicUnit.core`，也可以是任意 `Closure.core`。换句话说，
+LU 不是唯一能承载内部图规则的东西；Closure 内部也运行同一套 endpoint、
+connection、kind organization 和 structural composition 规则。
+
 Endpoint refs 应支持 port-level 以及 payload-level 寻址：
 
 - `owner + port` 定位一个边界 contact，其中 `port` 可以是 `input(key)`、`output(key)` 或 `result`。
-- 每个 owner 的 port surface 按槽位组织为 `inputs`、`outputs` 和可能存在的 `result`。`inputs` / `outputs` 内部使用 `PortKey` map；`result` 是独立槽位，不使用 `PortKey`。
+- 每个 owner 的 port surface 按槽位组织为 `inputs`、`outputs` 和可能存在的 `result`。输入端口和输出端口不是同一个 flat namespace；endpoint 地址由 `EndpointPortRef.kind + key` 共同确定，因此 `(input, "x")` 与 `(output, "x")` 是不同地址。`result` 是独立槽位，不使用 `PortKey`，也不与 input/output key 共享 namespace。
 - `payloadPath` 定位该 port payload 内部的嵌套位置，例如 object field、array item、bus lane、result pin 或包裹总线字段。
 - `Port.pins` 只声明第一层可见 pin surface；`input`、`output` 和独立的 `result` 槽位都可以声明 pins。pin 继承 port 的 endpoint slot 和 contact kind。
-- `EndpointRef.owner.kind === "boundary"` 表示当前 `LUCore` 自身边界。这里的 current core 可能是 root `LogicUnit.core`，也可能是任意 `Closure.core`；因此 endpoint owner 不应把自身边界称为 LU。
+- `EndpointRef.owner.kind === "boundary"` 表示当前 Core Scope 自身边界。这里的 current core 可能是 root `LogicUnit.core`，也可能是任意 `Closure.core`；因此 endpoint owner 不应把自身边界称为 LU。
 - `EndpointRef.port.kind` 是 port 在 owner 边界上的槽位，而 `Connection.from/to` 是相对当前 `LUCore` 图的流向。`boundary` input endpoint 是图内 source，`boundary` output/result endpoint 是图内 sink；子 LUI 的 input endpoint 是图内 sink，子 LUI 的 output/result endpoint 是图内 source。
 - 普通 connection 的方向约定是 `from -> to`：`from` 是 source，`to` 是 destination。
 - `payloadPath` 的后续段是逻辑 payload address，由 target LUI、feature extension 或 projector 解释，不自动变成 nested core pins。
@@ -298,11 +303,11 @@ Endpoint refs 应支持 port-level 以及 payload-level 寻址：
 
 ## Structural 空间切片和分布式投影
 
-Structural composition 可以用 anchor 和 outlet 两个原语理解：composition 的方向约定是 `outlet -> anchor`，也就是 outlet 是 source composition value，anchor 是 destination composition slot。`CompositionAnchor` 有 `shape` 和 `required`，表示可以接收 composition value 的锚点；outlet 在 core 中是可放入某个 anchor 的结构出口 key。Structural LU/closure core 和 structural LUI 都有自己的 anchors / outlets，只是观察视角相反：站在当前 core 内部，`kindOrganization.anchors` 是当前 core 要填充并对外显现的 output composition contracts，`kindOrganization.outlets` 是当前 core 内部可引用、但由父级 composition context 供应的 input composition contracts。站在父级看 child LUI，child `compositionSurface.outlets` 对应目标 LU 的 anchors，child `compositionSurface.anchors` 对应目标 LU 的 outlets。
+Structural composition 可以用 anchor 和 outlet 两个原语理解：composition 的方向约定是 `outlet -> anchor`，也就是 outlet 是 source composition value，anchor 是 destination composition slot。`CompositionAnchor` 有 `shape` 和 `required`；`CompositionOutlet` 只有 `required`，因为 outlet 永远表示一个 single source composition value，集合或 map 形状由目标 anchor 决定。Structural LU/closure core 和 structural LUI 都有自己的 anchors / outlets，只是观察视角相反：站在当前 Core Scope 内部，`kindOrganization.anchors` 是当前 Core Scope 要填充并对外显现的 output composition contracts，`kindOrganization.outlets` 是当前 Core Scope 内部可引用、但由父级 composition context 供应的 input composition contracts。站在父级看 child LUI，child `compositionSurface.outlets` 对应目标 LU 的 anchors，child `compositionSurface.anchors` 对应目标 LU 的 outlets。
 
 Structural LU 的 `anchors` 可以被读取为 named spatial slices。一个 structural LU 不需要只有一个默认出口；`root` 可以是常用主 slice 约定，但不是 schema 特权字段。多个 `anchors` 允许同一个 structural LUI 在父级中按不同空间切片被引用，因为这些 anchors 在父级视角会表现为该 LUI 的 outlets。
 
-`anchorFills[anchorKey]` 描述当前 core 某个 anchor / slice 的 composition value，并按该 anchor 的 `shape` 校验。遍历这些 values 可以推导该 slice 直接使用哪些 child LUI outlets、哪些当前 core outlets，以及哪些 child structural slices 被接入。`luiFills[luiId]` 描述该 child LUI 实例的 anchors 如何被填充；它属于实例上下文，不属于某一次 `lui-outlet` 引用。
+`anchorFills[anchorKey]` 描述当前 Core Scope 某个 anchor / slice 的 composition value，并按该 anchor 的 `shape` 校验。遍历这些 values 可以推导该 slice 直接使用哪些 child LUI outlets、哪些当前 Core Scope outlets，以及哪些 child structural slices 被接入。`luiFills[luiId]` 描述该 child LUI 实例的 anchors 如何被填充；它属于实例上下文，不属于某一次 `lui-outlet` 引用。
 
 基于这些结构，projector 或 analyzer 可以把一个含 N 个 anchors 的 structural LU 切分成 N 个 slice subsystems。切分后，每个 subsystem 可以有自己的局部结构和跨 slice 通信边界。一个常见 lowering 是为每个 slice subsystem 生成一个 push-notifiable `rx` input bus 和一个 push-notifiable `tx` output bus；`tx` 不必按目标 slice 膨胀成 N-1 个端口，目标 slice/channel 可以作为第一层 pin 或 `payloadPath` 段，后续段表达 message field、bus lane 或嵌套地址。
 
@@ -315,16 +320,16 @@ Structural LU 的 `anchors` 可以被读取为 named spatial slices。一个 str
 
 具体的 RX/TX 端口生成、placement、transport、调度、打包、序列化、fan-in resolver 或 merge policy 属于 projection strategy 或 profile 声明为 required / conditional-required 的 feature extension。Projector 不能把这些语义作为隐式 runtime 假设静默引入。
 
-Structural LUI 的 `compositionSurface.outlets: CompositionOutletKey[]` 目前只是 set-like key 声明，不携带 shape、required 或额外 metadata；它的 shape 约束来自目标 LU 内部的 anchors，而不是 outlet 自身。需要 outlet category、layout、type、compatibility tag 或 distributed routing hint 时，应挂到拥有该 surface 的结构上，例如 structural LUI 的 `compositionSurface.extensions` 或外层 `LUCore.extensions`，由 extension payload 用 outlet key selector 指向具体 outlet。
+Structural LUI 的 `compositionSurface.outlets` 是 `Record<CompositionOutletKey, CompositionOutlet>`，不只是 set-like key 声明。`required` 是 core-level outlet contract；outlet 仍然永远是 single source composition value。需要 outlet category、layout、type、compatibility tag 或 distributed routing hint 时，应挂到拥有该 surface 的结构上，例如 structural LUI 的 `compositionSurface.extensions` 或外层 `LUCore.extensions`，由 extension payload 用 outlet key selector 指向具体 outlet。
 
 ## Core/Feature/Projection
 
 - **Core schema** 保存跨 projection target 必须共同理解的逻辑拓扑语义。
-- **Feature/extension** 保存某个 target、host、runtime、tooling 或领域的附加约束。每个 `LogicUnit` 通过本地 `features` manifest 声明自己使用的 feature，extension record 通过本地 `featureKey` 引用该 manifest。
+- **Feature/extension** 保存某个 target、host、runtime、tooling 或领域的附加约束。每个 `LogicUnit` 通过本地 `featureUses` manifest 声明自己使用的 feature，extension record 通过本地 `featureKey` 引用该 manifest。
 - **Profile/stack** 不是 LogicIR object model 的一部分；它属于 architecture 层兼容契约。Profile 描述单个 IR pipeline、projection 或 execution 层的要求，stack 组合这些 profile 形成用户可选工作流。
 - **Projection** 是能力声明和 lowering/realization pipeline，不只是一个转换函数。
 
-当前 core schema 把 extension attachment 控制在稳定 owner 或关系节点上：`LogicUnit`、`LUCore`、`LUI`、`Port`、`Connection`、`Closure`、requirement service、service-level fulfillment 和 unit fulfillment。`kindOrganization` 内部字段、sequential `steps`、composition leaves/values、pin children 等 helper 结构不直接挂 extension；相关 metadata 由 owner-level extension payload 通过 selectors 指到内部位置。Extension record 的 `featureKey` 必须在当前 `LogicUnit.features` manifest 中解析，document/package 只是容器，不是 LU 语义依赖的来源。
+当前 core schema 把 extension attachment 控制在稳定 owner 或关系节点上：`LogicUnit`、`LUCore`、`LUI`、`Port`、`Connection`、`Closure`、requirement service、service-level fulfillment 和 unit fulfillment。`kindOrganization` 内部字段、sequential `steps`、composition leaves/values、pin children 等 helper 结构不直接挂 extension；相关 metadata 由 owner-level extension payload 通过 selectors 指到内部位置。Extension record 的 `featureKey` 必须在当前 `LogicUnit.featureUses` manifest 中解析，document/package 只是容器，不是 LU 语义依赖的来源。
 
 具体 feature/profile/stack 边界、capability 检查和兼容失败规则由 [schema-principles.md](schema-principles.md) 维护；本节只保留 theory 到工程结构的映射。
 

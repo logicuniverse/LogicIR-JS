@@ -140,7 +140,7 @@ const makePort = (
 
 export const fixtureLogicUnit: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: {
+  featureUses: {
     type: TYPE_SYSTEM_FEATURE,
   },
   extensions: [

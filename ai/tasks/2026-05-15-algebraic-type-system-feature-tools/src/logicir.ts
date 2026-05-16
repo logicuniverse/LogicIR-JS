@@ -30,7 +30,7 @@ export type LogicIRTypeRegistryBuildResult = {
 };
 
 export const findTypeSystemFeatureKeys = (logicUnit: LogicUnit): string[] =>
-  Object.entries(logicUnit.features)
+  Object.entries(logicUnit.featureUses)
     .filter(
       ([, feature]) =>
         feature.namespace === TYPE_SYSTEM_FEATURE.namespace &&

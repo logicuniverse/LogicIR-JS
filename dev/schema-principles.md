@@ -18,14 +18,15 @@
 - 新 schema 不能只服务 JS runtime，也不能把某一个 projector 的实现便利当成 schema 的核心语义。
 - Projection target 只约束 schema 的可表达性和边界语义，不要求当前阶段立即实现所有 projector。
 - Schema TS authoring source 不能使用 TypeScript 泛型或 utility type 作为 schema 抽象，包括 `Base<T>`、`Exclude<T, U>`、`Pick`、`Omit`、`Partial` 等。需要显式写出可序列化 object、union、intersection 和 array 类型；如果重复结构过多，优先接受少量重复，而不是引入 TS-only abstraction。唯一例外是 `Record<K, V>` 可以用于同质 key-value dictionary 字段，例如 `Record<PortKey, Port>` 或 `Record<LUIId, LUI>`；不能用它隐藏非字典结构。
-- TS 类型层负责协议骨架和 kind-specific 大类约束，不追求把所有非法 LogicIR 都变成 TS 不可表达。依赖当前 `LUCore` scope、owner、endpoint side、catalog、requirement service、feature manifest 或 profile capability 的组合语义，应由 core validator、profile resolver 和 capability checker 给出结构化 diagnostic。
+- TS 类型层负责协议骨架和 kind-specific 大类约束，不追求把所有非法 LogicIR 都变成 TS 不可表达。依赖当前 `LUCore` scope、owner、endpoint side、catalog、requirement service、feature use manifest 或 profile capability 的组合语义，应由 core validator、profile resolver 和 capability checker 给出结构化 diagnostic。
 - Core 可以表达 target-neutral 的端口 contact kind：`pull`、`push`、`property`。`property` 是 retained-current reactive contact；core 不能规定这些能力在 JS runtime 或 HDL 中的具体实现位置和机制。
 - Core 可以表达嵌套 payload 的逻辑寻址，例如 object path、array index、bus lane 或包裹总线字段；但不能把深层 payload 结构自动提升为 nested core pins 或 target-specific type system。
 - Core 可以表达 structural `anchors` 作为 named spatial slices / output composition contracts，并允许 `Connection + payloadPath` 支撑 slice 间 bus-style routing；但不能把某个分布式 runtime 的 RX/TX 端口生成、placement、transport、scheduling 或 serialization 规则固定为 core schema。
 - X 轴仍然是 unit-level boundary drive。端口 contact capability 不能反向变成新的 X 轴方向。
-- Core 的 port surface 使用 kind-specific slots：`inputs`、合法时存在的 `outputs`，以及合法时存在的 `result`。`inputs` / `outputs` 内部使用 `PortKey` map；`result` 是独立槽位，不是端口 role。`combinational` 只有 `inputs + result`，不能有普通 `outputs`；多个组合结果通过 `result.pins` 和 `payloadPath` 表达。
-- Endpoint owner 中的 `boundary` 表示当前 `LUCore` 自身边界，不表示 root LU。`LUITarget.kind === "lu"` 才表示 LUI 指向某个 LogicUnit 目标。
-- Core sequential organization 只保存 `steps: LUIId[]`，表达 pipeline/step list，不表达一般分支控制流图。`GoBackIf`、`ReturnIf`、guard、branch、async 或调度语义必须走 feature extension 或 projection lowering。
+- Core 的 port surface 使用 kind-specific slots：`inputs`、合法时存在的 `outputs`，以及合法时存在的 `result`。输入端口和输出端口不是同一个 flat namespace；endpoint 地址由 `EndpointPortRef.kind + key` 共同确定，因此 `(input, "x")` 与 `(output, "x")` 是不同地址。`result` 是独立槽位，不是端口 role，也不与 input/output key 共享 namespace。`combinational` 只有 `inputs + result`，不能有普通 `outputs`；多个组合结果通过 `result.pins` 和 `payloadPath` 表达。
+- **Core Scope（核心作用域）** 是一份 `LUCore` 的局部规则上下文。它既可以是 root `LogicUnit.core`，也可以是任意 `Closure.core`；endpoint、connection、kind organization、structural composition 和 validator 规则在这个作用域内通用。
+- Endpoint owner 中的 `boundary` 表示当前 Core Scope 的自身边界，不表示 root LU。`LUITarget.kind === "lu"` 才表示 LUI 指向某个 LogicUnit 目标。
+- Core sequential organization 只保存 `steps: { luiId: LUIId }[]`，表达 pipeline/step list，不表达一般分支控制流图。每个 step 目前只是一个显式对象形式的 LUI 引用；`GoBackIf`、`ReturnIf`、guard、branch、async 或调度语义必须走 feature extension 或 projection lowering。
 - `LUCore.kindOrganization.kind` 决定 runtime、projector 和 compiler 的首层处理策略。Core 只保存 target-neutral organization skeleton；software interpreter、generated software、Verilog HDL 或其它 target 的具体处理方式必须由 profile、feature、lowering 或 engine 实现声明。不能把 `LUCore.luis` 默认拍平成 eager node list，也不能把某个 target 的执行策略反向写成 core 字段。
 
 ## 长期协议模型
@@ -57,8 +58,8 @@ LogicIR schema 应该像长期协议一样演进：稳定核心、命名空间�
 后续扩展采用 feature-centered 结构：feature 是横切语义能力单元，extension 是挂在具体节点上的 payload。Profile 是 architecture 层的单层兼容契约，stack 是用户可选的 profile 组合；LogicIR core 不定义 profile 或 stack。
 
 - **Feature / Capability** 表示可单独声明、验证和投影的能力单元。Feature 自身有稳定身份，通常是 `namespace + key`，例如 `logicir.type-system / core`。具体字段语义放在该 feature 下的 extension key 中，例如 `payload-type`、`clock-reset` 或 `completion-policy`。
-- **LogicUnit feature manifest** 是 LU-local 的 feature 依赖表，inline 保存 feature namespace/key/version，让 LU 脱离 document/package 后仍然可携带和验证。Feature 级行为配置应进入 feature-owned extension、profile policy 或 execution binding，而不是 manifest 的通用 config。
-- **Extension record** 挂在具体 schema 节点上，通过本地 `featureKey` 引用当前 `LogicUnit.features` 中的 feature，并用 `key` 标识该 feature 下的具体 extension kind，承载 payload。Record 本身不声明 optional/required。
+- **LogicUnit feature use manifest** 是 LU-local 的 feature 依赖表，inline 保存 feature namespace/key/version，让 LU 脱离 document/package 后仍然可携带和验证。Feature 级行为配置应进入 feature-owned extension、profile policy 或 execution binding，而不是 manifest 的通用 config。
+- **Extension record** 挂在具体 schema 节点上，通过本地 `featureKey` 引用当前 `LogicUnit.featureUses` 中的 feature，并用 `key` 标识该 feature 下的具体 extension kind，承载 payload。Record 本身不声明 optional/required。
 - **Profile** 声明一个处理层需要哪些 features、extension points、stages、policies、diagnostics、target constraints、provider contracts 或 execution bindings。
 - **Stack** 组合 IR pipeline profile、projection profile 和可选 execution profile，作为用户或应用选择的端到端工作流。
 - **Application bundle** 如果存在，只是应用层便捷别名；它必须解析为具体 profile、stack 或 feature identities 后才能做能力检查。

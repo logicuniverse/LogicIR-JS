@@ -115,7 +115,7 @@ What is the logic?
 - Requirement service 和 fulfillment relation。
 - Closure。
 - Structural composition。
-- `LogicUnit.features` manifest，用来声明这个独立 LU 使用的 feature dependency。
+- `LogicUnit.featureUses` manifest，用来声明这个独立 LU 使用的 feature dependency。
 - 附着在稳定 owner 或 relation node 上的 feature-scoped extension record。
 
 LogicIR document 可以被 authoring tool 和 IR pipeline tool 读写。Projection compiler 和 execution engine 通常只读消费它。
@@ -163,7 +163,7 @@ Feature 和 extension 构成横向语义层。
 - **Feature**: namespaced semantic capability unit，例如 type system、software completion policy、Verilog clocking 或 distributed routing。
 - **Feature use**: `LogicUnit` 本地 manifest entry，inline 保存 feature 的 namespace、key 和可选 version。
 - **Extension point**: 某个 feature 拥有的 attachment contract，包含 attach 到哪里，以及使用什么 payload schema。
-- **Extension record**: LogicIR document 内部实际挂在节点上的声明。它引用 `LogicUnit.features` 的本地 key、一个 extension key 和 payload。
+- **Extension record**: LogicIR document 内部实际挂在节点上的声明。它引用 `LogicUnit.featureUses` 的本地 key、一个 extension key 和 payload。
 
 Feature definition 定义语义和兼容义务。Extension record 把这些语义放到具体 LogicIR node 上。Profile contract 决定某个具体 processing layer 中哪些 feature 和 extension point 是 required、conditional、recommended 或 optional。
 
@@ -173,7 +173,7 @@ Feature definition 定义语义和兼容义务。Extension record 把这些语�
 Feature:
   logicir.type-system / core
 
-LogicUnit feature manifest:
+LogicUnit feature use manifest:
   type = { namespace: logicir.type-system, key: core }
 
 Extension record:
@@ -185,7 +185,7 @@ Extension record:
 
 Profile contract 定义某个 pipeline、projection 或 execution target 需要哪些 feature 和 extension point。Required extension point 必须先被工具理解，工具才可以 preserve、transform、project 或 execute 受影响语义。不支持 required feature 或 extension contract 时必须产生 diagnostic，不能静默降级。
 
-`FeatureUseKey` 只是本地别名。Tool 必须通过所在 `LogicUnit.features` map 把它解析为具体 feature identity 后，才能做 capability check。Package 或 document container 可以索引很多 LU，但不能成为某个 LU 语义 feature dependency 的来源。
+`FeatureUseKey` 只是本地别名。Tool 必须通过所在 `LogicUnit.featureUses` map 把它解析为具体 feature identity 后，才能做 capability check。Package 或 document container 可以索引很多 LU，但不能成为某个 LU 语义 feature dependency 的来源。
 
 所有指向外部 `namespace + key` 的 core reference 都可以携带可选 `version`。当 deterministic validation 或 projection 需要稳定性时，version 用来 pin 外部 feature、target 或 requirement-service contract。Feature-level behavior configuration 应建模为 feature-owned extension、profile policy 或 execution binding，而不是 generic core config。
 

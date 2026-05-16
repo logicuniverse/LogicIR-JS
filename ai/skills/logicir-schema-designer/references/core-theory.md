@@ -58,7 +58,8 @@ Core schema 至少必须保存：
 - LU kind 与 kind-specific organization。
 - Requirement services 与 requirement units。
 - Fulfillment relations，包括 Closure 和 upstream lineage。
-- Closure cores 与 same-key forwarded input / push-output declarations。
+- Closure cores 与 same-key forwarded input / push-output declarations；
+  `pushOutputs` 是 output 槽位中可 forward 的 push-only 子集。
 - LU-defined、external 和 requirement-backed manifestations 的 target refs。
 - Representation 与 projection/runtime 的清晰分离。
 
@@ -69,21 +70,28 @@ Core schema 至少必须保存：
 - Kind-specific `PortSurface` objects，按合法性提供 `inputs`、`outputs` 和
   独立 `result` slot。没有 port `role`；`result` 仍是 pull port，可以声明
   `pins`。Combinational ports 只有 `inputs + result`，没有 ordinary outputs。
+- Port key namespace 是 slot-local：`input("x")` 和 `output("x")` 是不同
+  endpoint address；`result` 是无 key 的独立 slot，不与 input/output 共享
+  namespace。
 - `Port.contact` 是 contact kind：`pull`、`push` 或 `property`。`property` 是
   retained-current 且有初始值。
 - `EndpointRef.payloadPath` 用于 payload/bus/lane/result-pin addressing，
   不把 nested payload 变成 nested core pins。
-- `EndpointRef.owner.kind === "boundary"` 表示当前 `LUCore` 自身边界；该 core
-  可以是 root `LogicUnit.core`，也可以是任意 `Closure.core`。不要把任意
-  closure 内部的自身边界称为 LU。
+- **Core Scope** 表示一份 `LUCore` 的局部规则上下文；该 core 可以是 root
+  `LogicUnit.core`，也可以是任意 `Closure.core`。Endpoint、connection、
+  kind organization 和 structural composition 规则都在当前 Core Scope 内解释。
+- `EndpointRef.owner.kind === "boundary"` 表示当前 Core Scope 自身边界。
+  不要把任意 closure 内部的自身边界称为 LU。
 - 普通 connection 的方向是 `from -> to`，composition 的方向是
   `outlet -> anchor`。`from` 与 `outlet` 是 source，`to` 与 `anchor` 是
   destination。
 - `LUCore.kindOrganization.kind` 是 execution-plane kind discriminator。
-- `steps: LUIId[]` 是 minimal sequential organization；更丰富 control flow 属于
-  feature/projection。
-- Structural anchors/outlets 通过当前 core 的 `anchors`、`outlets`、
+- `steps: { luiId: LUIId }[]` 是 minimal sequential organization；每个 step
+  目前只是一个显式对象形式的 LUI 引用，更丰富 control flow 属于 feature/projection。
+- Structural anchors/outlets 通过当前 Core Scope 的 `anchors`、`outlets`、
   `anchorFills`、`luiFills` 和 structural LUI `compositionSurface` 表达。
+  Anchor 是 destination composition slot，携带 `shape` 和 `required`。
+  Outlet 是 source composition value，永远是 single，只携带 `required`。
   Outlet 是 source composition value，anchor 是 destination composition slot；
   同一 structural LU 被实例化为 LUI 后，父级视角下
   该 LUI 的 anchors/outlets 极性与目标 LU 内部视角相反。

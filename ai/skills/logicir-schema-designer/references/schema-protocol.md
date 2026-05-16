@@ -64,7 +64,7 @@ core 变化。
 - 每个 feature 应有稳定 identity，通常是 `namespace + key`。
 - Application-layer bundle 可以组合 feature，但 projector 必须解析到具体
   feature identities。
-- 每个 `LogicUnit` 声明本地 feature manifest，inline 保存 feature
+- 每个 `LogicUnit` 声明本地 feature use manifest，inline 保存 feature
   namespace/key/version。
 - Extension record 通过 local `featureKey` 引用该 manifest，并使用已解析
   feature 下的 extension key。
@@ -101,7 +101,7 @@ Tools、projectors、execution engines 和 providers 必须声明相关 capabili
 
 - Supported core schema versions。
 - Supported concrete features。
-- 从 local `featureKey` alias 到 concrete feature identity 的 feature manifest
+- 从 local `featureKey` alias 到 concrete feature identity 的 feature use manifest
   resolution。
 - Supported extension points，并按 selected profile 的 requiredness contracts
   检查。

@@ -353,7 +353,7 @@ const validateConnections = (logicUnit: LogicUnit): Diagnostic[] => {
 
 const validateExtensionFeatures = (logicUnit: LogicUnit): Diagnostic[] => {
   const diagnostics: Diagnostic[] = [];
-  const featureKeys = new Set(Object.keys(logicUnit.features));
+  const featureKeys = new Set(Object.keys(logicUnit.featureUses));
 
   const checkExtensions = (value: unknown, path: JsonPath): void => {
     if (!isRecord(value) || !Array.isArray(value.extensions)) {
@@ -435,10 +435,10 @@ export const validateLogicUnit = (value: JsonValue): ValidationResult => {
     );
   }
 
-  if (!isRecord(value.features)) {
+  if (!isRecord(value.featureUses)) {
     diagnostics.push(
-      diagnostic('INVALID_FEATURE_MANIFEST', 'features must be a record.', [
-        'features',
+      diagnostic('INVALID_FEATURE_MANIFEST', 'featureUses must be a record.', [
+        'featureUses',
       ]),
     );
   }

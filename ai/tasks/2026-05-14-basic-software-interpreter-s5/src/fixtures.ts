@@ -11,7 +11,7 @@ const output: Port = {
 
 const makeLogicUnit = (targetKey: string): LogicUnit => ({
   schemaVersion: '0.0.0-draft',
-  features: {
+  featureUses: {
     invocation: {
       namespace: 'logicir.software',
       key: 'invocation',

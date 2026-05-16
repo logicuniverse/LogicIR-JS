@@ -17,7 +17,7 @@ const retainedOutput: Port = {
 
 export const counterCurrentLogicUnit: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: {
+  featureUses: {
     retained: {
       namespace: 'logicir.software',
       key: 'retained-current',

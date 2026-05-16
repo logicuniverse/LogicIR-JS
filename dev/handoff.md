@@ -29,6 +29,8 @@
 
 语言无关的 specification surface 在 [`schema/`](../schema/)。当前 `schema/` 主要是 route 和 curated notes；主要 authoring source 仍在 `packages/`。
 
+当前 core 规则里，**Core Scope（核心作用域）** 表示一份 `LUCore` 的局部规则上下文：它既可以是 root `LogicUnit.core`，也可以是任意 `Closure.core`。Endpoint、connection、kind organization、structural composition 和 validator 规则都在当前 Core Scope 内通用。`EndpointRef.owner.kind === "boundary"` 表示当前 Core Scope 的自身边界；`LUITarget.kind === "lu"` 才表示 LUI 指向某个 LogicUnit 目标。
+
 ## 当前方向
 
 近期优先目标是两个 stack：

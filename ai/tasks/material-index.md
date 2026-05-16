@@ -14,16 +14,22 @@ promote 一个 task 目录。
 - `combinational` task fixture 不再声明普通 `ports.outputs`；组合逻辑只有
   `ports.inputs + ports.result`，多个结果通过 `result.pins` 和
   `payloadPath` 表达。
+- `sequential` task fixture 的 `kindOrganization.steps` 使用
+  `{ luiId: LUIId }[]`，step 目前只是显式对象形式的 LUI 引用，不携带
+  await、branch、return 或 go-back 语义。
 - 除 05-13 历史归档外，05-14 / 05-15 task 的 LogicIR core fixture 已同步到
   当前 schema。task-local execution plan、HDL library module、headless runtime
   等仍可能使用自己的 `portKey`、`direction` 或消息 `role` 字段；这些不是
   core `EndpointRef` 或 `Port` schema。
-- 当前 core endpoint owner 使用 `owner.kind === "boundary"` 表示当前
-  `LUCore` 自身边界；`target.kind === "lu"` 只表示 LUI 指向某个
-  LogicUnit 目标。两者不要混用。
+- 当前 core 使用 **Core Scope** 表示一份 `LUCore` 的局部规则上下文；
+  root `LogicUnit.core` 和任意 `Closure.core` 都是 Core Scope。
+  `owner.kind === "boundary"` 表示当前 Core Scope 自身边界；
+  `target.kind === "lu"` 只表示 LUI 指向某个 LogicUnit 目标。两者不要混用。
 - Structural composition 的当前读法是 `outlet -> anchor`：outlet 是 source
-  composition value，anchor 是 destination composition slot。当前有效 task
-  只能把 `anchors/outlets/anchorFills/luiFills` 当作 core fixture 词汇；
+  composition value，anchor 是 destination composition slot。`anchor` 有
+  `shape + required`，`outlet` 只有 `required` 且永远是 single；集合或 map
+  形状由目标 anchor 决定。当前有效 task 只能把
+  `anchors/outlets/anchorFills/luiFills` 当作 core fixture 词汇；
   `exportAnchors/externalOutlets/exportAnchorFills` 只属于 05-13 历史材料。
 - 05-13 tasks 仍可能保留 `boundary/interaction/portKey/primary-result` 等历史
   写法；它们只能作为 IR schema 稳定前的历史证据，不能作为当前 schema 示例。

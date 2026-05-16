@@ -16,7 +16,7 @@ all task-local provider/runtime behavior.
 
 Stdlib LogicUnit fixtures use plain external-target LUIs with no software
 invocation feature. Provider selection is task-local execution data, not a
-LogicIR feature manifest requirement.
+LogicIR feature use manifest requirement.
 
 ## Latest-Schema Chain
 

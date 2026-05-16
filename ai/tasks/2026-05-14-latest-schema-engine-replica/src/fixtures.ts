@@ -90,7 +90,7 @@ const featureManifest = {
 
 export const combinationalFixture: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: featureManifest,
+  featureUses: featureManifest,
   requirements: {},
   core: {
     kindOrganization: { kind: 'combinational' },
@@ -137,7 +137,7 @@ export const combinationalFixture: LogicUnit = {
 
 export const statefulRetainedFixture: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: featureManifest,
+  featureUses: featureManifest,
   requirements: {},
   core: {
     kindOrganization: { kind: 'stateful' },
@@ -201,7 +201,7 @@ export const statefulRetainedFixture: LogicUnit = {
 
 export const asyncCompletionFixture: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: featureManifest,
+  featureUses: featureManifest,
   requirements: {},
   core: {
     kindOrganization: { kind: 'combinational' },
@@ -234,7 +234,7 @@ export const asyncCompletionFixture: LogicUnit = {
 
 export const fulfillmentFixture: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: featureManifest,
+  featureUses: featureManifest,
   requirements: {
     math: {
       kind: 'inline',
@@ -340,10 +340,10 @@ export const fulfillmentFixture: LogicUnit = {
 
 export const sequentialControlFixture: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: featureManifest,
+  featureUses: featureManifest,
   requirements: {},
   core: {
-    kindOrganization: { kind: 'sequential', steps: ['loop'] },
+    kindOrganization: { kind: 'sequential', steps: [{ luiId: 'loop' }] },
     ports: { inputs: inputs('start'), outputs: {}, result: result() },
     closures: {},
     luis: {
@@ -385,7 +385,7 @@ export const sequentialControlFixture: LogicUnit = {
 
 export const payloadPathFixture: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: featureManifest,
+  featureUses: featureManifest,
   requirements: {},
   core: {
     kindOrganization: { kind: 'combinational' },
@@ -418,7 +418,7 @@ export const payloadPathFixture: LogicUnit = {
 
 export const thenableCompletionFixture: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: featureManifest,
+  featureUses: featureManifest,
   requirements: {},
   core: {
     kindOrganization: { kind: 'combinational' },
@@ -451,7 +451,7 @@ export const thenableCompletionFixture: LogicUnit = {
 
 export const emitFixture: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: featureManifest,
+  featureUses: featureManifest,
   requirements: {},
   core: {
     kindOrganization: { kind: 'stateful' },
@@ -484,7 +484,7 @@ export const emitFixture: LogicUnit = {
 
 export const nestedInnerFixture: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: featureManifest,
+  featureUses: featureManifest,
   requirements: {},
   core: {
     kindOrganization: { kind: 'combinational' },
@@ -517,7 +517,7 @@ export const nestedInnerFixture: LogicUnit = {
 
 export const nestedOuterFixture: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: featureManifest,
+  featureUses: featureManifest,
   requirements: {},
   core: {
     kindOrganization: { kind: 'combinational' },
@@ -553,7 +553,7 @@ export const nestedOuterFixture: LogicUnit = {
 
 export const reactiveSubscribeFixture: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: featureManifest,
+  featureUses: featureManifest,
   requirements: {},
   core: {
     kindOrganization: { kind: 'stateful' },
@@ -586,7 +586,7 @@ export const reactiveSubscribeFixture: LogicUnit = {
 
 export const structuralCompositionFixture: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: featureManifest,
+  featureUses: featureManifest,
   requirements: {},
   core: {
     kindOrganization: {

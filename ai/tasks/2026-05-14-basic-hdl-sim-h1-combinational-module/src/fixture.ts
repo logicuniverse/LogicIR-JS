@@ -25,7 +25,7 @@ const bitOutput = (): PullPort => ({
 
 export const and2LogicUnit: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: {
+  featureUses: {
     hdlSignal: {
       namespace: 'logicir.hdl',
       key: 'signal',

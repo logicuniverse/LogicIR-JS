@@ -126,7 +126,7 @@ projection 和 runtime 工作保持一致：尊重理论来源，保持 core 目
 - 当前 v0 core draft 保持 thin：`kindOrganization` 只存 target-neutral
   organization skeleton，kind-specific metadata 放在 owner-level extensions，
   例如 `LUCore.extensions`。
-- `LogicUnit.features` 是 LU-local feature manifest；extension record 使用
+- `LogicUnit.featureUses` 是 LU-local feature use manifest；extension record 使用
   local `featureKey` alias，而不是直接引用 feature namespace/key。
 - Architecture schema 保持 pure data：不能有 factory、callback、provider
   implementation、runtime function，也不能用 TypeScript 泛型或 utility type

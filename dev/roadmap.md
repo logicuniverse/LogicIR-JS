@@ -90,7 +90,7 @@ tool、projector、compiler、engine、fixture 和 AI task 建设顺序。
 
 必需 tool：
 
-- Core schema validator：验证 LogicIR core 形状、本地 feature manifest
+- Core schema validator：验证 LogicIR core 形状、本地 feature use manifest
   解析、extension attachment 位置、endpoint reference 和基础图一致性。
 - Architecture definition validator：验证 feature、profile、stack、
   capability、provider contract、provider capability、stage、policy 和
@@ -169,10 +169,10 @@ Profile 是单层兼容契约。Tool 实现 profile；用户通常选择 stack�
 
 必需 IR pipeline profile：
 
-- `basic-software-ir`: 验证 core，解析 feature manifest，检查 software
+- `basic-software-ir`: 验证 core，解析 feature use manifest，检查 software
   feature contract，在存在 type/value 信息时支持检查，并且只 lowering
   selected profile 明确声明的语义。
-- `basic-hdl-ir`: 验证 core，解析 feature manifest，检查 HDL contract，
+- `basic-hdl-ir`: 验证 core，解析 feature use manifest，检查 HDL contract，
   要求 HDL-compatible type/signal 信息，并拒绝或 lowering unsupported
   software semantics。
 

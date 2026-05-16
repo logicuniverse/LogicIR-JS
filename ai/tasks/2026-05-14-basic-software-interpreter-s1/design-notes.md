@@ -79,7 +79,7 @@ Round minimality:
 - Later rounds may add feature contracts, stages, provider contracts, validation
   output, diagnostics, or richer plan fields when their business path consumes
   them.
-- S1 intentionally does not predeclare feature manifest resolution, core
+- S1 intentionally does not predeclare feature use manifest resolution, core
   validation stages, provider contract catalogs, or required feature lists.
 - Empty `featureContracts`, `stages`, and `providerContracts` arrays remain only
   because the current architecture schema shape requires those fields.

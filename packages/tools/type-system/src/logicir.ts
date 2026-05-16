@@ -23,13 +23,13 @@ export type WithLogicIRExtensions = {
 };
 
 export type LogicUnitLike = WithLogicIRExtensions & {
-  features: Record<string, LogicIRFeatureUse>;
+  featureUses: Record<string, LogicIRFeatureUse>;
 };
 
 export const findTypeSystemFeatureKeys = (
   logicUnit: LogicUnitLike
 ): string[] =>
-  Object.entries(logicUnit.features)
+  Object.entries(logicUnit.featureUses)
     .filter(
       ([, feature]) =>
         feature.namespace === TYPE_SYSTEM_FEATURE.namespace &&

@@ -30,7 +30,7 @@ const output = (width: number): PullPort => ({
 
 export const add4LogicUnit: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: {
+  featureUses: {
     hdlSignal: {
       namespace: 'logicir.hdl',
       key: 'signal',

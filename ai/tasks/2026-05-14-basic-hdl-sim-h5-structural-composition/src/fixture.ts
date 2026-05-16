@@ -70,7 +70,7 @@ export const and3TruthTable: HdlTestVector[] = [
 
 export const and3StructuralLogicUnit: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: {
+  featureUses: {
     hdlSignal: {
       namespace: 'logicir.hdl',
       key: 'signal',

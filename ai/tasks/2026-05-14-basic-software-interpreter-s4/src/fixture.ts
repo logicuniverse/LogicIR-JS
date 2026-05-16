@@ -11,7 +11,7 @@ const output: Port = {
 
 const makeFixture = (mode: 'closure' | 'upstream'): LogicUnit => ({
   schemaVersion: '0.0.0-draft',
-  features: {
+  featureUses: {
     fulfillment: {
       namespace: 'logicir.software',
       key: 'fulfillment',

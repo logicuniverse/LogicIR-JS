@@ -11,7 +11,7 @@ const output: Port = {
 
 export const asyncDoubleLogicUnit: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: {
+  featureUses: {
     completion: {
       namespace: 'logicir.software',
       key: 'completion',

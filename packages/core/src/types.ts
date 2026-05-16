@@ -31,6 +31,8 @@ export type ClosureId = LogicIRId;
  */
 export type LogicIRKey = string;
 export type PortKey = LogicIRKey;
+export type InputPortKey = PortKey;
+export type OutputPortKey = PortKey;
 export type PinKey = LogicIRKey;
 export type RequirementServiceKey = LogicIRKey;
 export type RequirementUnitKey = LogicIRKey;
@@ -101,27 +103,27 @@ export type PropertyOutputPort = PropertyPort;
  * Result is a distinct endpoint slot, but still a pull port. It may declare
  * pins like other ports when the result surface needs first-level addressing.
  */
-export type PullResultPort = PullPort;
+export type ResultPort = PullPort;
 
 export type CombinationalPorts = {
-  inputs: Record<PortKey, PullInputPort>;
-  result: PullResultPort;
+  inputs: Record<InputPortKey, PullInputPort>;
+  result: ResultPort;
 };
 
 export type SequentialPorts = {
-  inputs: Record<PortKey, PullInputPort | PushInputPort>;
-  outputs: Record<PortKey, PushOutputPort>;
-  result?: PullResultPort;
+  inputs: Record<InputPortKey, PullInputPort | PushInputPort>;
+  outputs: Record<OutputPortKey, PushOutputPort>;
+  result?: ResultPort;
 };
 
 export type StatefulPorts = {
-  inputs: Record<PortKey, PullInputPort | PushInputPort>;
-  outputs: Record<PortKey, PushOutputPort | PropertyOutputPort>;
+  inputs: Record<InputPortKey, PullInputPort | PushInputPort>;
+  outputs: Record<OutputPortKey, PushOutputPort | PropertyOutputPort>;
 };
 
 export type StructuralPorts = {
-  inputs: Record<PortKey, PullInputPort | PushInputPort | PropertyInputPort>;
-  outputs: Record<PortKey, PushOutputPort>;
+  inputs: Record<InputPortKey, PullInputPort | PushInputPort | PropertyInputPort>;
+  outputs: Record<OutputPortKey, PushOutputPort>;
 };
 
 export type PortSurface =
@@ -139,8 +141,8 @@ export type PayloadPathSegment = PinKey | number;
 export type PayloadPath = PayloadPathSegment[];
 
 export type EndpointPortRef =
-  | { kind: 'input'; key: PortKey }
-  | { kind: 'output'; key: PortKey }
+  | { kind: 'input'; key: InputPortKey }
+  | { kind: 'output'; key: OutputPortKey }
   | { kind: 'result' };
 
 export type EndpointRef = {
@@ -151,10 +153,13 @@ export type EndpointRef = {
 
 /**
  * `from` and `to` are graph-local flow roles. Whether an endpoint is a legal
- * source or sink depends on the current LUCore scope plus `owner.kind` and
- * `port.kind`; for example, a current core boundary result can be a sink,
+ * source or sink depends on the current Core Scope plus `owner.kind` and
+ * `port.kind`; for example, a current boundary result can be a sink,
  * while a child LUI result is a source. Core types keep the address shape
  * uniform and leave that contextual direction check to the validator.
+ *
+ * Core Scope means the local rule context of one LUCore, whether that LUCore is
+ * the root LogicUnit.core or a Closure.core.
  */
 export type Connection = WithExtensions & {
   from: EndpointRef;
@@ -192,7 +197,7 @@ export type LUIShared = WithExtensions & {
 };
 
 export type StructuralCompositionContract = WithExtensions & {
-  outlets: CompositionOutletKey[];
+  outlets: Record<CompositionOutletKey, CompositionOutlet>;
   anchors: Record<CompositionAnchorKey, CompositionAnchor>;
 };
 
@@ -230,6 +235,10 @@ export type CompositionAnchor = {
   required: boolean;
 };
 
+export type CompositionOutlet = {
+  required: boolean;
+};
+
 export type CompositionLeaf =
   | {
       kind: 'lui-outlet';
@@ -255,6 +264,10 @@ export type LUCoreShared = WithExtensions & {
   closures: Record<ClosureId, Closure>;
 };
 
+export type SequentialStep = {
+  luiId: LUIId;
+};
+
 export type CombinationalLUCore = LUCoreShared & {
   kindOrganization: { kind: 'combinational' };
   ports: CombinationalPorts;
@@ -262,7 +275,7 @@ export type CombinationalLUCore = LUCoreShared & {
 };
 
 export type SequentialLUCore = LUCoreShared & {
-  kindOrganization: { kind: 'sequential'; steps: LUIId[] };
+  kindOrganization: { kind: 'sequential'; steps: SequentialStep[] };
   ports: SequentialPorts;
   luis: Record<LUIId, CombinationalLUI | StatefulLUI | SequentialLUI>;
 };
@@ -277,7 +290,7 @@ export type StructuralLUCore = LUCoreShared & {
   kindOrganization: {
     kind: 'structural';
     anchors: Record<CompositionAnchorKey, CompositionAnchor>;
-    outlets: Record<CompositionOutletKey, CompositionAnchor>;
+    outlets: Record<CompositionOutletKey, CompositionOutlet>;
     anchorFills: Record<CompositionAnchorKey, CompositionValue>;
     luiFills: Record<
       LUIId,
@@ -434,8 +447,8 @@ export type UpstreamServiceSupplierFulfillment = {
 export type ReachabilityPath = ClosureId[];
 
 export type ForwardedPortKeys = {
-  inputs: PortKey[];
-  pushOutputs: PortKey[];
+  inputs: InputPortKey[];
+  pushOutputs: OutputPortKey[];
 };
 
 export type Closure = WithExtensions & {
@@ -453,7 +466,7 @@ export type LUCore =
 
 export type LogicUnit = WithExtensions & {
   schemaVersion: LogicIRCoreSchemaVersion;
-  features: Record<FeatureUseKey, FeatureUse>;
+  featureUses: Record<FeatureUseKey, FeatureUse>;
   core: LUCore;
   requirements: RequirementSurface;
 };

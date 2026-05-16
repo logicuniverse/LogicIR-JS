@@ -148,7 +148,7 @@ export const createStdlibLogicUnitFixture = (
 
     return {
       schemaVersion: '0.0.0-draft',
-      features: {},
+      featureUses: {},
       requirements: {},
       core,
     };
@@ -183,7 +183,10 @@ export const createStdlibLogicUnitFixture = (
             key,
           },
           ports: common.ports,
-          compositionSurface: { outlets: ['root'], anchors: {} },
+          compositionSurface: {
+            outlets: { root: { required: true } },
+            anchors: {},
+          },
           fulfillments: {},
         },
       },
@@ -191,7 +194,7 @@ export const createStdlibLogicUnitFixture = (
 
     return {
       schemaVersion: '0.0.0-draft',
-      features: {},
+      featureUses: {},
       requirements: {},
       core,
     };
@@ -230,7 +233,7 @@ export const createStdlibLogicUnitFixture = (
 
   return {
     schemaVersion: '0.0.0-draft',
-    features: {},
+    featureUses: {},
     requirements: {},
     core,
   };

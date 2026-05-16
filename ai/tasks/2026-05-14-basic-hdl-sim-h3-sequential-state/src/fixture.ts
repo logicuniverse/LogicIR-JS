@@ -37,7 +37,7 @@ const propertyOutput = (width: number): PropertyPort => ({
 
 export const register4LogicUnit: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  features: {
+  featureUses: {
     hdlSignal: {
       namespace: 'logicir.hdl',
       key: 'signal',
@@ -56,7 +56,7 @@ export const register4LogicUnit: LogicUnit = {
   },
   requirements: {},
   core: {
-    kindOrganization: { kind: 'sequential', steps: ['reg'] },
+    kindOrganization: { kind: 'sequential', steps: [{ luiId: 'reg' }] },
     ports: {
       inputs: {
         clk: input(1),

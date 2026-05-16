@@ -19,7 +19,7 @@ const unsupportedFeatureDiagnostic = (feature: FeatureUse): Diagnostic => ({
 export const projectToVerilogOrReject = (
   logicUnit: LogicUnit,
 ): ProjectionResult => {
-  const diagnostics = Object.values(logicUnit.features)
+  const diagnostics = Object.values(logicUnit.featureUses)
     .filter(
       (feature) =>
         !supportedRequiredFeatures.includes(

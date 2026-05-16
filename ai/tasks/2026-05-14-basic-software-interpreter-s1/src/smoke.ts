@@ -20,7 +20,7 @@ const assertDeepEqual = (
 const resolved = resolveStack(basicSoftwareInterpreterStack);
 const plan = createInterpreterPlan(addPairLogicUnit, resolved);
 
-if (Object.keys(addPairLogicUnit.features).includes('invocation')) {
+if (Object.keys(addPairLogicUnit.featureUses).includes('invocation')) {
   throw new Error('Plain external-target add fixture must not declare a software invocation feature.');
 }
 
