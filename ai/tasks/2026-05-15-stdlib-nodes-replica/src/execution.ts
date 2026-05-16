@@ -45,7 +45,7 @@ const identityKey = (target: Extract<LUITarget, { kind: 'external' }>): string =
   target.key;
 
 const isLuEndpoint = (endpoint: EndpointRef): boolean =>
-  endpoint.owner.kind === 'lu';
+  endpoint.owner.kind === 'boundary';
 
 const isLuiEndpoint = (endpoint: EndpointRef, luiId: string): boolean =>
   endpoint.owner.kind === 'lui' && endpoint.owner.luiId === luiId;

@@ -91,9 +91,9 @@ export const and3StructuralLogicUnit: LogicUnit = {
   core: {
     kindOrganization: {
       kind: 'structural',
-      exportAnchors: {},
-      externalOutlets: {},
-      exportAnchorFills: {},
+      anchors: {},
+      outlets: {},
+      anchorFills: {},
       luiFills: {},
     },
     ports: {

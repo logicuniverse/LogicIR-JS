@@ -57,7 +57,7 @@ const inputFromLu = (
 ): string => {
   const connection = Object.values(logicUnit.core.connections).find(
     (entry) =>
-      entry.from.owner.kind === 'lu' &&
+      entry.from.owner.kind === 'boundary' &&
       entry.from.port.kind === 'input' &&
       entry.to.owner.kind === 'lui' &&
       entry.to.owner.luiId === luiId &&
@@ -84,7 +84,7 @@ const outputToLu = (
       entry.from.port.kind === 'output' &&
       entry.from.port.key === portKey &&
       entry.to.port.kind === 'output' &&
-      entry.to.owner.kind === 'lu',
+      entry.to.owner.kind === 'boundary',
   );
 
   if (!connection) {

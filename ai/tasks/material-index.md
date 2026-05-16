@@ -18,6 +18,13 @@ promote 一个 task 目录。
   当前 schema。task-local execution plan、HDL library module、headless runtime
   等仍可能使用自己的 `portKey`、`direction` 或消息 `role` 字段；这些不是
   core `EndpointRef` 或 `Port` schema。
+- 当前 core endpoint owner 使用 `owner.kind === "boundary"` 表示当前
+  `LUCore` 自身边界；`target.kind === "lu"` 只表示 LUI 指向某个
+  LogicUnit 目标。两者不要混用。
+- Structural composition 的当前读法是 `outlet -> anchor`：outlet 是 source
+  composition value，anchor 是 destination composition slot。当前有效 task
+  只能把 `anchors/outlets/anchorFills/luiFills` 当作 core fixture 词汇；
+  `exportAnchors/externalOutlets/exportAnchorFills` 只属于 05-13 历史材料。
 - 05-13 tasks 仍可能保留 `boundary/interaction/portKey/primary-result` 等历史
   写法；它们只能作为 IR schema 稳定前的历史证据，不能作为当前 schema 示例。
 
@@ -36,7 +43,7 @@ promote 一个 task 目录。
 | Basic HDL simulation 主干 | `2026-05-14-basic-hdl-sim-h1-combinational-module` 到 `h5`，以及 `2026-05-14-basic-hdl-sim-summary` | `review-first` | H1-H5 已验证组合模块、信号宽度、时序状态、unsupported-semantics 拒绝和结构化层级；多数通过 `iverilog`/`vvp`。 | 作为 Verilog projector seed、HDL fixtures、signal/register emitters、testbench runner 和 rejection diagnostic path 的窄切片种子。 | emitter 和 hard-coded payload 都是 task-local；正式 projector 可能需要不同 lowering 和 diagnostics。 |
 | Legacy coverage map | `2026-05-14-legacy-coverage-map` | `review-first` | `coverage.json` 把 runtime、projection、control、structural/editor、node-catalog 能力对照 legacy source 做了覆盖图。 | 作为后续 roadmap 和 review 队列的依据。 | coverage 状态只表示 sandbox evidence 存在，不表示旧算法被接受。 |
 | LogicIR edit transaction MVP | `2026-05-15-logicir-edit-transaction-mvp` | `review-first` | 已验证 `partial LogicIR -> edit transaction -> replay -> validation -> invocation smoke`，输出 `sum = 5`。 | 作为 edit transaction model、typed holes、replay validation 和 AI-assisted authoring flow 的种子。 | operation path、hash model 和 validator 都是 task-local MVP 选择。 |
-| Algebraic type-system feature/tools | `2026-05-15-algebraic-type-system-feature-tools` | `review-first` | 已验证 ADT registry/checker 和 LogicIR connection type check；8 个 value checks、5 个 connection checks。 | 作为 `packages/features/type-system` 和 `packages/tools/type-system` 的 review 起点。 | requirement/composition type bindings 和 codegen 未激活；recursive assignability 仍然保守。 |
+| Algebraic type-system feature/tools | `2026-05-15-algebraic-type-system-feature-tools` | `review-first` | 已验证 ADT registry/checker 和 LogicIR connection type check；8 个 value checks、5 个 connection checks。 | 作为 `packages/features/type-system` 和 `packages/tools/type-system` 的 review 起点。 | requirement/composition type bindings 和 codegen 未激活；正式 composition selectors 已收敛为 `anchor/outlet/lui-anchor/lui-outlet`，方向为 `outlet -> anchor`；recursive assignability 仍然保守。 |
 | Stdlib node replica | `2026-05-15-stdlib-nodes-replica` | `review-after-foundation` | 已验证 104 个 legacy stdlib keys、104 个 catalog rows、104 个 providers、104 个 smoke cases，并有 source audit。 | 在 interpreter/provider 边界稳定后，作为 stdlib/provider catalog 的种子。 | 104 个 node 不能整块 promotion；JS stdlib 语义不能反向驱动 core schema。 |
 | Headless reactive node runtime | `2026-05-15-headless-reactive-node-runtime` | `review-after-foundation` | 已验证 retained-current property update、event merge/mux forwarding、derived operator recomputation；最终 counter 为 `8`，total 为 `21`。 | 作为 event-stream / retained-current-notification 后续 round 的种子。 | 只是小型同步 headless runtime；没有 subscription teardown、async stream policy 或正式 engine 架构。 |
 | Structural UI component runtime | `2026-05-15-structural-ui-component-runtime` | `review-after-foundation` | 已验证 `html.raw` reactive text、`html.div` props/children/events、`component.fromArray/fromObject` child composition、`reactDom.reactApp` headless mount binding；输出 root `div`，更新后文本为 `updated`。 | 作为 structural UI/component execution profile、headless component tree fixture、ReactDOM provider contract review seed。 | 不包含真实 ReactDOM、hooks、DOM lifecycle 或 browser rendering；`class -> className` 只能作为 React provider 兼容证据，不能进入 core。 |

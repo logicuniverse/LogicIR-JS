@@ -75,14 +75,14 @@ export const and2LogicUnit: LogicUnit = {
     },
     connections: {
       aToAnd: {
-        from: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'a' } },
+        from: { owner: { kind: 'boundary' }, port: { kind: 'input', key: 'a' } },
         to: {
           owner: { kind: 'lui', luiId: 'andGate' },
           port: { kind: 'input', key: 'a' },
         },
       },
       bToAnd: {
-        from: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'b' } },
+        from: { owner: { kind: 'boundary' }, port: { kind: 'input', key: 'b' } },
         to: {
           owner: { kind: 'lui', luiId: 'andGate' },
           port: { kind: 'input', key: 'b' },
@@ -95,7 +95,7 @@ export const and2LogicUnit: LogicUnit = {
           payloadPath: ['y'],
         },
         to: {
-          owner: { kind: 'lu' },
+          owner: { kind: 'boundary' },
           port: { kind: 'result' },
           payloadPath: ['y'],
         },

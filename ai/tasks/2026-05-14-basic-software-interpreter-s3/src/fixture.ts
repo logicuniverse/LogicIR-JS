@@ -57,7 +57,7 @@ export const asyncDoubleLogicUnit: LogicUnit = {
     },
     connections: {
       valueToDouble: {
-        from: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'value' } },
+        from: { owner: { kind: 'boundary' }, port: { kind: 'input', key: 'value' } },
         to: {
           owner: { kind: 'lui', luiId: 'asyncDouble' },
           port: { kind: 'input', key: 'value' },
@@ -70,7 +70,7 @@ export const asyncDoubleLogicUnit: LogicUnit = {
           payloadPath: ['doubled'],
         },
         to: {
-          owner: { kind: 'lu' },
+          owner: { kind: 'boundary' },
           port: { kind: 'result' },
           payloadPath: ['doubled'],
         },

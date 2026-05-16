@@ -26,6 +26,10 @@ Implemented:
 Not implemented here:
 
 - ArkType, JSON Schema, TypeScript, Verilog, or Python code generation.
+- Requirement and composition type-binding evaluation. The feature schema
+  already reserves composition selectors such as `anchor`, `outlet`,
+  `lui-anchor`, and `lui-outlet`; when implemented, they must follow the core
+  composition direction `outlet -> anchor`.
 - Host-specific coercion, transforms, or async validation.
 - Projection-specific width/layout decisions.
 

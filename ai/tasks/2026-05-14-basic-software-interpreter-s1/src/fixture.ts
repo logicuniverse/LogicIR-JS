@@ -45,7 +45,7 @@ export const addPairLogicUnit: LogicUnit = {
     connections: {
       leftToAdd: {
         from: {
-          owner: { kind: 'lu' },
+          owner: { kind: 'boundary' },
           port: { kind: 'input', key: 'left' },
         },
         to: {
@@ -55,7 +55,7 @@ export const addPairLogicUnit: LogicUnit = {
       },
       rightToAdd: {
         from: {
-          owner: { kind: 'lu' },
+          owner: { kind: 'boundary' },
           port: { kind: 'input', key: 'right' },
         },
         to: {
@@ -70,7 +70,7 @@ export const addPairLogicUnit: LogicUnit = {
           payloadPath: ['sum'],
         },
         to: {
-          owner: { kind: 'lu' },
+          owner: { kind: 'boundary' },
           port: { kind: 'result' },
           payloadPath: ['sum'],
         },

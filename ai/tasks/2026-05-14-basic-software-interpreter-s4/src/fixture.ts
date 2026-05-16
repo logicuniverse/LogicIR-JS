@@ -89,7 +89,7 @@ const makeFixture = (mode: 'closure' | 'upstream'): LogicUnit => ({
     },
     connections: {
       valueToIncrement: {
-        from: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'value' } },
+        from: { owner: { kind: 'boundary' }, port: { kind: 'input', key: 'value' } },
         to: {
           owner: { kind: 'lui', luiId: 'increment' },
           port: { kind: 'input', key: 'value' },
@@ -100,7 +100,7 @@ const makeFixture = (mode: 'closure' | 'upstream'): LogicUnit => ({
           owner: { kind: 'lui', luiId: 'increment' },
           port: { kind: 'result' },
         },
-        to: { owner: { kind: 'lu' }, port: { kind: 'result' } },
+        to: { owner: { kind: 'boundary' }, port: { kind: 'result' } },
       },
     },
   },

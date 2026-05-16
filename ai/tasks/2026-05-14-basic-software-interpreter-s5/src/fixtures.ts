@@ -30,14 +30,14 @@ const makeLogicUnit = (targetKey: string): LogicUnit => ({
     },
     connections: {
       leftToProvider: {
-        from: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'left' } },
+        from: { owner: { kind: 'boundary' }, port: { kind: 'input', key: 'left' } },
         to: {
           owner: { kind: 'lui', luiId: 'provider' },
           port: { kind: 'input', key: 'left' },
         },
       },
       rightToProvider: {
-        from: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'right' } },
+        from: { owner: { kind: 'boundary' }, port: { kind: 'input', key: 'right' } },
         to: {
           owner: { kind: 'lui', luiId: 'provider' },
           port: { kind: 'input', key: 'right' },
@@ -50,7 +50,7 @@ const makeLogicUnit = (targetKey: string): LogicUnit => ({
           payloadPath: ['sum'],
         },
         to: {
-          owner: { kind: 'lu' },
+          owner: { kind: 'boundary' },
           port: { kind: 'result' },
           payloadPath: ['sum'],
         },

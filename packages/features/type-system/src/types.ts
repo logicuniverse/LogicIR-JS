@@ -233,11 +233,11 @@ export type RequirementTypeBindingsPayload = {
 
 export type CompositionTypeBindingTarget =
   | {
-      kind: 'export-anchor';
+      kind: 'anchor';
       anchorKey: CompositionAnchorKey;
     }
   | {
-      kind: 'external-outlet';
+      kind: 'outlet';
       outletKey: CompositionOutletKey;
     }
   | {

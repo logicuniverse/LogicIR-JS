@@ -78,7 +78,7 @@ roadmap 进度表，也不是 schema authority；正式数据结构仍以 `packa
 - `logicir.hdl.elaboration / core`
   - generate-time structure、parameter、static binding constraint。
 - `logicir.hdl.structural-slices / core`
-  - structural export anchor、slice-oriented hardware projection rule。
+  - structural anchors、slice-oriented hardware projection rule。
 
 这些 feature 服务 `basic-hdl-sim` 的正式化。它们不应把 clock/reset、module
 elaboration 或 HDL lowering detail 写入 core，除非某个字段表达的是

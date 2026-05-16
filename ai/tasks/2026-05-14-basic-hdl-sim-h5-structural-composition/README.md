@@ -13,6 +13,9 @@ payload is a verified H5 baseline, not the final structural schema. Formal
 promotion may use anchors/outlets, elaboration data, module-library resolution,
 or another explicit lowering strategy if structural composition semantics are
 preserved and verified.
+Current core structural composition should be read as `outlet -> anchor`: an
+outlet is the source composition value, and an anchor is the destination
+composition slot.
 
 ## Round Target
 

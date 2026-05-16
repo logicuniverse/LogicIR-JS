@@ -18,6 +18,9 @@ uses:
 
 Requirement and composition type bindings are important, but they are deferred
 because this task does not run requirement or structural fixtures.
+When they are activated in a later formal tool, composition selectors should
+match the current core vocabulary: `anchor`, `outlet`, `lui-anchor`, and
+`lui-outlet`, with composition direction read as `outlet -> anchor`.
 
 ## Compatibility Rules
 

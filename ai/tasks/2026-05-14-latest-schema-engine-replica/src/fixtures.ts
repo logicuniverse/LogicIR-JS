@@ -26,7 +26,7 @@ const luInput = (
   key: string,
   payloadPath?: (string | number)[],
 ): EndpointRef => ({
-  owner: { kind: 'lu' },
+  owner: { kind: 'boundary' },
   port: { kind: 'input', key },
   ...(payloadPath ? { payloadPath } : {}),
 });
@@ -35,13 +35,13 @@ const luOutput = (
   key: string,
   payloadPath?: (string | number)[],
 ): EndpointRef => ({
-  owner: { kind: 'lu' },
+  owner: { kind: 'boundary' },
   port: { kind: 'output', key },
   ...(payloadPath ? { payloadPath } : {}),
 });
 
 const luResult = (payloadPath?: (string | number)[]): EndpointRef => ({
-  owner: { kind: 'lu' },
+  owner: { kind: 'boundary' },
   port: { kind: 'result' },
   ...(payloadPath ? { payloadPath } : {}),
 });
@@ -591,9 +591,9 @@ export const structuralCompositionFixture: LogicUnit = {
   core: {
     kindOrganization: {
       kind: 'structural',
-      exportAnchors: { root: { required: true } },
-      externalOutlets: {},
-      exportAnchorFills: { root: { kind: 'empty' } },
+      anchors: { root: { shape: 'single', required: true } },
+      outlets: {},
+      anchorFills: { root: { kind: 'empty' } },
       luiFills: {},
     },
     ports: { inputs: inputs('label', 'text'), outputs: pushOutputs('root') },

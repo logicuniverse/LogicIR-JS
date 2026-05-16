@@ -74,7 +74,7 @@ export const createInterpreterPlan = (
 
   for (const connection of Object.values(logicUnit.core.connections)) {
     if (
-      connection.from.owner.kind === 'lu' &&
+      connection.from.owner.kind === 'boundary' &&
       connection.to.owner.kind === 'lui' &&
       connection.to.owner.luiId === luiId
     ) {
@@ -84,7 +84,7 @@ export const createInterpreterPlan = (
     if (
       connection.from.owner.kind === 'lui' &&
       connection.from.owner.luiId === luiId &&
-      connection.to.owner.kind === 'lu'
+      connection.to.owner.kind === 'boundary'
     ) {
       outputMap[outputLikeKey(connection.to)] = outputLikeKey(connection.from);
     }

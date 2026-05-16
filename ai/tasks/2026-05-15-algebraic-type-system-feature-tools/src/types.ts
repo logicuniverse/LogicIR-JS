@@ -218,7 +218,7 @@ export type PredicateHandler = (
 ) => boolean;
 
 export type OwnerPortRef = {
-  owner: 'lu' | `lui:${string}` | `closure:${string}`;
+  owner: 'boundary' | `lui:${string}` | `closure:${string}`;
   portKey: PortKey;
 };
 

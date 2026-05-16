@@ -4,8 +4,9 @@
  * This file is the TypeScript authoring source for target-neutral protocol data
  * shapes. It must not contain runtime, projection, or execution implementation mechanics.
  * It also must not use TypeScript generics or utility types as schema
- * abstraction; spell protocol shapes out with serializable object, union,
- * intersection, array, and index-signature types.
+ * abstraction, except Record<K, V> for homogeneous dictionary fields; spell
+ * protocol shapes out with serializable object, union, intersection, array,
+ * and dictionary types.
  */
 
 // --- Protocol / Identity / Extension ---
@@ -103,26 +104,24 @@ export type PropertyOutputPort = PropertyPort;
 export type PullResultPort = PullPort;
 
 export type CombinationalPorts = {
-  inputs: { [key: PortKey]: PullInputPort };
+  inputs: Record<PortKey, PullInputPort>;
   result: PullResultPort;
 };
 
 export type SequentialPorts = {
-  inputs: { [key: PortKey]: PullInputPort | PushInputPort };
-  outputs: { [key: PortKey]: PushOutputPort };
+  inputs: Record<PortKey, PullInputPort | PushInputPort>;
+  outputs: Record<PortKey, PushOutputPort>;
   result?: PullResultPort;
 };
 
 export type StatefulPorts = {
-  inputs: { [key: PortKey]: PullInputPort | PushInputPort };
-  outputs: { [key: PortKey]: PushOutputPort | PropertyOutputPort };
+  inputs: Record<PortKey, PullInputPort | PushInputPort>;
+  outputs: Record<PortKey, PushOutputPort | PropertyOutputPort>;
 };
 
 export type StructuralPorts = {
-  inputs: {
-    [key: PortKey]: PullInputPort | PushInputPort | PropertyInputPort;
-  };
-  outputs: { [key: PortKey]: PushOutputPort };
+  inputs: Record<PortKey, PullInputPort | PushInputPort | PropertyInputPort>;
+  outputs: Record<PortKey, PushOutputPort>;
 };
 
 export type PortSurface =
@@ -132,7 +131,7 @@ export type PortSurface =
   | StructuralPorts;
 
 export type PortOwner =
-  | { kind: 'lu' }
+  | { kind: 'boundary' }
   | { kind: 'lui'; luiId: LUIId }
   | { kind: 'closure'; closureId: ClosureId };
 
@@ -150,6 +149,13 @@ export type EndpointRef = {
   payloadPath?: PayloadPath;
 };
 
+/**
+ * `from` and `to` are graph-local flow roles. Whether an endpoint is a legal
+ * source or sink depends on the current LUCore scope plus `owner.kind` and
+ * `port.kind`; for example, a current core boundary result can be a sink,
+ * while a child LUI result is a source. Core types keep the address shape
+ * uniform and leave that contextual direction check to the validator.
+ */
 export type Connection = WithExtensions & {
   from: EndpointRef;
   to: EndpointRef;
@@ -179,14 +185,15 @@ export type LUITarget =
 
 export type LUIShared = WithExtensions & {
   target: LUITarget;
-  fulfillments: {
-    [key: RequirementServiceKey]: RequirementServiceFulfillment;
-  };
+  fulfillments: Record<
+    RequirementServiceKey,
+    RequirementServiceFulfillment
+  >;
 };
 
 export type StructuralCompositionContract = WithExtensions & {
   outlets: CompositionOutletKey[];
-  anchors: { [key: CompositionAnchorKey]: CompositionAnchor };
+  anchors: Record<CompositionAnchorKey, CompositionAnchor>;
 };
 
 export type StructuralLUI = LUIShared & {
@@ -223,10 +230,6 @@ export type CompositionAnchor = {
   required: boolean;
 };
 
-export type CompositionExportAnchor = {
-  required: boolean;
-};
-
 export type CompositionLeaf =
   | {
       kind: 'lui-outlet';
@@ -234,7 +237,7 @@ export type CompositionLeaf =
       outletKey: CompositionOutletKey;
     }
   | {
-      kind: 'external-outlet';
+      kind: 'outlet';
       outletKey: CompositionOutletKey;
     }
   | { kind: 'empty' };
@@ -244,46 +247,45 @@ export type CompositionValue =
   | { kind: 'collection'; items: CompositionLeaf[] }
   | {
       kind: 'map';
-      entries: { [key: CompositionFieldKey]: CompositionLeaf };
+      entries: Record<CompositionFieldKey, CompositionLeaf>;
     };
 
 export type LUCoreShared = WithExtensions & {
-  connections: { [id: ConnectionId]: Connection };
-  closures: { [id: ClosureId]: Closure };
+  connections: Record<ConnectionId, Connection>;
+  closures: Record<ClosureId, Closure>;
 };
 
 export type CombinationalLUCore = LUCoreShared & {
   kindOrganization: { kind: 'combinational' };
   ports: CombinationalPorts;
-  luis: { [id: LUIId]: CombinationalLUI };
+  luis: Record<LUIId, CombinationalLUI>;
 };
 
 export type SequentialLUCore = LUCoreShared & {
   kindOrganization: { kind: 'sequential'; steps: LUIId[] };
   ports: SequentialPorts;
-  luis: { [id: LUIId]: CombinationalLUI | StatefulLUI | SequentialLUI };
+  luis: Record<LUIId, CombinationalLUI | StatefulLUI | SequentialLUI>;
 };
 
 export type StatefulLUCore = LUCoreShared & {
   kindOrganization: { kind: 'stateful' };
   ports: StatefulPorts;
-  luis: { [id: LUIId]: CombinationalLUI | StatefulLUI };
+  luis: Record<LUIId, CombinationalLUI | StatefulLUI>;
 };
 
 export type StructuralLUCore = LUCoreShared & {
   kindOrganization: {
     kind: 'structural';
-    exportAnchors: {
-      [key: CompositionAnchorKey]: CompositionExportAnchor;
-    };
-    externalOutlets: { [key: CompositionOutletKey]: CompositionAnchor };
-    exportAnchorFills: { [key: CompositionAnchorKey]: CompositionLeaf };
-    luiFills: {
-      [id: LUIId]: { [key: CompositionAnchorKey]: CompositionValue };
-    };
+    anchors: Record<CompositionAnchorKey, CompositionAnchor>;
+    outlets: Record<CompositionOutletKey, CompositionAnchor>;
+    anchorFills: Record<CompositionAnchorKey, CompositionValue>;
+    luiFills: Record<
+      LUIId,
+      Record<CompositionAnchorKey, CompositionValue>
+    >;
   };
   ports: StructuralPorts;
-  luis: { [id: LUIId]: CombinationalLUI | StatefulLUI | StructuralLUI };
+  luis: Record<LUIId, CombinationalLUI | StatefulLUI | StructuralLUI>;
 };
 
 // --- Z: Requirement Fulfillment ---
@@ -292,13 +294,15 @@ export type RequirementFulfillmentScope =
   | 'independent-units'
   | 'shared-service';
 
-export type RequirementSurface = {
-  [key: RequirementServiceKey]: RequirementServiceEntry;
-};
+export type RequirementSurface = Record<
+  RequirementServiceKey,
+  RequirementServiceEntry
+>;
 
-export type PlainRequirementSurface = {
-  [key: RequirementServiceKey]: PlainRequirementServiceEntry;
-};
+export type PlainRequirementSurface = Record<
+  RequirementServiceKey,
+  PlainRequirementServiceEntry
+>;
 
 export type RequirementServiceEntry =
   | InlineRequirementServiceEntry
@@ -327,12 +331,12 @@ export type ExternalRequirementServiceEntry = {
 
 export type RequirementService = WithExtensions & {
   fulfillmentScope: RequirementFulfillmentScope;
-  units: { [key: RequirementUnitKey]: RequirementUnit };
+  units: Record<RequirementUnitKey, RequirementUnit>;
 };
 
 export type PlainRequirementService = WithExtensions & {
   fulfillmentScope: RequirementFulfillmentScope;
-  units: { [key: RequirementUnitKey]: PlainRequirementUnit };
+  units: Record<RequirementUnitKey, PlainRequirementUnit>;
 };
 
 export type RequirementUnitShared = {
@@ -398,7 +402,7 @@ export type RequirementServiceFulfillment = WithExtensions &
 
 export type IndependentUnitsFulfillment = {
   kind: 'independent-units';
-  units: { [key: RequirementUnitKey]: UnitFulfillment };
+  units: Record<RequirementUnitKey, UnitFulfillment>;
 };
 
 export type SharedServiceFulfillment = {
@@ -449,7 +453,7 @@ export type LUCore =
 
 export type LogicUnit = WithExtensions & {
   schemaVersion: LogicIRCoreSchemaVersion;
-  features: { [key: FeatureUseKey]: FeatureUse };
+  features: Record<FeatureUseKey, FeatureUse>;
   core: LUCore;
   requirements: RequirementSurface;
 };

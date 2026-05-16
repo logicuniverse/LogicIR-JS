@@ -25,6 +25,7 @@ fixture data.
 
 - The structural payload is a projection-facing draft, not a final schema.
 - Formal promotion should align with `CompositionAnchor` and `CompositionOutlet`
-  semantics instead of hard-coding Verilog instance lists.
+  semantics instead of hard-coding Verilog instance lists. The current core
+  direction convention is `outlet -> anchor`.
 - Multi-bit signal width is emitted, but the H5 fixture only proves single-bit
   AND composition.

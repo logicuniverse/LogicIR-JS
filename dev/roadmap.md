@@ -327,7 +327,7 @@ Fixture 应证明兼容性，避免 roadmap 只停留在概念层。
 - Minimal combinational LU。
 - Minimal sequential LU。
 - Minimal stateful retained-current LU。
-- Structural LU with export anchors and outlet fills。
+- Structural LU with anchors and outlet fills。
 - Requirement fulfillment with closure。
 - Requirement fulfillment through upstream lineage。
 - Payload path connection and single-driver overlap checks。

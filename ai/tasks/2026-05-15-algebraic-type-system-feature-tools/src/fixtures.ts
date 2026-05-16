@@ -181,35 +181,35 @@ export const fixtureLogicUnit: LogicUnit = {
     connections: {
       validUser: {
         from: {
-          owner: { kind: 'lu' },
+          owner: { kind: 'boundary' },
           port: { kind: 'result' },
           payloadPath: ['userOut'],
         },
-        to: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'userIn' } },
+        to: { owner: { kind: 'boundary' }, port: { kind: 'input', key: 'userIn' } },
       },
       invalidNumberToInteger: {
         from: {
-          owner: { kind: 'lu' },
+          owner: { kind: 'boundary' },
           port: { kind: 'result' },
           payloadPath: ['numberOut'],
         },
-        to: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'intIn' } },
+        to: { owner: { kind: 'boundary' }, port: { kind: 'input', key: 'intIn' } },
       },
       validIntegerToNumber: {
         from: {
-          owner: { kind: 'lu' },
+          owner: { kind: 'boundary' },
           port: { kind: 'result' },
           payloadPath: ['intOut'],
         },
-        to: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'numberIn' } },
+        to: { owner: { kind: 'boundary' }, port: { kind: 'input', key: 'numberIn' } },
       },
       disjointStringBoolean: {
         from: {
-          owner: { kind: 'lu' },
+          owner: { kind: 'boundary' },
           port: { kind: 'result' },
           payloadPath: ['stringOut'],
         },
-        to: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'boolIn' } },
+        to: { owner: { kind: 'boundary' }, port: { kind: 'input', key: 'boolIn' } },
         extensions: [
           {
             featureKey: 'type',
@@ -220,11 +220,11 @@ export const fixtureLogicUnit: LogicUnit = {
       },
       equivalentOverride: {
         from: {
-          owner: { kind: 'lu' },
+          owner: { kind: 'boundary' },
           port: { kind: 'result' },
           payloadPath: ['stringOut'],
         },
-        to: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'boolIn' } },
+        to: { owner: { kind: 'boundary' }, port: { kind: 'input', key: 'boolIn' } },
         extensions: [
           {
             featureKey: 'type',

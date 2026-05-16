@@ -152,7 +152,7 @@ export const getEndpointPort = (
   };
 
   switch (endpoint.owner.kind) {
-    case 'lu':
+    case 'boundary':
       return readFromSurface(logicUnit.core.ports);
     case 'lui':
       return logicUnit.core.luis[endpoint.owner.luiId]

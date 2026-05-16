@@ -222,7 +222,7 @@ LU kind 的可观察语义。
 | `combinational` | 当前值映射；`kindOrganization.kind = combinational`；只有 `ports.inputs` 和一个 `ports.result` pull 结果槽位；多个结果通过 `result.pins` / `payloadPath` 表达。 | 当前 software-interpreter baseline 是从 `ports.result` / return contact 开始 lazy pull，沿 `Connection` 反向读取依赖，只计算被需要的相关 LUI；其它策略可以预分析、拓扑排序或编译表达式，但不能把 unrelated LUI 的运行变成可观察副作用。 | 生成纯函数、可内联表达式或已优化求值计划；不引入状态、订阅、clock 或 runtime lifecycle。 | 生成 continuous assignment、组合表达式或 `always_comb`；不得引入寄存器、clock/reset 或隐式 state。 |
 | `sequential` | `kindOrganization.steps: LUIId[]` 是最小有序推进骨架。 | 当前 software-interpreter baseline 是按 `steps` 作为 pipeline 推进。旧实现允许 `GoBackIf` 调整 step index，允许 `ReturnIf` 提前返回；这是可复用的 control extension 证据，不是唯一控制模型。completion/await、go-back、early-return 等属于 software feature 或 lowering metadata，不属于 core step 字段。 | 生成 pipeline runner、step runner、state machine、async workflow 或其它等价 realization；调度、await、异常传播必须来自 profile/feature policy。 | 需要 clocking/state contract；生成 edge-triggered process、寄存器转移或 FSM；没有 clock/reset/state feature 时应 diagnostic，而不是降级成组合逻辑。 |
 | `stateful` | 驻留状态逻辑；core 只说明 stateful organization，不规定 store 实现。 | 当前 software-interpreter baseline 是对 stateful LUIs 逐个独立运行，收集 property/current 返回值并写入 durable retained-current state。其它 store、reactive、incremental 或 event-loop 策略可以不同，但必须保留 stateful boundary、current read 和 durable/update 语义。 | 生成带私有状态、store handle 或 host binding 的 module/class/function closure；每个 stateful unit 的 durable/current 结果边界必须清楚，生命周期和并发策略由 feature/profile 决定。 | 映射为 register/state variable、reset/initial behavior 和 sequential update；必须有 clocking/state HDL contract。 |
-| `structural` | anchors/outlets、`exportAnchors`、`externalOutlets`、`exportAnchorFills`、`luiFills` 描述结构显现和 composition。 | 当前 software-interpreter baseline 是对 structural/composable LUIs 逐个独立运行，结果是 composition function / composable return；root composition function 之后再用 context 和 inputs 生成结构结果。其它 materialization、diff、incremental composition 或 host-specific builder 可以不同，但必须保留 structural composition surface。 | 生成 composable function、组件/布局/tree construction、module assembly 或 host-specific composition artifact。 | 生成 module instance、wire、hierarchy、generate/elaboration structure；structural slices 可以 lowering 为子系统或层级模块。 |
+| `structural` | `anchors`、`outlets`、`anchorFills`、`luiFills` 描述结构显现和 composition。 | 当前 software-interpreter baseline 是对 structural/composable LUIs 逐个独立运行，结果是 composition function / composable return；root composition function 之后再用 context 和 inputs 生成结构结果。其它 materialization、diff、incremental composition 或 host-specific builder 可以不同，但必须保留 structural composition surface。 | 生成 composable function、组件/布局/tree construction、module assembly 或 host-specific composition artifact。 | 生成 module instance、wire、hierarchy、generate/elaboration structure；structural slices 可以 lowering 为子系统或层级模块。 |
 
 旧 `packages/legacy/engine/src/projection.ts` 体现了一个可借鉴的分派路线：
 Combinational 是 non-reactive 的 `readLUOutput`；读取 combinational LUI
@@ -286,7 +286,9 @@ Endpoint refs 应支持 port-level 以及 payload-level 寻址：
 - 每个 owner 的 port surface 按槽位组织为 `inputs`、`outputs` 和可能存在的 `result`。`inputs` / `outputs` 内部使用 `PortKey` map；`result` 是独立槽位，不使用 `PortKey`。
 - `payloadPath` 定位该 port payload 内部的嵌套位置，例如 object field、array item、bus lane、result pin 或包裹总线字段。
 - `Port.pins` 只声明第一层可见 pin surface；`input`、`output` 和独立的 `result` 槽位都可以声明 pins。pin 继承 port 的 endpoint slot 和 contact kind。
-- `EndpointRef.port.kind` 是 port 在 owner 边界上的槽位，而 `Connection.from/to` 是相对当前 `LUCore` 图的流向。当前 LU/Closure 的 input endpoint 是图内 source，当前 LU/Closure 的 output/result endpoint 是图内 sink；子 LUI 的 input endpoint 是图内 sink，子 LUI 的 output/result endpoint 是图内 source。
+- `EndpointRef.owner.kind === "boundary"` 表示当前 `LUCore` 自身边界。这里的 current core 可能是 root `LogicUnit.core`，也可能是任意 `Closure.core`；因此 endpoint owner 不应把自身边界称为 LU。
+- `EndpointRef.port.kind` 是 port 在 owner 边界上的槽位，而 `Connection.from/to` 是相对当前 `LUCore` 图的流向。`boundary` input endpoint 是图内 source，`boundary` output/result endpoint 是图内 sink；子 LUI 的 input endpoint 是图内 sink，子 LUI 的 output/result endpoint 是图内 source。
+- 普通 connection 的方向约定是 `from -> to`：`from` 是 source，`to` 是 destination。
 - `payloadPath` 的后续段是逻辑 payload address，由 target LUI、feature extension 或 projector 解释，不自动变成 nested core pins。
 - `from.payloadPath` 在 pull-readable flow 中是 source payload selector，在 push-notifiable flow 中是 source payload path filter/prefix。
 - `to.payloadPath` 在 pull-readable flow 中是 target payload assembly location，在 push-notifiable flow 中是 target payload path prefix/remap。
@@ -296,24 +298,24 @@ Endpoint refs 应支持 port-level 以及 payload-level 寻址：
 
 ## Structural 空间切片和分布式投影
 
-Structural composition 可以用 anchor 和 outlet 两个原语理解。`CompositionAnchor` 有 `shape` 和 `required`，表示可以接收 composition value 的锚点；outlet 在 core 中只是可放入某个 anchor 的结构出口 key，因此 `compositionSurface.outlets` 是 set-like key array。Structural LU/closure 的 `exportAnchors` 是当前结构对外提供的隐式 single anchors，因此只保存 `required`；`externalOutlets` 是当前结构内部可引用、但由父级 composition context 供应的 outlets。一个 structural LU 被实例化成 LUI 后，这些 external outlets 在父级视角解析为 `compositionSurface.anchors`，由父级填充；structural LUI 的 `compositionSurface.outlets` 则是该 LUI 提供给父级放入当前 LU/closure anchor 的 outlets。
+Structural composition 可以用 anchor 和 outlet 两个原语理解：composition 的方向约定是 `outlet -> anchor`，也就是 outlet 是 source composition value，anchor 是 destination composition slot。`CompositionAnchor` 有 `shape` 和 `required`，表示可以接收 composition value 的锚点；outlet 在 core 中是可放入某个 anchor 的结构出口 key。Structural LU/closure core 和 structural LUI 都有自己的 anchors / outlets，只是观察视角相反：站在当前 core 内部，`kindOrganization.anchors` 是当前 core 要填充并对外显现的 output composition contracts，`kindOrganization.outlets` 是当前 core 内部可引用、但由父级 composition context 供应的 input composition contracts。站在父级看 child LUI，child `compositionSurface.outlets` 对应目标 LU 的 anchors，child `compositionSurface.anchors` 对应目标 LU 的 outlets。
 
-Structural LU 的 `exportAnchors` 仍可以被读取为 named spatial slices。一个 structural LU 不需要只有一个默认出口；`root` 可以是常用主 slice 约定，但不是 schema 特权字段。多个 `exportAnchors` 允许同一个 structural LUI 在父级中按不同空间切片被引用。
+Structural LU 的 `anchors` 可以被读取为 named spatial slices。一个 structural LU 不需要只有一个默认出口；`root` 可以是常用主 slice 约定，但不是 schema 特权字段。多个 `anchors` 允许同一个 structural LUI 在父级中按不同空间切片被引用，因为这些 anchors 在父级视角会表现为该 LUI 的 outlets。
 
-`exportAnchorFills[anchorKey]` 描述某个 export anchor / slice 的 single composition leaf。遍历这些 leaves 可以推导该 slice 直接使用哪些 child LUI outlets、哪些 external outlets，以及哪些 child structural export slices 被接入。集合或映射组合不直接放在当前 LU/closure 的 export anchor 上；它们属于 structural LUI anchors，并通过 `luiFills[luiId]` 提供。`luiFills[luiId]` 描述该 child LUI 实例的 anchors 如何被填充；它属于实例上下文，不属于某一次 `lui-outlet` 引用。
+`anchorFills[anchorKey]` 描述当前 core 某个 anchor / slice 的 composition value，并按该 anchor 的 `shape` 校验。遍历这些 values 可以推导该 slice 直接使用哪些 child LUI outlets、哪些当前 core outlets，以及哪些 child structural slices 被接入。`luiFills[luiId]` 描述该 child LUI 实例的 anchors 如何被填充；它属于实例上下文，不属于某一次 `lui-outlet` 引用。
 
-基于这些结构，projector 或 analyzer 可以把一个含 N 个 export anchors 的 structural LU 切分成 N 个 slice subsystems。切分后，每个 subsystem 可以有自己的局部结构和跨 slice 通信边界。一个常见 lowering 是为每个 slice subsystem 生成一个 push-notifiable `rx` input bus 和一个 push-notifiable `tx` output bus；`tx` 不必按目标 slice 膨胀成 N-1 个端口，目标 slice/channel 可以作为第一层 pin 或 `payloadPath` 段，后续段表达 message field、bus lane 或嵌套地址。
+基于这些结构，projector 或 analyzer 可以把一个含 N 个 anchors 的 structural LU 切分成 N 个 slice subsystems。切分后，每个 subsystem 可以有自己的局部结构和跨 slice 通信边界。一个常见 lowering 是为每个 slice subsystem 生成一个 push-notifiable `rx` input bus 和一个 push-notifiable `tx` output bus；`tx` 不必按目标 slice 膨胀成 N-1 个端口，目标 slice/channel 可以作为第一层 pin 或 `payloadPath` 段，后续段表达 message field、bus lane 或嵌套地址。
 
 这种分布式 slice 设计由 core 支持，但不由 core 强制。Core 只提供：
 
-- `exportAnchors` / `exportAnchorFills` 表达 spatial slice boundary 和 slice composition。
+- `anchors` / `anchorFills` 表达 spatial slice boundary 和 slice composition。
 - `luiFills` 表达 child LUI 实例的 anchor fills / composition context。
 - `ConnectionId` 保留拆分后逻辑边的独立身份。
 - `EndpointRef.payloadPath` 表达 bus、sub-bus、lane 或 nested message address。
 
 具体的 RX/TX 端口生成、placement、transport、调度、打包、序列化、fan-in resolver 或 merge policy 属于 projection strategy 或 profile 声明为 required / conditional-required 的 feature extension。Projector 不能把这些语义作为隐式 runtime 假设静默引入。
 
-Core 的 structural outlet 目前只是 key：`compositionSurface.outlets: CompositionOutletKey[]` 是 set-like 声明，不携带 shape、required 或额外 metadata。需要 outlet category、layout、type、compatibility tag 或 distributed routing hint 时，应挂到拥有该 surface 的结构上，例如 structural LUI 的 `compositionSurface.extensions` 或外层 `LUCore.extensions`，由 extension payload 用 outlet key selector 指向具体 outlet。
+Structural LUI 的 `compositionSurface.outlets: CompositionOutletKey[]` 目前只是 set-like key 声明，不携带 shape、required 或额外 metadata；它的 shape 约束来自目标 LU 内部的 anchors，而不是 outlet 自身。需要 outlet category、layout、type、compatibility tag 或 distributed routing hint 时，应挂到拥有该 surface 的结构上，例如 structural LUI 的 `compositionSurface.extensions` 或外层 `LUCore.extensions`，由 extension payload 用 outlet key selector 指向具体 outlet。
 
 ## Core/Feature/Projection
 

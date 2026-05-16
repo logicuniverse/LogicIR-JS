@@ -17,12 +17,14 @@
 - 新 schema 必须表达 LogicIR 的拓扑、边界语义、Requirement/Fulfillment、Closure、Projection/Runtime 分离。
 - 新 schema 不能只服务 JS runtime，也不能把某一个 projector 的实现便利当成 schema 的核心语义。
 - Projection target 只约束 schema 的可表达性和边界语义，不要求当前阶段立即实现所有 projector。
-- Schema TS authoring source 不能使用 TypeScript 泛型或 utility type 作为 schema 抽象，包括 `Base<T>`、`Record<K, V>`、`Exclude<T, U>`、`Pick`、`Omit`、`Partial` 等。需要显式写出可序列化 object、union、intersection、array 和 index-signature 类型；如果重复结构过多，优先接受少量重复，而不是引入 TS-only abstraction。
+- Schema TS authoring source 不能使用 TypeScript 泛型或 utility type 作为 schema 抽象，包括 `Base<T>`、`Exclude<T, U>`、`Pick`、`Omit`、`Partial` 等。需要显式写出可序列化 object、union、intersection 和 array 类型；如果重复结构过多，优先接受少量重复，而不是引入 TS-only abstraction。唯一例外是 `Record<K, V>` 可以用于同质 key-value dictionary 字段，例如 `Record<PortKey, Port>` 或 `Record<LUIId, LUI>`；不能用它隐藏非字典结构。
+- TS 类型层负责协议骨架和 kind-specific 大类约束，不追求把所有非法 LogicIR 都变成 TS 不可表达。依赖当前 `LUCore` scope、owner、endpoint side、catalog、requirement service、feature manifest 或 profile capability 的组合语义，应由 core validator、profile resolver 和 capability checker 给出结构化 diagnostic。
 - Core 可以表达 target-neutral 的端口 contact kind：`pull`、`push`、`property`。`property` 是 retained-current reactive contact；core 不能规定这些能力在 JS runtime 或 HDL 中的具体实现位置和机制。
 - Core 可以表达嵌套 payload 的逻辑寻址，例如 object path、array index、bus lane 或包裹总线字段；但不能把深层 payload 结构自动提升为 nested core pins 或 target-specific type system。
-- Core 可以表达 structural `exportAnchors` 作为 named spatial slices，并允许 `Connection + payloadPath` 支撑 slice 间 bus-style routing；但不能把某个分布式 runtime 的 RX/TX 端口生成、placement、transport、scheduling 或 serialization 规则固定为 core schema。
+- Core 可以表达 structural `anchors` 作为 named spatial slices / output composition contracts，并允许 `Connection + payloadPath` 支撑 slice 间 bus-style routing；但不能把某个分布式 runtime 的 RX/TX 端口生成、placement、transport、scheduling 或 serialization 规则固定为 core schema。
 - X 轴仍然是 unit-level boundary drive。端口 contact capability 不能反向变成新的 X 轴方向。
 - Core 的 port surface 使用 kind-specific slots：`inputs`、合法时存在的 `outputs`，以及合法时存在的 `result`。`inputs` / `outputs` 内部使用 `PortKey` map；`result` 是独立槽位，不是端口 role。`combinational` 只有 `inputs + result`，不能有普通 `outputs`；多个组合结果通过 `result.pins` 和 `payloadPath` 表达。
+- Endpoint owner 中的 `boundary` 表示当前 `LUCore` 自身边界，不表示 root LU。`LUITarget.kind === "lu"` 才表示 LUI 指向某个 LogicUnit 目标。
 - Core sequential organization 只保存 `steps: LUIId[]`，表达 pipeline/step list，不表达一般分支控制流图。`GoBackIf`、`ReturnIf`、guard、branch、async 或调度语义必须走 feature extension 或 projection lowering。
 - `LUCore.kindOrganization.kind` 决定 runtime、projector 和 compiler 的首层处理策略。Core 只保存 target-neutral organization skeleton；software interpreter、generated software、Verilog HDL 或其它 target 的具体处理方式必须由 profile、feature、lowering 或 engine 实现声明。不能把 `LUCore.luis` 默认拍平成 eager node list，也不能把某个 target 的执行策略反向写成 core 字段。
 

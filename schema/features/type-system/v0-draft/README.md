@@ -16,3 +16,15 @@ Implementation tooling currently lives in:
 Target-specific adapters such as JSON Schema, TypeScript, Verilog, Python, or
 ArkType projection should consume this feature data rather than changing core.
 
+## Composition Type Binding Vocabulary
+
+Composition type bindings follow the current core composition direction:
+`outlet -> anchor`. The target selectors in the TypeScript authoring source use:
+
+- `anchor` / `outlet` for the current structural scope.
+- `lui-anchor` / `lui-outlet` for a child structural LUI in that core.
+- `surface-anchor` / `surface-outlet` for a structural requirement or resolved
+  composition surface.
+
+These selectors type source composition values and destination composition
+slots; they do not turn composition into ordinary `Connection.from/to` flow.

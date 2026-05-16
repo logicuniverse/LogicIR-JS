@@ -73,11 +73,20 @@ Core schema 至少必须保存：
   retained-current 且有初始值。
 - `EndpointRef.payloadPath` 用于 payload/bus/lane/result-pin addressing，
   不把 nested payload 变成 nested core pins。
+- `EndpointRef.owner.kind === "boundary"` 表示当前 `LUCore` 自身边界；该 core
+  可以是 root `LogicUnit.core`，也可以是任意 `Closure.core`。不要把任意
+  closure 内部的自身边界称为 LU。
+- 普通 connection 的方向是 `from -> to`，composition 的方向是
+  `outlet -> anchor`。`from` 与 `outlet` 是 source，`to` 与 `anchor` 是
+  destination。
 - `LUCore.kindOrganization.kind` 是 execution-plane kind discriminator。
 - `steps: LUIId[]` 是 minimal sequential organization；更丰富 control flow 属于
   feature/projection。
-- Structural anchors/outlets 通过 `exportAnchors`、`externalOutlets`、
-  `exportAnchorFills`、`luiFills` 和 structural LUI `compositionSurface` 表达。
+- Structural anchors/outlets 通过当前 core 的 `anchors`、`outlets`、
+  `anchorFills`、`luiFills` 和 structural LUI `compositionSurface` 表达。
+  Outlet 是 source composition value，anchor 是 destination composition slot；
+  同一 structural LU 被实例化为 LUI 后，父级视角下
+  该 LUI 的 anchors/outlets 极性与目标 LU 内部视角相反。
 - Requirement services 可以是 inline 或 external contracts；fulfillment 是显式
   closure 或 upstream lineage relation。
 - Extensions 挂在稳定 owner 或 relationship nodes；对 internal helper

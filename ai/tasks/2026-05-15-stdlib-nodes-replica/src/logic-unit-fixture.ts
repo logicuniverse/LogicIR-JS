@@ -31,17 +31,17 @@ const statefulInputPorts = (keys: string[]) =>
   );
 
 const luInput = (key: string): EndpointRef => ({
-  owner: { kind: 'lu' },
+  owner: { kind: 'boundary' },
   port: { kind: 'input', key },
 });
 
 const luOutput = (key: string): EndpointRef => ({
-  owner: { kind: 'lu' },
+  owner: { kind: 'boundary' },
   port: { kind: 'output', key },
 });
 
 const luResult = (payloadPath?: (string | number)[]): EndpointRef => ({
-  owner: { kind: 'lu' },
+  owner: { kind: 'boundary' },
   port: { kind: 'result' },
   ...(payloadPath ? { payloadPath } : {}),
 });
@@ -169,9 +169,9 @@ export const createStdlibLogicUnitFixture = (
       ...common,
       kindOrganization: {
         kind: 'structural',
-        exportAnchors: { root: { required: true } },
-        externalOutlets: {},
-        exportAnchorFills: { root: { kind: 'empty' } },
+        anchors: { root: { shape: 'single', required: true } },
+        outlets: {},
+        anchorFills: { root: { kind: 'empty' } },
         luiFills: {},
       },
       luis: {

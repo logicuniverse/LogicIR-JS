@@ -257,7 +257,7 @@ const readPort = (
   logicUnit: LogicUnit,
   endpoint: EndpointRef,
 ): Port | undefined => {
-  if (endpoint.owner.kind === 'lu') {
+  if (endpoint.owner.kind === 'boundary') {
     return readFromSurface(logicUnit.core.ports, endpoint);
   }
 
@@ -271,7 +271,7 @@ const readPort = (
 };
 
 const isSourceEndpoint = (endpoint: EndpointRef): boolean => {
-  if (endpoint.owner.kind === 'lu' || endpoint.owner.kind === 'closure') {
+  if (endpoint.owner.kind === 'boundary' || endpoint.owner.kind === 'closure') {
     return endpoint.port.kind === 'input';
   }
 
@@ -279,7 +279,7 @@ const isSourceEndpoint = (endpoint: EndpointRef): boolean => {
 };
 
 const isSinkEndpoint = (endpoint: EndpointRef): boolean => {
-  if (endpoint.owner.kind === 'lu' || endpoint.owner.kind === 'closure') {
+  if (endpoint.owner.kind === 'boundary' || endpoint.owner.kind === 'closure') {
     return endpoint.port.kind === 'output' || endpoint.port.kind === 'result';
   }
 

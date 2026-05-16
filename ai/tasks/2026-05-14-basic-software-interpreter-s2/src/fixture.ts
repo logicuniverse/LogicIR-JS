@@ -91,10 +91,10 @@ export const counterCurrentLogicUnit: LogicUnit = {
           owner: { kind: 'lui', luiId: 'readCounter' },
           port: { kind: 'output', key: 'current' },
         },
-        to: { owner: { kind: 'lu' }, port: { kind: 'output', key: 'current' } },
+        to: { owner: { kind: 'boundary' }, port: { kind: 'output', key: 'current' } },
       },
       nextToWrite: {
-        from: { owner: { kind: 'lu' }, port: { kind: 'input', key: 'next' } },
+        from: { owner: { kind: 'boundary' }, port: { kind: 'input', key: 'next' } },
         to: {
           owner: { kind: 'lui', luiId: 'writeCounter' },
           port: { kind: 'input', key: 'next' },
@@ -105,7 +105,7 @@ export const counterCurrentLogicUnit: LogicUnit = {
           owner: { kind: 'lui', luiId: 'writeCounter' },
           port: { kind: 'output', key: 'written' },
         },
-        to: { owner: { kind: 'lu' }, port: { kind: 'output', key: 'written' } },
+        to: { owner: { kind: 'boundary' }, port: { kind: 'output', key: 'written' } },
       },
     },
   },
