@@ -1,40 +1,11 @@
 import type {
   EndpointRef,
-  ExtensionRecord,
   InterpreterPlan,
   LogicUnit,
   ResolvedStack,
   RetainedCurrentOperation,
 } from './types';
 import { baselineInterpretation } from './types';
-
-const payloadObject = (extension: ExtensionRecord): Record<string, unknown> => {
-  if (
-    extension.payload === null ||
-    typeof extension.payload !== 'object' ||
-    Array.isArray(extension.payload)
-  ) {
-    throw new Error(`Extension ${extension.key} payload must be an object.`);
-  }
-
-  return extension.payload as Record<string, unknown>;
-};
-
-const requiredFeatureDeclared = (
-  logicUnit: LogicUnit,
-  resolved: ResolvedStack,
-): boolean => {
-  const declared = Object.values(logicUnit.featureUses);
-
-  return resolved.requiredFeatures.every((contract) =>
-    declared.some(
-      (feature) =>
-        feature.namespace === contract.feature.namespace &&
-        feature.key === contract.feature.key &&
-        feature.version === contract.feature.version,
-    ),
-  );
-};
 
 const inputKey = (endpoint: EndpointRef): string => {
   if (endpoint.port.kind !== 'input') {
@@ -94,32 +65,41 @@ const outputToLu = (
   return outputKey(connection.to);
 };
 
+const stateStoreOperationFromTarget = (
+  targetKey: string,
+): { storeKey: string; kind: 'read-current' | 'write-current' } => {
+  if (targetKey.endsWith('.read-current')) {
+    return {
+      storeKey: targetKey.slice(0, -'.read-current'.length),
+      kind: 'read-current',
+    };
+  }
+
+  if (targetKey.endsWith('.write-current')) {
+    return {
+      storeKey: targetKey.slice(0, -'.write-current'.length),
+      kind: 'write-current',
+    };
+  }
+
+  throw new Error(`Unsupported state-store target key: ${targetKey}`);
+};
+
 export const createInterpreterPlan = (
   logicUnit: LogicUnit,
   resolved: ResolvedStack,
 ): InterpreterPlan => {
-  if (!requiredFeatureDeclared(logicUnit, resolved)) {
-    throw new Error('LogicUnit is missing required retained-current feature.');
-  }
-
   const operations: RetainedCurrentOperation[] = [];
 
   for (const [luiId, lui] of Object.entries(logicUnit.core.luis)) {
-    const extension = lui.extensions?.find(
-      (entry: ExtensionRecord) => entry.key === 'state-operation',
-    );
-
-    if (!extension) {
+    if (
+      lui.target.kind !== 'external' ||
+      lui.target.namespace !== 'logicir.software.state-store'
+    ) {
       continue;
     }
 
-    const payload = payloadObject(extension);
-    const kind = payload.kind;
-    const storeKey = payload.storeKey;
-
-    if (typeof storeKey !== 'string') {
-      throw new Error(`LUI ${luiId} state-operation missing storeKey.`);
-    }
+    const { storeKey, kind } = stateStoreOperationFromTarget(lui.target.key);
 
     if (kind === 'read-current') {
       operations.push({
@@ -140,7 +120,7 @@ export const createInterpreterPlan = (
       continue;
     }
 
-    throw new Error(`Unsupported retained-current operation: ${String(kind)}`);
+    throw new Error(`Unsupported state-store operation: ${String(kind)}`);
   }
 
   return {

@@ -6,7 +6,6 @@ const input: Port = {
 
 const output: Port = {
   contact: 'pull',
-  pins: { kind: 'keyed', keys: ['doubled'] },
 };
 
 export const asyncDoubleLogicUnit: LogicUnit = {
@@ -67,12 +66,10 @@ export const asyncDoubleLogicUnit: LogicUnit = {
         from: {
           owner: { kind: 'lui', luiId: 'asyncDouble' },
           port: { kind: 'result' },
-          payloadPath: ['doubled'],
         },
         to: {
           owner: { kind: 'boundary' },
           port: { kind: 'result' },
-          payloadPath: ['doubled'],
         },
       },
     },

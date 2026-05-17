@@ -16,13 +16,17 @@ state is retained across runs.
 
 ## Boundary Decisions
 
-- `property` remains a port contact capability in core-shaped data. It replaces
-  the older task-local retained-current boolean shape.
-- State-store identity and operation kind are retained-current feature payload.
+- `property` is one of the three core port contact kinds and already implies
+  retained-current semantics. It replaces the older task-local retained-current
+  boolean shape.
+- State-store identity and operation kind are task-local external target
+  identity in S2. They describe this sandbox runtime's implementation route,
+  not the existence of retained-current semantics.
   The task-local engine receives its state store as execution context; S2 does
   not need an architecture-level provider contract or execution binding.
-- Required retained-current feature checking is only declared on the projection
-  profile because the S2 projector is the code path that consumes it.
+- S2 intentionally has no required feature contracts. Later formal software
+  state-store features can add richer binding/lowering metadata, but the minimal
+  property/current smoke must run without them.
 - A missing write input means “do not write” for this S2 plan. This lets the
   same plan support read-only and read-write runs.
 - Subscriptions and update notification are deferred; S2 validates current
@@ -34,6 +38,6 @@ state is retained across runs.
 
 ## Promotion Notes
 
-The promotable behavior is small: retained-current feature payload shape,
-read/write operation shape, and a regression smoke. The local type subset should
-not be promoted as schema.
+The promotable behavior is small: core property fixture usage, read/write
+operation shape, and a regression smoke. The local type subset should not be
+promoted as schema.

@@ -16,7 +16,7 @@ yarn verify
 
 Verified cases:
 
-- Valid invocation: `status: ok`, output `{ "sum": 7 }`.
+- Valid invocation: `status: ok`, output `{ "result": 7 }`.
 - Provider missing: `PROVIDER_MISSING`, phase `execute`.
 - Plan invalid: `PLAN_INVALID`, phase `project`.
 - Unsupported semantics: `UNSUPPORTED_SEMANTIC`, phase `project`.

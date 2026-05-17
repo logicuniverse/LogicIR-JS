@@ -14,7 +14,7 @@ Human review is required before promotion.
 
 | Sandbox Path | Proposed Formal Path | Status | Notes |
 | --- | --- | --- | --- |
-| `src/architecture.ts` | future architecture fixture/catalog seed | candidate | Retained-current feature and minimal profile/stack draft. |
+| `src/architecture.ts` | future architecture fixture/catalog seed | candidate | Minimal profile/stack draft with no required feature contracts. Property retained-current semantics remain core. |
 | `src/fixture.ts` | future retained-current fixture | candidate | Shows stateful read/write current behavior. |
 | `src/projector.ts` | future interpreter-plan projector | candidate | Only operation extraction pattern should be promoted. |
 | `src/engine.ts` | future software engine | candidate | Memory retained-current state behavior. |
@@ -25,6 +25,8 @@ Human review is required before promotion.
 - `yarn build`
 - `yarn test`
 - Formal software interpreter smoke for retained-current.
+- Any later state-store feature must be additive; S2 itself should remain
+  runnable without feature declarations.
 
 ## Do Not Promote
 

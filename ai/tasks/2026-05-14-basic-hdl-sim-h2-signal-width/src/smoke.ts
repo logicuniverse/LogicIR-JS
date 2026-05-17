@@ -11,7 +11,7 @@ if (!artifacts.moduleText.includes('input wire [3:0] a')) {
   throw new Error('Expected 4-bit input a.');
 }
 
-if (!artifacts.moduleText.includes('assign y = a + b;')) {
+if (!artifacts.moduleText.includes('assign result = a + b;')) {
   throw new Error('Expected add expression.');
 }
 

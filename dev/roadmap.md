@@ -5,7 +5,7 @@ tool、projector、compiler、engine、fixture 和 AI task 建设顺序。
 
 它不是 schema 权威。已确认的数据结构由 `packages/` 下的 TS 源包维护，
 语言无关的规范和生成产物入口在 `schema/` 下。具体实现仍需要写入
-`dev/plans/` 中的聚焦计划，或者先放进 `ai/tasks/` 下的隔离 AI task。
+`dev/changes/` 中的变更提案，或者先放进 `ai/tasks/` 下的隔离 AI task。
 
 职责边界：本文维护当前确定推进的建设顺序和验收进度；开发流程归
 [`process.md`](process.md)，理论原则归
@@ -156,7 +156,7 @@ profile contract 和 tool behavior。Feature 名称、状态和边界统一维�
   最小可晋升切片。
 - 为 shared diagnostics 和 value/default 行为建立最小正式 seed，并对照
   software S5、HDL H4 和 capability checker 需求。
-- 每个 feature 晋升前先写或更新 `dev/plans/` 中的聚焦计划，明确
+- 每个 feature 晋升前先写或更新 `dev/changes/` 中的变更提案，明确
   feature boundary、profile requiredness、tool/projector impact 和验证路径。
 
 暂不在 roadmap 中承诺的 feature 方向保留在 [feature-catalog.md](feature-catalog.md)
@@ -197,7 +197,7 @@ Profile 是单层兼容契约。Tool 实现 profile；用户通常选择 stack�
 
 暂不在 roadmap 中承诺。需要推进时先写入
 [feature-catalog.md](feature-catalog.md)、[long-term-vision.md](long-term-vision.md)
-或 `dev/plans/`。
+或 `dev/changes/`。
 
 ## 阶段 4：Stack
 
@@ -369,8 +369,11 @@ Example 目录应保持小而可审阅：
 2. **Round S2: retained-current**
    - 目标：加入 current value/state store 语义，还原旧 `Property` /
      `StateStore` 的核心行为。
-   - 必需内容：retained-current feature/extension 草案、state store provider
-     contract、读写 current value fixture。
+   - 必需内容：core `property` contact fixture、feature-free current value
+     read/write baseline、state store provider context、读写 current value
+     fixture。`property` 的 retained-current 语义来自 core；最小 S2 不要求
+     software state-store feature。后续正式 state-store feature 只能作为更丰富
+     的 binding/lowering metadata 追加。
    - LU kind 要求：支持 `stateful` retained-current surface；当前 baseline
      可以让 stateful LUIs 独立运行并产出 durable/current 值；区分 current
      read 和 update；不得把 stateful 当 combinational lazy function 或普通
@@ -496,5 +499,5 @@ required。Type-system 可以作为 recommended 或 optional 出现在 profile �
 不确定的中长期愿景、研究分支和 architecture pressure tests 不在 roadmap 中展开；
 统一放在 [long-term-vision.md](long-term-vision.md)。
 
-这些方向只有在形成明确计划、验收标准和审阅路径后，才进入 `dev/plans/`、
+这些方向只有在形成明确变更提案、验收标准和审阅路径后，才进入 `dev/changes/`、
 `ai/tasks/` 或本 roadmap。

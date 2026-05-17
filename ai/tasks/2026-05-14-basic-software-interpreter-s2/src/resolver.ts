@@ -25,7 +25,7 @@ export const resolveStack = (
   stack: CatalogEntry<StackDefinition>,
 ): ResolvedStack => {
   findProfile(stack.definition.profiles.irPipeline);
-  const projection = findProfile(stack.definition.profiles.projection);
+  findProfile(stack.definition.profiles.projection);
 
   if (!stack.definition.profiles.execution) {
     throw new Error('S2 requires an execution profile.');
@@ -35,8 +35,5 @@ export const resolveStack = (
 
   return {
     stackKey: identityKey(stack),
-    requiredFeatures: projection.definition.featureContracts.filter(
-      (contract) => contract.requirement === 'required',
-    ),
   };
 };

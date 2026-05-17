@@ -4,7 +4,7 @@ module logicir_h2_add4_tb;
   reg [3:0] b;
   wire [3:0] y;
 
-  logicir_h2_add4 dut(.a(a), .b(b), .y(y));
+  logicir_h2_add4 dut(.a(a), .b(b), .result(y));
 
   initial begin
     a = 4'd1; b = 4'd2; #1; if (y !== 4'd3) $fatal(1, "1+2 failed");

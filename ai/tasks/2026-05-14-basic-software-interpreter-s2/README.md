@@ -21,15 +21,17 @@ verified.
 - End-to-end chain: `LogicIR fixture -> stack/profile resolver -> retained-current interpreter plan -> runtime state engine -> current value assertions`
 - Required fixture: `src/fixture.ts`
 - Required verification command: `yarn verify`
-- Expected promotable output: retained-current feature/extension draft,
-  stateful fixture, and minimal runtime state engine behavior.
+- Expected promotable output: stateful property fixture, feature-free
+  retained-current interpreter baseline, and minimal runtime state engine
+  behavior.
 
 ## Scope
 
 In scope:
 
-- `logicir.software / retained-current` feature draft.
-- LUI/Port extension payload draft for state key and state operation.
+- Core `property` contact as retained-current port semantics.
+- Feature-free S2 projection for the minimal retained-current path.
+- Task-local external target keys for state-store read/write operations.
 - Memory runtime state context used by the task-local engine.
 - Read-current and write-current interpreter operations.
 - Task-local smoke proving initial read, write, and updated current read.

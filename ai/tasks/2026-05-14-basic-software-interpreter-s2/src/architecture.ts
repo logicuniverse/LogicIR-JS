@@ -2,7 +2,6 @@ import type {
   CatalogEntry,
   CoreSchemaVersionSelector,
   ExecutionProfileDefinition,
-  FeatureDefinition,
   IRPipelineProfileDefinition,
   ProjectionProfileDefinition,
   StackDefinition,
@@ -18,48 +17,6 @@ const diagnostics = {
 const acceptedCoreVersions: CoreSchemaVersionSelector = {
   kind: 'one-of',
   versions: ['0.0.0-draft'],
-};
-
-export const retainedCurrentFeature: CatalogEntry<FeatureDefinition> = {
-  namespace: 'logicir.software',
-  key: 'retained-current',
-  version: '0.0.0-s2',
-  definition: {
-    title: 'Software retained current',
-    description:
-      'Retained-current state surface with explicit state operation metadata.',
-    extensionPoints: [
-      {
-        key: 'state-key',
-        attachment: 'port',
-        payloadSchema: {
-          kind: 'inline-json-schema',
-          schema: {
-            type: 'object',
-            additionalProperties: false,
-            properties: { storeKey: { type: 'string' } },
-            required: ['storeKey'],
-          },
-        },
-      },
-      {
-        key: 'state-operation',
-        attachment: 'lui',
-        payloadSchema: {
-          kind: 'inline-json-schema',
-          schema: {
-            type: 'object',
-            additionalProperties: false,
-            properties: {
-              kind: { enum: ['read-current', 'write-current'] },
-              storeKey: { type: 'string' },
-            },
-            required: ['kind', 'storeKey'],
-          },
-        },
-      },
-    ],
-  },
 };
 
 export const basicSoftwareIRProfile: CatalogEntry<IRPipelineProfileDefinition> =
@@ -96,16 +53,7 @@ export const toInterpreterPlanProfile: CatalogEntry<ProjectionProfileDefinition>
         version: '0.0.0-s2',
       },
       artifactKinds: ['logicir.interpreter-plan.s2'],
-      featureContracts: [
-        {
-          feature: {
-            namespace: retainedCurrentFeature.namespace,
-            key: retainedCurrentFeature.key,
-            version: retainedCurrentFeature.version,
-          },
-          requirement: 'required',
-        },
-      ],
+      featureContracts: [],
       stages: [],
       diagnostics,
     },

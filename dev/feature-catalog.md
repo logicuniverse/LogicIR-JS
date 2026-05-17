@@ -49,9 +49,14 @@ roadmap 进度表，也不是 schema authority；正式数据结构仍以 `packa
 - `logicir.software.invocation / core`
   - callable/service invocation、argument/result mapping、provider contract
     linkage。
-- `logicir.software.retained-current / core`
-  - retained-current state surface、current value read、update notification、
+- `logicir.software.state-store / core`
+  - software runtime state-store binding、current value read/write operation、
     state-store contract linkage。
+  - `property` 的 retained-current 语义属于 core `Port.contact`，不是这个
+    feature 定义出来的能力；该 feature 只描述软件 runtime 如何保存、
+    读取、写入或绑定 current value。
+  - basic software S2 的最小 smoke 不依赖该 feature；它是后续正式软件
+    runtime 需要更丰富 binding/lowering metadata 时的 additive feature。
 - `logicir.software.fulfillment / core`
   - provider fulfillment shape、static startup binding、dynamic/switchable
     provider contract。

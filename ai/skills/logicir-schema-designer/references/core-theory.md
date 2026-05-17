@@ -68,8 +68,10 @@ Core schema 至少必须保存：
 当前 v0 draft 用以下结构表达这些 obligation：
 
 - Kind-specific `PortSurface` objects，按合法性提供 `inputs`、`outputs` 和
-  独立 `result` slot。没有 port `role`；`result` 仍是 pull port，可以声明
-  `pins`。Combinational ports 只有 `inputs + result`，没有 ordinary outputs。
+  独立 `result` slot。没有 port `role`；`result` 仍是 pull port。单值 result
+  默认使用 whole `result`，不需要 `pins`；只有 demux、tuple-like 多结果
+  或需要第一层可寻址 surface 时才声明 `result.pins`。Combinational ports
+  只有 `inputs + result`，没有 ordinary outputs。
 - Port key namespace 是 slot-local：`input("x")` 和 `output("x")` 是不同
   endpoint address；`result` 是无 key 的独立 slot，不与 input/output 共享
   namespace。

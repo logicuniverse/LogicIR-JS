@@ -14,7 +14,6 @@ const inputPort: Port = {
 
 const outputPort: PullPort = {
   contact: 'pull',
-  pins: { kind: 'keyed', keys: ['sum'] },
 };
 
 const hole = (
@@ -116,12 +115,10 @@ export const completedLogicUnit: LogicUnit = {
         from: {
           owner: { kind: 'lui', luiId: 'add' },
           port: { kind: 'result' },
-          payloadPath: ['sum'],
         },
         to: {
           owner: { kind: 'boundary' },
           port: { kind: 'result' },
-          payloadPath: ['sum'],
         },
       },
     },

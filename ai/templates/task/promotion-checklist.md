@@ -22,7 +22,7 @@
 
 - Package exports:
 - Schema docs:
-- Dev docs or plans:
+- Dev docs or changes:
 - 已同步 `ai/tasks/material-index.md`，包含分类、证据、风险和 review ticket:
 - Fixtures:
 - Examples:

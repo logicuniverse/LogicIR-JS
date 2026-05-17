@@ -76,7 +76,7 @@ with a local `add-pair-provider`.
 Expected output:
 
 ```json
-{ "sum": 5 }
+{ "result": 5 }
 ```
 
 ## Promotion Boundary

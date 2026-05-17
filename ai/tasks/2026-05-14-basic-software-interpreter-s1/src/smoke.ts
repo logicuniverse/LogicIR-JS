@@ -65,7 +65,7 @@ const result = executeInterpreterPlan(planWithUnusedNode, {
       left,
       right,
     }) => ({
-      sum: Number(left) + Number(right),
+      result: Number(left) + Number(right),
     }),
     'logicir.examples.providers/unused-function@0.0.0-s1': () => {
       throw new Error('Combinational execution should not eagerly run unused nodes.');
@@ -73,7 +73,7 @@ const result = executeInterpreterPlan(planWithUnusedNode, {
   },
 });
 
-assertDeepEqual(result.outputs, { sum: 5 });
+assertDeepEqual(result.outputs, { result: 5 });
 
 console.log(
   JSON.stringify(

@@ -6,7 +6,6 @@ const inputPort: Port = {
 
 const resultPort: Port = {
   contact: 'pull',
-  pins: { kind: 'keyed', keys: ['sum'] },
 };
 
 export const addPairLogicUnit: LogicUnit = {
@@ -67,12 +66,10 @@ export const addPairLogicUnit: LogicUnit = {
         from: {
           owner: { kind: 'lui', luiId: 'add' },
           port: { kind: 'result' },
-          payloadPath: ['sum'],
         },
         to: {
           owner: { kind: 'boundary' },
           port: { kind: 'result' },
-          payloadPath: ['sum'],
         },
       },
     },

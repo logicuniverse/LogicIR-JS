@@ -1,7 +1,7 @@
 module logicir_h2_add4(
   input wire [3:0] a,
   input wire [3:0] b,
-  output wire [3:0] y
+  output wire [3:0] result
 );
-  assign y = a + b;
+  assign result = a + b;
 endmodule

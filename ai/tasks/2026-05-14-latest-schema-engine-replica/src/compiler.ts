@@ -6,6 +6,7 @@ import type {
   LUITarget,
   PortMapping,
   PortKey,
+  Port,
 } from './types';
 import { baselineInterpretation } from './types';
 
@@ -40,25 +41,69 @@ const isLuEndpoint = (endpoint: EndpointRef): boolean =>
 const isLuiEndpoint = (endpoint: EndpointRef, luiId: string): boolean =>
   endpoint.owner.kind === 'lui' && endpoint.owner.luiId === luiId;
 
-const firstPayloadSegment = (endpoint: EndpointRef): string | undefined => {
+const portForEndpoint = (
+  logicUnit: LogicUnit,
+  endpoint: EndpointRef,
+): Port | undefined => {
+  const ports =
+    endpoint.owner.kind === 'boundary'
+      ? logicUnit.core.ports
+      : endpoint.owner.kind === 'lui'
+        ? logicUnit.core.luis[endpoint.owner.luiId]?.ports
+        : logicUnit.core.closures[endpoint.owner.closureId]?.core.ports;
+
+  if (!ports) {
+    return undefined;
+  }
+
+  if (endpoint.port.kind === 'input') {
+    return ports.inputs[endpoint.port.key];
+  }
+
+  if (endpoint.port.kind === 'output') {
+    return 'outputs' in ports ? ports.outputs[endpoint.port.key] : undefined;
+  }
+
+  return 'result' in ports ? ports.result : undefined;
+};
+
+const hasResultPins = (logicUnit: LogicUnit, endpoint: EndpointRef): boolean =>
+  endpoint.port.kind === 'result' &&
+  portForEndpoint(logicUnit, endpoint)?.pins !== undefined;
+
+const firstPayloadSegment = (
+  logicUnit: LogicUnit,
+  endpoint: EndpointRef,
+): string | undefined => {
+  if (!hasResultPins(logicUnit, endpoint)) {
+    return undefined;
+  }
   const segment = endpoint.payloadPath?.[0];
   return segment === undefined ? undefined : String(segment);
 };
 
 const remainingPayloadPath = (
+  logicUnit: LogicUnit,
   endpoint: EndpointRef,
 ): (string | number)[] | undefined => {
-  if (endpoint.port.kind !== 'result' || !endpoint.payloadPath) {
+  if (
+    endpoint.port.kind !== 'result' ||
+    !endpoint.payloadPath ||
+    !hasResultPins(logicUnit, endpoint)
+  ) {
     return endpoint.payloadPath;
   }
   return endpoint.payloadPath.length > 1 ? endpoint.payloadPath.slice(1) : undefined;
 };
 
-const endpointValueKey = (endpoint: EndpointRef): PortKey => {
+const endpointValueKey = (
+  logicUnit: LogicUnit,
+  endpoint: EndpointRef,
+): PortKey => {
   if (endpoint.port.kind === 'input' || endpoint.port.kind === 'output') {
     return endpoint.port.key;
   }
-  return firstPayloadSegment(endpoint) ?? 'result';
+  return firstPayloadSegment(logicUnit, endpoint) ?? 'result';
 };
 
 const collectInputMap = (
@@ -74,9 +119,9 @@ const collectInputMap = (
       connection.to.port.kind === 'input'
     ) {
       result[connection.to.port.key] = {
-        portKey: endpointValueKey(connection.from),
-        payloadPath: remainingPayloadPath(connection.from),
-        targetPayloadPath: remainingPayloadPath(connection.to),
+        portKey: endpointValueKey(logicUnit, connection.from),
+        payloadPath: remainingPayloadPath(logicUnit, connection.from),
+        targetPayloadPath: remainingPayloadPath(logicUnit, connection.to),
       };
     }
   }
@@ -92,10 +137,10 @@ const collectOutputMap = (
 
   for (const connection of Object.values(logicUnit.core.connections)) {
     if (isLuiEndpoint(connection.from, luiId) && isLuEndpoint(connection.to)) {
-      result[endpointValueKey(connection.to)] = {
-        portKey: endpointValueKey(connection.from),
-        payloadPath: remainingPayloadPath(connection.from),
-        targetPayloadPath: remainingPayloadPath(connection.to),
+      result[endpointValueKey(logicUnit, connection.to)] = {
+        portKey: endpointValueKey(logicUnit, connection.from),
+        payloadPath: remainingPayloadPath(logicUnit, connection.from),
+        targetPayloadPath: remainingPayloadPath(logicUnit, connection.to),
       };
     }
   }

@@ -6,7 +6,6 @@ const input: Port = {
 
 const output: Port = {
   contact: 'pull',
-  pins: { kind: 'keyed', keys: ['sum'] },
 };
 
 const makeLogicUnit = (targetKey: string): LogicUnit => ({
@@ -47,12 +46,10 @@ const makeLogicUnit = (targetKey: string): LogicUnit => ({
         from: {
           owner: { kind: 'lui', luiId: 'provider' },
           port: { kind: 'result' },
-          payloadPath: ['sum'],
         },
         to: {
           owner: { kind: 'boundary' },
           port: { kind: 'result' },
-          payloadPath: ['sum'],
         },
       },
     },
@@ -81,7 +78,7 @@ const makeLogicUnit = (targetKey: string): LogicUnit => ({
 const makeFixture = (
   key: string,
   targetKey: string,
-  outputMap: Record<string, string> = { sum: 'sum' },
+  outputMap: Record<string, string> = { result: 'result' },
 ): LogicUnitFixture => {
   const logicUnit = makeLogicUnit(targetKey);
   const target = logicUnit.core.luis.provider.target;

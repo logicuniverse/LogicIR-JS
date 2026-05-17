@@ -8,8 +8,8 @@ tests。它不是路线图，也不是当前承诺要做的任务列表。
 - 稳定理论和工程原则见 [operational-theory.md](operational-theory.md)。
 - 当前已确认 feature 方向见 [feature-catalog.md](feature-catalog.md)。
 - 当前开发顺序、验收主线和进度跟踪见 [roadmap.md](roadmap.md)。
-- 任何方向只有在形成明确计划、验收标准和审阅路径后，才进入
-  `dev/plans/`、`dev/roadmap.md` 或 `ai/tasks/`。
+- 任何方向只有在形成明确变更提案、验收标准和审阅路径后，才进入
+  `dev/changes/`、`dev/roadmap.md` 或 `ai/tasks/`。
 
 总原则：
 
@@ -235,4 +235,4 @@ proposal。
 - 面向外部读者的公开定位文档，例如 `docs/logicir-as-universal-carrier.md`。
 
 这些方向应等待 `basic-software-interpreter` 与 `basic-hdl-sim` 的正式 seed 跑通
-后，再判断是否值得进入 `dev/plans/` 或 `ai/tasks/`。
+后，再判断是否值得进入 `dev/changes/` 或 `ai/tasks/`。

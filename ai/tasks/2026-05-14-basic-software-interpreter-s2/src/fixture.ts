@@ -6,24 +6,11 @@ const retainedInput: Port = {
 
 const retainedOutput: Port = {
   contact: 'property',
-  extensions: [
-    {
-      featureKey: 'retained',
-      key: 'state-key',
-      payload: { storeKey: 'counter' },
-    },
-  ],
 };
 
 export const counterCurrentLogicUnit: LogicUnit = {
   schemaVersion: '0.0.0-draft',
-  featureUses: {
-    retained: {
-      namespace: 'logicir.software',
-      key: 'retained-current',
-      version: '0.0.0-s2',
-    },
-  },
+  featureUses: {},
   requirements: {},
   core: {
     kindOrganization: { kind: 'stateful' },
@@ -43,7 +30,7 @@ export const counterCurrentLogicUnit: LogicUnit = {
         target: {
           kind: 'external',
           namespace: 'logicir.software.state-store',
-          key: 'counter',
+          key: 'counter.read-current',
         },
         ports: {
           inputs: {},
@@ -52,20 +39,13 @@ export const counterCurrentLogicUnit: LogicUnit = {
           },
         },
         fulfillments: {},
-        extensions: [
-          {
-            featureKey: 'retained',
-            key: 'state-operation',
-            payload: { kind: 'read-current', storeKey: 'counter' },
-          },
-        ],
       },
       writeCounter: {
         kind: 'stateful',
         target: {
           kind: 'external',
           namespace: 'logicir.software.state-store',
-          key: 'counter',
+          key: 'counter.write-current',
         },
         ports: {
           inputs: {
@@ -76,13 +56,6 @@ export const counterCurrentLogicUnit: LogicUnit = {
           },
         },
         fulfillments: {},
-        extensions: [
-          {
-            featureKey: 'retained',
-            key: 'state-operation',
-            payload: { kind: 'write-current', storeKey: 'counter' },
-          },
-        ],
       },
     },
     connections: {

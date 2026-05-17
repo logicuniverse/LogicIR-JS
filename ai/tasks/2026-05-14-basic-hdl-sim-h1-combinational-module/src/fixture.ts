@@ -13,7 +13,6 @@ const bitInput = (): PullPort => ({
 
 const bitOutput = (): PullPort => ({
   contact: 'pull',
-  pins: { kind: 'keyed', keys: ['y'] },
   extensions: [
     {
       featureKey: 'hdlSignal',
@@ -92,12 +91,10 @@ export const and2LogicUnit: LogicUnit = {
         from: {
           owner: { kind: 'lui', luiId: 'andGate' },
           port: { kind: 'result' },
-          payloadPath: ['y'],
         },
         to: {
           owner: { kind: 'boundary' },
           port: { kind: 'result' },
-          payloadPath: ['y'],
         },
       },
     },

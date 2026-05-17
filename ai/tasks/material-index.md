@@ -12,8 +12,9 @@ promote 一个 task 目录。
   algebraic type-system 和 05-15 edit transaction MVP 已同步到当前 core
   端口模型：`Port.contact`、`EndpointRef.port`、kind-specific `PortSurface`。
 - `combinational` task fixture 不再声明普通 `ports.outputs`；组合逻辑只有
-  `ports.inputs + ports.result`，多个结果通过 `result.pins` 和
-  `payloadPath` 表达。
+  `ports.inputs + ports.result`。单值结果默认使用 whole `result`；
+  只有 demux / tuple-like 多结果或需要第一层可寻址 surface 时才声明
+  `result.pins`，更深层嵌套值用 `payloadPath` 表达。
 - `sequential` task fixture 的 `kindOrganization.steps` 使用
   `{ luiId: LUIId }[]`，step 目前只是显式对象形式的 LUI 引用，不携带
   await、branch、return 或 go-back 语义。

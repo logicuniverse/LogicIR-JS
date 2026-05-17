@@ -23,7 +23,7 @@ Observed output:
   "plan": "async-double.interpreter-plan.s3",
   "resolve": {
     "status": "ok",
-    "outputs": { "doubled": 12 },
+    "outputs": { "result": 12 },
     "diagnostics": []
   },
   "reject": {

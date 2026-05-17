@@ -35,7 +35,7 @@ const hooksPlugin: EnginePlugin = {
     },
     overrideLUIExecution: (_context, node, inputs) => {
       if (node.id === 'add' && inputs.override === true) {
-        return { sum: 99 };
+        return { result: 99 };
       }
       return undefined;
     },
@@ -77,7 +77,7 @@ const hooksPlugin: EnginePlugin = {
 
 const engineProviders: Record<string, ProviderFunction> = {
   'logicir.examples.math/add': (inputs: Record<string, unknown>) => ({
-    sum: Number(inputs.left) + Number(inputs.right),
+    result: Number(inputs.left) + Number(inputs.right),
   }),
   'logicir.examples.math/increment-nested': (
     inputs: Record<string, unknown>,
@@ -87,14 +87,14 @@ const engineProviders: Record<string, ProviderFunction> = {
   'logicir.examples.async/double': async (
     inputs: Record<string, unknown>,
   ) => ({
-    doubled: Number(inputs.value) * 2,
+    result: Number(inputs.value) * 2,
   }),
   'logicir.examples.thenable/triple': (inputs: Record<string, unknown>) =>
     thenable((resolve) => {
-      resolve(ok(some({ tripled: Number(inputs.value) * 3 })));
+      resolve(ok(some({ result: Number(inputs.value) * 3 })));
     }),
   'logicir.examples.payload/pick': (inputs: Record<string, unknown>) => ({
-    out: { payload: { answer: inputs.value } },
+    result: { payload: { answer: inputs.value } },
   }),
   'logicir.examples.math/increment-upstream': (
     inputs: Record<string, unknown>,
@@ -141,14 +141,14 @@ const main = async (): Promise<void> => {
   const combinationalPlan = compileLogicUnit(combinationalFixture);
   assertPlanInterpretation(combinationalPlan);
   const combinational = engine.run(combinationalPlan, { left: 2, right: 5 });
-  assertDeepEqual(combinational.outputs, { sum: 7 });
+  assertDeepEqual(combinational.outputs, { result: 7 });
 
   const overriddenAdd = engine.run(combinationalPlan, {
     left: 2,
     right: 5,
     override: true,
   });
-  assertDeepEqual(overriddenAdd.outputs, { sum: 99 });
+  assertDeepEqual(overriddenAdd.outputs, { result: 99 });
   if (!pluginEvents.includes('onDidOverrideLUIManifestation')) {
     throw new Error('Expected override LUI hook event.');
   }
@@ -165,7 +165,7 @@ const main = async (): Promise<void> => {
   const asyncPlan = compileLogicUnit(asyncCompletionFixture);
   assertPlanInterpretation(asyncPlan);
   const asyncResult = await engine.runAsync(asyncPlan, { value: 6 });
-  assertDeepEqual(asyncResult.outputs, { doubled: 12 });
+  assertDeepEqual(asyncResult.outputs, { result: 12 });
 
   const syncAsyncDiagnostic = engine.run(asyncPlan, { value: 6 });
   assertDeepEqual(syncAsyncDiagnostic.status, 'error');
@@ -174,7 +174,7 @@ const main = async (): Promise<void> => {
   const thenablePlan = compileLogicUnit(thenableCompletionFixture);
   assertPlanInterpretation(thenablePlan);
   const thenableResult = await engine.runAsync(thenablePlan, { value: 5 });
-  assertDeepEqual(thenableResult.outputs, { tripled: 15 });
+  assertDeepEqual(thenableResult.outputs, { result: 15 });
 
   const fulfillmentPlan = compileLogicUnit(fulfillmentFixture);
   assertPlanInterpretation(fulfillmentPlan);
@@ -211,7 +211,7 @@ const main = async (): Promise<void> => {
   const payloadPath = engine.run(payloadPathPlan, {
     source: { nested: { value: 40 } },
   });
-  assertDeepEqual(payloadPath.outputs, { picked: { value: 41 } });
+  assertDeepEqual(payloadPath.outputs, { result: { value: 41 } });
 
   const emitPlan = compileLogicUnit(emitFixture);
   assertPlanInterpretation(emitPlan);

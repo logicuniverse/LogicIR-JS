@@ -28,12 +28,12 @@ const run = async (): Promise<void> => {
     inputs: { value: 6 },
     providers: {
       'logicir.examples.async/double': async ({ value }) => ({
-        doubled: Number(value) * 2,
+        result: Number(value) * 2,
       }),
     },
   });
 
-  assertDeepEqual(resolvedResult.outputs, { doubled: 12 });
+  assertDeepEqual(resolvedResult.outputs, { result: 12 });
 
   const rejectedResult = await executeInterpreterPlan(plan, {
     inputs: { value: 6 },

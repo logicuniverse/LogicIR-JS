@@ -47,8 +47,8 @@ This workspace is organized as a modular LogicIR TS/JS reference monorepo:
 Repository-level surfaces:
 
 - **[`docs/`](docs)**: reader-facing theory and user documentation.
-- **[`dev/`](dev)**: internal development theory extracts, plans, shared rules,
-  handoff notes, and engineering coordination.
+- **[`dev/`](dev)**: internal development theory extracts, change proposals,
+  shared rules, handoff notes, and engineering coordination.
 - **[`schema/`](schema)**: language-neutral schema artifact routes and curated
   specification notes.
 - **[`ai/`](ai)**: write-isolated AI task sandboxes, task templates, and

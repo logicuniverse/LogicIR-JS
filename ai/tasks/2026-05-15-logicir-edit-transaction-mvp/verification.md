@@ -27,11 +27,11 @@ Smoke output summary:
 {
   "task": "logicir-edit-transaction-mvp",
   "status": "passed",
-  "beforeHash": "fnv1a32:10ca83a6",
-  "afterHash": "fnv1a32:21de97f2",
-  "operationCount": 5,
+  "beforeHash": "fnv1a32:08f89e56",
+  "afterHash": "fnv1a32:848554cb",
+  "operationCount": 4,
   "outputs": {
-    "sum": 5
+    "result": 5
   }
 }
 ```

@@ -12,9 +12,7 @@ export type {
 export type {
   CoreSchemaVersionSelector,
   ExecutionProfileDefinition,
-  FeatureDefinition,
   IRPipelineProfileDefinition,
-  ProfileFeatureContract,
   ProjectionProfileDefinition,
   StackDefinition,
 } from '@logic-universe/logic-ir-architecture';
@@ -22,7 +20,6 @@ export type {
 import type {
   ExecutionProfileDefinition,
   IRPipelineProfileDefinition,
-  ProfileFeatureContract,
   ProjectionProfileDefinition,
   StackDefinition,
 } from '@logic-universe/logic-ir-architecture';
@@ -41,7 +38,6 @@ export type SoftwareProfileCatalogEntry =
 
 export type ResolvedStack = {
   stackKey: string;
-  requiredFeatures: ProfileFeatureContract[];
 };
 
 export type Diagnostic = {

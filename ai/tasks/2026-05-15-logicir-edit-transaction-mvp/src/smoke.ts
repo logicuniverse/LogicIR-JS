@@ -25,7 +25,7 @@ const providers: ProviderRegistry = {
     }
 
     return {
-      sum: left + right,
+      result: left + right,
     };
   },
 };
@@ -48,7 +48,10 @@ const logicUnit = replayed.data as unknown as LogicUnit;
 const plan = projectInvocationPlan(logicUnit, executionBindings);
 const outputs = executeInvocationPlan(plan, { left: 2, right: 3 }, providers);
 
-assert(outputs.sum === 5, `Expected smoke output sum=5, got ${String(outputs.sum)}.`);
+assert(
+  outputs.result === 5,
+  `Expected smoke output result=5, got ${String(outputs.result)}.`,
+);
 
 const tests: TestResult[] = [
   {

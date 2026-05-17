@@ -18,7 +18,6 @@ const input = (width: number): PullPort => ({
 
 const output = (width: number): PullPort => ({
   contact: 'pull',
-  pins: { kind: 'keyed', keys: ['y'] },
   extensions: [
     {
       featureKey: 'hdlSignal',

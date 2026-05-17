@@ -29,7 +29,7 @@ Observed output:
     "right": 3
   },
   "outputs": {
-    "sum": 5
+    "result": 5
   }
 }
 ```

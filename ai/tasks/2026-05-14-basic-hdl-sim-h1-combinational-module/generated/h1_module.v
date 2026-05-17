@@ -1,7 +1,7 @@
 module logicir_h1_and2(
   input wire a,
   input wire b,
-  output wire y
+  output wire result
 );
-  assign y = a & b;
+  assign result = a & b;
 endmodule

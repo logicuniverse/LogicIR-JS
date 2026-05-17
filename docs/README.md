@@ -9,8 +9,8 @@ This directory is for reader-facing LogicIR documentation.
 
 ## Boundaries
 
-- Internal development notes, plans, shared rules, and handoff notes live in
-  [`../dev/`](../dev/).
+- Internal development notes, change proposals, shared rules, and handoff notes
+  live in [`../dev/`](../dev/).
 - AI-autonomous task sandboxes and unpromoted exploration material live in
   [`../ai/tasks/`](../ai/tasks/).
 - Repository-local AI skill source lives in [`../ai/skills/`](../ai/skills/).

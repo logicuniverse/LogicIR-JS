@@ -96,7 +96,7 @@ export const combinationalFixture: LogicUnit = {
     kindOrganization: { kind: 'combinational' },
     ports: {
       inputs: inputs('left', 'right', 'override'),
-      result: result('sum'),
+      result: result(),
     },
     closures: {},
     luis: {
@@ -109,7 +109,7 @@ export const combinationalFixture: LogicUnit = {
         },
         ports: {
           inputs: inputs('left', 'right', 'override'),
-          result: result('sum'),
+          result: result(),
         },
         fulfillments: {},
       },
@@ -128,8 +128,8 @@ export const combinationalFixture: LogicUnit = {
         to: luiInput('add', 'override'),
       },
       addToSum: {
-        from: luiResult('add', ['sum']),
-        to: luResult(['sum']),
+        from: luiResult('add'),
+        to: luResult(),
       },
     },
   },
@@ -205,7 +205,7 @@ export const asyncCompletionFixture: LogicUnit = {
   requirements: {},
   core: {
     kindOrganization: { kind: 'combinational' },
-    ports: { inputs: inputs('value'), result: result('doubled') },
+    ports: { inputs: inputs('value'), result: result() },
     closures: {},
     luis: {
       double: {
@@ -215,7 +215,7 @@ export const asyncCompletionFixture: LogicUnit = {
           namespace: 'logicir.examples.async',
           key: 'double',
         },
-        ports: { inputs: inputs('value'), result: result('doubled') },
+        ports: { inputs: inputs('value'), result: result() },
         fulfillments: {},
       },
     },
@@ -225,8 +225,8 @@ export const asyncCompletionFixture: LogicUnit = {
         to: luiInput('double', 'value'),
       },
       doubleToOutput: {
-        from: luiResult('double', ['doubled']),
-        to: luResult(['doubled']),
+        from: luiResult('double'),
+        to: luResult(),
       },
     },
   },
@@ -389,7 +389,7 @@ export const payloadPathFixture: LogicUnit = {
   requirements: {},
   core: {
     kindOrganization: { kind: 'combinational' },
-    ports: { inputs: inputs('source'), result: result('picked') },
+    ports: { inputs: inputs('source'), result: result() },
     closures: {},
     luis: {
       pick: {
@@ -399,7 +399,7 @@ export const payloadPathFixture: LogicUnit = {
           namespace: 'logicir.examples.payload',
           key: 'pick',
         },
-        ports: { inputs: inputs('value'), result: result('out') },
+        ports: { inputs: inputs('value'), result: result() },
         fulfillments: {},
       },
     },
@@ -409,8 +409,8 @@ export const payloadPathFixture: LogicUnit = {
         to: luiInput('pick', 'value'),
       },
       pickToOutput: {
-        from: luiResult('pick', ['out', 'payload', 'answer']),
-        to: luResult(['picked', 'value']),
+        from: luiResult('pick', ['payload', 'answer']),
+        to: luResult(['value']),
       },
     },
   },
@@ -422,7 +422,7 @@ export const thenableCompletionFixture: LogicUnit = {
   requirements: {},
   core: {
     kindOrganization: { kind: 'combinational' },
-    ports: { inputs: inputs('value'), result: result('tripled') },
+    ports: { inputs: inputs('value'), result: result() },
     closures: {},
     luis: {
       triple: {
@@ -432,7 +432,7 @@ export const thenableCompletionFixture: LogicUnit = {
           namespace: 'logicir.examples.thenable',
           key: 'triple',
         },
-        ports: { inputs: inputs('value'), result: result('tripled') },
+        ports: { inputs: inputs('value'), result: result() },
         fulfillments: {},
       },
     },
@@ -442,8 +442,8 @@ export const thenableCompletionFixture: LogicUnit = {
         to: luiInput('triple', 'value'),
       },
       tripleToOutput: {
-        from: luiResult('triple', ['tripled']),
-        to: luResult(['tripled']),
+        from: luiResult('triple'),
+        to: luResult(),
       },
     },
   },

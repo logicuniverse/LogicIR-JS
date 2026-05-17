@@ -38,7 +38,7 @@ const assertFirstDiagnostic = (
 
 const providers = {
   'logicir.examples.math/add': ({ left, right }: Record<string, unknown>) => ({
-    sum: Number(left) + Number(right),
+    result: Number(left) + Number(right),
   }),
   'logicir.examples.math/throws': () => {
     throw new Error('provider exploded');
@@ -57,7 +57,7 @@ const valid = executeAndReport(validPlan, {
   inputs: { left: 2, right: 5 },
   providers,
 });
-assertDeepEqual(valid.outputs, { sum: 7 });
+assertDeepEqual(valid.outputs, { result: 7 });
 assertDeepEqual(valid.report.summary, {});
 if (!valid.report.interpretation.baselineOnly) {
   throw new Error('Diagnostic report must declare baseline interpretation metadata.');

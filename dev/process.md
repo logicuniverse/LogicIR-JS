@@ -8,6 +8,7 @@
 - 理论原则见 [operational-theory.md](operational-theory.md)。
 - Schema 和 projection 约束见 [schema-principles.md](schema-principles.md)。
 - Feature 方向见 [feature-catalog.md](feature-catalog.md)。
+- 重大变更提案见 [changes/](changes/)。
 - AI task 目录格式见 [`../ai/tasks/README.md`](../ai/tasks/README.md)。
 - 人 + AI 共同底线规则见 [shared-rules.md](shared-rules.md)。
 
@@ -100,10 +101,45 @@ AI task output 是素材，不是项目结果。人工晋升时：
 - task-local 构建产物是否已清理，或明确作为 review artifact 保留。
 - promoted piece 是否能在正式 project context 中重新验证。
 
-## 计划先于实现
+正式 review 和 promotion 必须通过 [changes/](changes/) 管理：
+
+```text
+ai/tasks/<task>
+-> review intake
+-> dev/changes/<change-id>
+-> interactive review and minimal edits
+-> promote selected pieces
+-> stabilize in formal context
+-> close change
+```
+
+交互修改期间，聊天中确认的结论必须同步到对应 change：
+
+- 新问题和待办写入 `tasks.md`。
+- 语义决策和边界判断写入 `design.md`。
+- 稳定规范、正式类型、roadmap、feature catalog、task 模板或 material-index
+  的变化写入 `spec-delta.md`。
+
+Promotion 后还要回写来源 task：将 `promotion-checklist.md` 和
+`material-index.md` 标记为 `promoted`、`partially-promoted`、`needs-rework`
+或 `archive-only`。
+
+## Change 先于重大实现
 
 重大 schema、API、运行时语义、投影语义调整必须先写入
-[plans/](plans/) 中的聚焦计划。计划应说明：
+[changes/](changes/) 中的变更提案。这个流程借鉴 OpenSpec 的 change /
+proposal / spec-delta 思路，但不引入外部工具，也不改变 schema authority。
+
+每个 change 至少包含：
+
+- `proposal.md`: 背景、问题、目标、非目标和成功标准。
+- `design.md`: 设计方案、理论映射、core/feature/profile 边界、JS/TS 与 HDL
+  影响、兼容和风险。
+- `tasks.md`: 可执行任务清单、验证命令和 review 状态。
+- `spec-delta.md`: 对稳定规范、正式类型、feature catalog、roadmap 或 task
+  规则的增删改摘要。
+
+设计内容应说明：
 
 - 目标和成功标准。
 - 理论映射。
@@ -114,5 +150,8 @@ AI task output 是素材，不是项目结果。人工晋升时：
 - Verilog HDL impact。
 - 兼容策略和 migration 风险。
 - 测试和验收方式。
+
+AI task 输出要晋升到正式项目文件时，也应先收窄为一个 change；不要整包复制
+task。
 
 小型文档修正或明显局部修复可以直接执行，但最终说明仍要清楚。

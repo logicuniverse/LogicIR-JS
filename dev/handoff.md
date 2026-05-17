@@ -91,7 +91,7 @@ LogicIR 的长期价值不是让 AI 直接写更多目标代码，而是让 AI �
 
 当前最自然的审阅顺序：
 
-1. 审阅 `basic-software-interpreter` S1-S5 summary。写晋升计划前必须同时读取该 task 的 `summary-report.md`、`promotion-checklist.md` 和 legacy coverage map，再决定第一个正式 `packages/engines/software` 或 `packages/projectors/interpreter-plan` seed。
-2. 审阅 `basic-hdl-sim` H1-H5 summary。写晋升计划前必须同时读取该 task 的 `summary-report.md`、`promotion-checklist.md`，并对照 legacy coverage / roadmap 缺口，再决定第一个正式 `packages/projectors/verilog` seed。
-3. 审阅 legacy coverage map，把 S6+、H6+、edit transaction MVP 和 node catalog seed 放进 roadmap 或具体 plan；不要只凭 summary 判断 legacy 覆盖已完整。
-4. 做任何正式晋升前，先写或更新 `dev/plans/` 中的聚焦计划，并在计划里列出使用过的 summary、promotion checklist、coverage report 和 verification evidence。
+1. 审阅 `basic-software-interpreter` S1-S5 summary。写晋升 change 前必须同时读取该 task 的 `summary-report.md`、`promotion-checklist.md` 和 legacy coverage map，再决定第一个正式 `packages/engines/software` 或 `packages/projectors/interpreter-plan` seed。
+2. 审阅 `basic-hdl-sim` H1-H5 summary。写晋升 change 前必须同时读取该 task 的 `summary-report.md`、`promotion-checklist.md`，并对照 legacy coverage / roadmap 缺口，再决定第一个正式 `packages/projectors/verilog` seed。
+3. 审阅 legacy coverage map，把 S6+、H6+、edit transaction MVP 和 node catalog seed 放进 roadmap 或具体 change；不要只凭 summary 判断 legacy 覆盖已完整。
+4. 做任何正式晋升前，先写或更新 `dev/changes/` 中的变更提案，并在 change 里列出使用过的 summary、promotion checklist、coverage report 和 verification evidence。
