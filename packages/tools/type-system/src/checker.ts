@@ -1,4 +1,8 @@
-import { TypeRegistry } from './registry';
+import {
+  TypeRegistry,
+  createTypeRegistry,
+  type TypeRegistry as TypeRegistryInstance,
+} from './registry.js';
 import {
   AlgebraicTypeExpression,
   PredicateHandler,
@@ -10,49 +14,76 @@ import {
   TypePath,
   TypePrimitiveName,
   TypePredicate,
-} from './types';
+} from './types.js';
 
 export type TypeCheckerOptions = {
-  registry?: TypeRegistry;
+  registry?: TypeRegistryInstance;
   predicateHandler?: PredicateHandler;
 };
 
 type AssignabilityContext = {
-  registry: TypeRegistry;
+  registry: TypeRegistryInstance;
   seen: Set<string>;
 };
 
-export class TypeChecker {
-  private registry: TypeRegistry;
-  private predicateHandler?: PredicateHandler;
-
-  constructor(options: TypeCheckerOptions = {}) {
-    this.registry = options.registry ?? new TypeRegistry();
-    this.predicateHandler = options.predicateHandler;
-  }
-
-  validateValue(
+export type TypeChecker = {
+  validateValue: (
     type: AlgebraicTypeExpression,
-    value: unknown
-  ): TypeCheckResult {
-    const issues = validateValue(type, value, [], this.registry, {
-      predicateHandler: this.predicateHandler,
-    });
-    return issues.length === 0 ? { ok: true, issues: [] } : { ok: false, issues };
-  }
-
-  validateType(type: AlgebraicTypeExpression): TypeCheckResult {
-    const issues = validateTypeExpression(type, this.registry);
-    return issues.length === 0 ? { ok: true, issues: [] } : { ok: false, issues };
-  }
-
-  isAssignable(
+    value: unknown,
+  ) => TypeCheckResult;
+  validateType: (type: AlgebraicTypeExpression) => TypeCheckResult;
+  isAssignable: (
     source: AlgebraicTypeExpression,
-    target: AlgebraicTypeExpression
+    target: AlgebraicTypeExpression,
+  ) => TypeCompatibilityResult;
+  compare: (
+    source: AlgebraicTypeExpression,
+    target: AlgebraicTypeExpression,
+    mode?: TypeCompatibilityMode,
+  ) => TypeCompatibilityResult;
+};
+
+export const createTypeChecker = (
+  options: TypeCheckerOptions = {},
+): TypeChecker => {
+  const registry = options.registry ?? createTypeRegistry();
+  const predicateHandler = options.predicateHandler;
+
+  return {
+    validateValue: validateValueAgainstType,
+    validateType: validateDeclaredType,
+    isAssignable: isAssignableTypes,
+    compare: compareTypes,
+  };
+
+  function validateValueAgainstType(
+    type: AlgebraicTypeExpression,
+    value: unknown,
+  ): TypeCheckResult {
+    const issues = validateValue(type, value, [], registry, {
+      predicateHandler,
+    });
+    return issues.length === 0
+      ? { ok: true, issues: [] }
+      : { ok: false, issues };
+  }
+
+  function validateDeclaredType(
+    type: AlgebraicTypeExpression,
+  ): TypeCheckResult {
+    const issues = validateTypeExpression(type, registry);
+    return issues.length === 0
+      ? { ok: true, issues: [] }
+      : { ok: false, issues };
+  }
+
+  function isAssignableTypes(
+    source: AlgebraicTypeExpression,
+    target: AlgebraicTypeExpression,
   ): TypeCompatibilityResult {
     const issues = isAssignable(source, target, {
-      registry: this.registry,
-      seen: new Set(),
+      registry,
+      seen: new Set<string>(),
     })
       ? []
       : [
@@ -64,18 +95,18 @@ export class TypeChecker {
     return { ok: issues.length === 0, mode: 'assignable', issues };
   }
 
-  compare(
+  function compareTypes(
     source: AlgebraicTypeExpression,
     target: AlgebraicTypeExpression,
-    mode: TypeCompatibilityMode = 'assignable'
+    mode: TypeCompatibilityMode = 'assignable',
   ): TypeCompatibilityResult {
     if (mode === 'assignable') {
-      return this.isAssignable(source, target);
+      return isAssignableTypes(source, target);
     }
     if (mode === 'equivalent') {
       const ok =
-        this.isAssignable(source, target).ok &&
-        this.isAssignable(target, source).ok;
+        isAssignableTypes(source, target).ok &&
+        isAssignableTypes(target, source).ok;
       return {
         ok,
         mode,
@@ -89,7 +120,7 @@ export class TypeChecker {
             ],
       };
     }
-    const overlaps = mayOverlap(source, target, this.registry);
+    const overlaps = mayOverlap(source, target, registry);
     const ok = mode === 'overlap' ? overlaps : !overlaps;
     return {
       ok,
@@ -107,12 +138,14 @@ export class TypeChecker {
           ],
     };
   }
-}
+};
+
+export const TypeChecker = createTypeChecker;
 
 export const validateTypeExpression = (
   type: AlgebraicTypeExpression,
-  registry = new TypeRegistry(),
-  path: TypePath = []
+  registry: TypeRegistryInstance = createTypeRegistry(),
+  path: TypePath = [],
 ): TypeIssue[] => {
   switch (type.kind) {
     case 'any':
@@ -164,7 +197,7 @@ export const validateTypeExpression = (
     case 'tuple':
       return [
         ...type.items.flatMap((item, index) =>
-          validateTypeExpression(item, registry, [...path, 'items', index])
+          validateTypeExpression(item, registry, [...path, 'items', index]),
         ),
         ...(type.rest
           ? validateTypeExpression(type.rest, registry, [...path, 'rest'])
@@ -177,7 +210,7 @@ export const validateTypeExpression = (
             ...path,
             'fields',
             key,
-          ])
+          ]),
         ),
         ...(type.index
           ? validateTypeExpression(type.index.value, registry, [
@@ -201,7 +234,7 @@ export const validateTypeExpression = (
         ];
       }
       return type.variants.flatMap((variant, index) =>
-        validateTypeExpression(variant, registry, [...path, 'variants', index])
+        validateTypeExpression(variant, registry, [...path, 'variants', index]),
       );
     case 'tagged-union':
       if (Object.keys(type.variants).length === 0) {
@@ -214,7 +247,7 @@ export const validateTypeExpression = (
         ];
       }
       return Object.entries(type.variants).flatMap(([key, variant]) =>
-        validateTypeExpression(variant, registry, [...path, 'variants', key])
+        validateTypeExpression(variant, registry, [...path, 'variants', key]),
       );
     case 'ref': {
       if (type.ref.kind === 'parameter') {
@@ -227,7 +260,7 @@ export const validateTypeExpression = (
       return [
         ...validateTypeExpression(type.base, registry, [...path, 'base']),
         ...type.predicates.flatMap((predicate, index) =>
-          validatePredicateExpression(predicate, [...path, 'predicates', index])
+          validatePredicateExpression(predicate, [...path, 'predicates', index]),
         ),
       ];
   }
@@ -237,8 +270,8 @@ export const validateValue = (
   type: AlgebraicTypeExpression,
   value: unknown,
   path: TypePath = [],
-  registry = new TypeRegistry(),
-  options: { predicateHandler?: PredicateHandler } = {}
+  registry: TypeRegistryInstance = createTypeRegistry(),
+  options: { predicateHandler?: PredicateHandler } = {},
 ): TypeIssue[] => {
   switch (type.kind) {
     case 'any':
@@ -261,7 +294,7 @@ export const validateValue = (
         return [invalid(path, 'Expected array.')];
       }
       return value.flatMap((item, index) =>
-        validateValue(type.element, item, [...path, index], registry, options)
+        validateValue(type.element, item, [...path, index], registry, options),
       );
     case 'tuple':
       return validateTuple(type, value, path, registry, options);
@@ -272,13 +305,15 @@ export const validateValue = (
     case 'union': {
       const anyOk = type.variants.some(
         (variant) =>
-          validateValue(variant, value, path, registry, options).length === 0
+          validateValue(variant, value, path, registry, options).length === 0,
       );
-      return anyOk ? [] : [invalid(path, 'Value does not match any union arm.')];
+      return anyOk
+        ? []
+        : [invalid(path, 'Value does not match any union arm.')];
     }
     case 'intersection':
       return type.variants.flatMap((variant) =>
-        validateValue(variant, value, path, registry, options)
+        validateValue(variant, value, path, registry, options),
       );
     case 'tagged-union':
       return validateTaggedUnion(type, value, path, registry, options);
@@ -308,13 +343,13 @@ export const validateValue = (
         value,
         path,
         registry,
-        options
+        options,
       );
       if (baseIssues.length > 0) {
         return baseIssues;
       }
       return type.predicates.flatMap((predicate) =>
-        validatePredicate(predicate, value, path, options.predicateHandler)
+        validatePredicate(predicate, value, path, options.predicateHandler),
       );
     }
   }
@@ -323,7 +358,7 @@ export const validateValue = (
 const validatePrimitive = (
   name: TypePrimitiveName,
   value: unknown,
-  path: TypePath
+  path: TypePath,
 ): TypeIssue[] => {
   switch (name) {
     case 'null':
@@ -357,8 +392,8 @@ const validateTuple = (
   type: Extract<AlgebraicTypeExpression, { kind: 'tuple' }>,
   value: unknown,
   path: TypePath,
-  registry: TypeRegistry,
-  options: { predicateHandler?: PredicateHandler }
+  registry: TypeRegistryInstance,
+  options: { predicateHandler?: PredicateHandler },
 ): TypeIssue[] => {
   if (!Array.isArray(value)) {
     return [invalid(path, 'Expected tuple array.')];
@@ -372,13 +407,13 @@ const validateTuple = (
   const issues: TypeIssue[] = [];
   for (let i = 0; i < type.items.length; i++) {
     issues.push(
-      ...validateValue(type.items[i], value[i], [...path, i], registry, options)
+      ...validateValue(type.items[i], value[i], [...path, i], registry, options),
     );
   }
   if (type.rest) {
     for (let i = type.items.length; i < value.length; i++) {
       issues.push(
-        ...validateValue(type.rest, value[i], [...path, i], registry, options)
+        ...validateValue(type.rest, value[i], [...path, i], registry, options),
       );
     }
   }
@@ -389,8 +424,8 @@ const validateObject = (
   type: Extract<AlgebraicTypeExpression, { kind: 'object' }>,
   value: unknown,
   path: TypePath,
-  registry: TypeRegistry,
-  options: { predicateHandler?: PredicateHandler }
+  registry: TypeRegistryInstance,
+  options: { predicateHandler?: PredicateHandler },
 ): TypeIssue[] => {
   if (!isPlainObject(value)) {
     return [invalid(path, 'Expected object.')];
@@ -405,7 +440,7 @@ const validateObject = (
       continue;
     }
     issues.push(
-      ...validateValue(field.type, record[key], [...path, key], registry, options)
+      ...validateValue(field.type, record[key], [...path, key], registry, options),
     );
   }
   for (const [key, item] of Object.entries(record)) {
@@ -414,13 +449,7 @@ const validateObject = (
     }
     if (type.index) {
       issues.push(
-        ...validateValue(
-          type.index.value,
-          item,
-          [...path, key],
-          registry,
-          options
-        )
+        ...validateValue(type.index.value, item, [...path, key], registry, options),
       );
     } else if (type.exact) {
       issues.push(invalid([...path, key], 'Unexpected field.'));
@@ -433,8 +462,8 @@ const validateRecord = (
   type: Extract<AlgebraicTypeExpression, { kind: 'record' }>,
   value: unknown,
   path: TypePath,
-  registry: TypeRegistry,
-  options: { predicateHandler?: PredicateHandler }
+  registry: TypeRegistryInstance,
+  options: { predicateHandler?: PredicateHandler },
 ): TypeIssue[] => {
   if (!isPlainObject(value)) {
     return [invalid(path, 'Expected record object.')];
@@ -451,8 +480,8 @@ const validateTaggedUnion = (
   type: Extract<AlgebraicTypeExpression, { kind: 'tagged-union' }>,
   value: unknown,
   path: TypePath,
-  registry: TypeRegistry,
-  options: { predicateHandler?: PredicateHandler }
+  registry: TypeRegistryInstance,
+  options: { predicateHandler?: PredicateHandler },
 ): TypeIssue[] => {
   if (!isPlainObject(value)) {
     return [invalid(path, 'Expected tagged object.')];
@@ -472,7 +501,7 @@ const validatePredicate = (
   predicate: TypePredicate,
   value: unknown,
   path: TypePath,
-  customHandler?: PredicateHandler
+  customHandler?: PredicateHandler,
 ): TypeIssue[] => {
   switch (predicate.kind) {
     case 'range': {
@@ -535,7 +564,7 @@ const validatePredicate = (
 
 const validatePredicateExpression = (
   predicate: TypePredicate,
-  path: TypePath
+  path: TypePath,
 ): TypeIssue[] => {
   switch (predicate.kind) {
     case 'range':
@@ -601,7 +630,7 @@ const validatePredicateExpression = (
 export const isAssignable = (
   source: AlgebraicTypeExpression,
   target: AlgebraicTypeExpression,
-  context: AssignabilityContext
+  context: AssignabilityContext,
 ): boolean => {
   const key = `${JSON.stringify(source)}=>${JSON.stringify(target)}`;
   if (context.seen.has(key)) {
@@ -626,22 +655,22 @@ export const isAssignable = (
   }
   if (target.kind === 'union') {
     return target.variants.some((variant) =>
-      isAssignable(source, variant, context)
+      isAssignable(source, variant, context),
     );
   }
   if (source.kind === 'union') {
     return source.variants.every((variant) =>
-      isAssignable(variant, target, context)
+      isAssignable(variant, target, context),
     );
   }
   if (target.kind === 'intersection') {
     return target.variants.every((variant) =>
-      isAssignable(source, variant, context)
+      isAssignable(source, variant, context),
     );
   }
   if (source.kind === 'intersection') {
     return source.variants.some((variant) =>
-      isAssignable(variant, target, context)
+      isAssignable(variant, target, context),
     );
   }
   if (target.kind === 'refinement') {
@@ -655,7 +684,7 @@ export const isAssignable = (
   }
   if (source.kind === 'enum') {
     return source.values.every((value) =>
-      literalAssignable(value, target, context)
+      literalAssignable(value, target, context),
     );
   }
   if (target.kind === 'enum') {
@@ -672,7 +701,7 @@ export const isAssignable = (
   }
   if (source.kind === 'tuple' && target.kind === 'array') {
     return [...source.items, ...(source.rest ? [source.rest] : [])].every((item) =>
-      isAssignable(item, target.element, context)
+      isAssignable(item, target.element, context),
     );
   }
   if (source.kind === 'tuple' && target.kind === 'tuple') {
@@ -690,7 +719,7 @@ export const isAssignable = (
     if (target.rest) {
       const restItems = source.items.slice(target.items.length);
       return restItems.every((item) =>
-        isAssignable(item, target.rest!, context)
+        isAssignable(item, target.rest!, context),
       );
     }
     return true;
@@ -706,12 +735,12 @@ export const isAssignable = (
   }
   if (source.kind === 'tagged-union') {
     return Object.values(source.variants).every((variant) =>
-      isAssignable(variant, target, context)
+      isAssignable(variant, target, context),
     );
   }
   if (target.kind === 'tagged-union') {
     return Object.values(target.variants).some((variant) =>
-      isAssignable(source, variant, context)
+      isAssignable(source, variant, context),
     );
   }
   if (source.kind === 'ref' || target.kind === 'ref') {
@@ -723,14 +752,11 @@ export const isAssignable = (
 export const mayOverlap = (
   source: AlgebraicTypeExpression,
   target: AlgebraicTypeExpression,
-  registry: TypeRegistry
+  registry: TypeRegistryInstance,
 ): boolean => {
   const sourceResolved = resolveTransparent(source, registry);
   const targetResolved = resolveTransparent(target, registry);
-  if (
-    sourceResolved.kind === 'never' ||
-    targetResolved.kind === 'never'
-  ) {
+  if (sourceResolved.kind === 'never' || targetResolved.kind === 'never') {
     return false;
   }
   if (
@@ -743,22 +769,22 @@ export const mayOverlap = (
   }
   if (sourceResolved.kind === 'union') {
     return sourceResolved.variants.some((variant) =>
-      mayOverlap(variant, targetResolved, registry)
+      mayOverlap(variant, targetResolved, registry),
     );
   }
   if (targetResolved.kind === 'union') {
     return targetResolved.variants.some((variant) =>
-      mayOverlap(sourceResolved, variant, registry)
+      mayOverlap(sourceResolved, variant, registry),
     );
   }
   return (
     isAssignable(sourceResolved, targetResolved, {
       registry,
-      seen: new Set(),
+      seen: new Set<string>(),
     }) ||
     isAssignable(targetResolved, sourceResolved, {
       registry,
-      seen: new Set(),
+      seen: new Set<string>(),
     }) ||
     primitiveFamily(sourceResolved) === primitiveFamily(targetResolved)
   );
@@ -767,7 +793,7 @@ export const mayOverlap = (
 const objectAssignable = (
   source: Extract<AlgebraicTypeExpression, { kind: 'object' }>,
   target: Extract<AlgebraicTypeExpression, { kind: 'object' }>,
-  context: AssignabilityContext
+  context: AssignabilityContext,
 ): boolean => {
   for (const [key, targetField] of Object.entries(target.fields)) {
     const sourceField = source.fields[key];
@@ -797,7 +823,7 @@ const objectAssignable = (
 const literalAssignable = (
   value: TypeJsonPrimitive,
   target: AlgebraicTypeExpression,
-  context: AssignabilityContext
+  context: AssignabilityContext,
 ): boolean => {
   if (target.kind === 'literal') {
     return Object.is(value, target.value);
@@ -813,7 +839,7 @@ const literalAssignable = (
 
 const resolveTransparent = (
   type: AlgebraicTypeExpression,
-  registry: TypeRegistry
+  registry: TypeRegistryInstance,
 ): AlgebraicTypeExpression => {
   if (type.kind !== 'ref') {
     return type;
@@ -824,7 +850,7 @@ const resolveTransparent = (
 
 const validatePrimitiveKind = (
   name: TypePrimitiveName,
-  value: unknown
+  value: unknown,
 ): boolean => {
   switch (name) {
     case 'null':
@@ -845,7 +871,7 @@ const validatePrimitiveKind = (
 };
 
 const literalPrimitive = (
-  value: TypeJsonPrimitive
+  value: TypeJsonPrimitive,
 ): AlgebraicTypeExpression => {
   if (value === null) {
     return { kind: 'primitive', name: 'null' };
@@ -876,13 +902,13 @@ const primitiveFamily = (type: AlgebraicTypeExpression): string => {
 
 const isKind = <K extends AlgebraicTypeExpression['kind']>(
   type: AlgebraicTypeExpression,
-  kind: K
+  kind: K,
 ): type is Extract<AlgebraicTypeExpression, { kind: K }> =>
   type.kind === kind;
 
 const isSameTypeExpression = (
   left: AlgebraicTypeExpression,
-  right: AlgebraicTypeExpression
+  right: AlgebraicTypeExpression,
 ): boolean => JSON.stringify(left) === JSON.stringify(right);
 
 const invalid = (path: TypePath, message: string): TypeIssue => ({

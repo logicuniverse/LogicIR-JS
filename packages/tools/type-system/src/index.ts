@@ -1,5 +1,4 @@
-export * from './types';
-export * from './registry';
-export * from './checker';
-export * from './logicir';
-
+export * from './types.js';
+export * from './registry.js';
+export * from './checker.js';
+export * from './logicir.js';

@@ -12,6 +12,10 @@
     "dev": "ultra --no-pretty -r dev",
     "build": "ultra --no-pretty -r build",
     "test": "ultra --no-pretty -r test",
+    "docs:sync": "node docs-site/scripts/sync-content.mjs",
+    "docs:dev": "node docs-site/scripts/dev.mjs --host 127.0.0.1 --port 15163",
+    "docs:build": "yarn docs:sync && vitepress build docs-site",
+    "docs:preview": "vitepress preview docs-site",
     "format": "prettier --write \"packages/**/src/**/*.{ts,tsx,js,json,md}\""
   },
   "keywords": [
@@ -37,7 +41,8 @@
     "packages/tools/*",
     "packages/engines/*",
     "packages/projectors/*",
-    "packages/legacy/*"
+    "packages/legacy/*",
+    "examples/core-only"
   ],
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.2",
@@ -45,6 +50,7 @@
     "ts-essentials": "^10.1.1",
     "tslib": "^2.5.0",
     "typescript": "^5.0.3",
-    "ultra-runner": "^3.10.5"
+    "ultra-runner": "^3.10.5",
+    "vitepress": "^1.6.4"
   }
 }

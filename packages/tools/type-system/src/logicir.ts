@@ -4,7 +4,7 @@ import {
   TYPE_SYSTEM_EXTENSION_KEYS,
   TYPE_SYSTEM_FEATURE,
   TypeDefinitionsPayload,
-} from './types';
+} from './types.js';
 
 export type LogicIRFeatureUse = {
   namespace: string;
@@ -94,4 +94,3 @@ const isPayloadTypePayload = (value: unknown): value is PayloadTypePayload =>
   'type' in value &&
   typeof (value as { type?: unknown }).type === 'object' &&
   (value as { type?: unknown }).type !== null;
-

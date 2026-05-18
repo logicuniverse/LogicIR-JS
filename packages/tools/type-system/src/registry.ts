@@ -3,7 +3,7 @@ import {
   TypeDefinition,
   TypeIssue,
   TypeRef,
-} from './types';
+} from './types.js';
 
 export type TypeRegistryOptions = {
   definitions?: Record<string, TypeDefinition>;
@@ -12,27 +12,49 @@ export type TypeRegistryOptions = {
     | undefined;
 };
 
-export class TypeRegistry {
-  private definitions: Record<string, TypeDefinition>;
-  private externalResolver?: TypeRegistryOptions['externalResolver'];
+type TypeRegistryState = {
+  definitions: Record<string, TypeDefinition>;
+  externalResolver?: TypeRegistryOptions['externalResolver'];
+};
 
-  constructor(options: TypeRegistryOptions = {}) {
-    this.definitions = { ...(options.definitions ?? {}) };
-    this.externalResolver = options.externalResolver;
+export type TypeRegistry = {
+  addDefinitions: (definitions: Record<string, TypeDefinition>) => void;
+  getDefinition: (name: string) => TypeDefinition | undefined;
+  resolveRef: (
+    ref: TypeRef,
+    typeArgs?: Record<string, AlgebraicTypeExpression>,
+    stack?: string[],
+  ) => { type?: AlgebraicTypeExpression; issues: TypeIssue[] };
+};
+
+export const createTypeRegistry = (
+  options: TypeRegistryOptions = {},
+): TypeRegistry => {
+  const state: TypeRegistryState = {
+    definitions: { ...(options.definitions ?? {}) },
+    externalResolver: options.externalResolver,
+  };
+
+  return {
+    addDefinitions,
+    getDefinition,
+    resolveRef,
+  };
+
+  function addDefinitions(
+    definitions: Record<string, TypeDefinition>,
+  ): void {
+    Object.assign(state.definitions, definitions);
   }
 
-  addDefinitions(definitions: Record<string, TypeDefinition>): void {
-    Object.assign(this.definitions, definitions);
+  function getDefinition(name: string): TypeDefinition | undefined {
+    return state.definitions[name];
   }
 
-  getDefinition(name: string): TypeDefinition | undefined {
-    return this.definitions[name];
-  }
-
-  resolveRef(
+  function resolveRef(
     ref: TypeRef,
     typeArgs: Record<string, AlgebraicTypeExpression> = {},
-    stack: string[] = []
+    stack: string[] = [],
   ): { type?: AlgebraicTypeExpression; issues: TypeIssue[] } {
     if (ref.kind === 'parameter') {
       const type = typeArgs[ref.name];
@@ -50,8 +72,8 @@ export class TypeRegistry {
 
     const definition =
       ref.kind === 'definition'
-        ? this.definitions[ref.name]
-        : this.externalResolver?.(ref);
+        ? state.definitions[ref.name]
+        : state.externalResolver?.(ref);
     const refName =
       ref.kind === 'definition'
         ? ref.name
@@ -127,12 +149,14 @@ export class TypeRegistry {
       issues: [],
     };
   }
-}
+};
+
+export const TypeRegistry = createTypeRegistry;
 
 export const substituteTypeParameters = (
   type: AlgebraicTypeExpression,
   args: Record<string, AlgebraicTypeExpression>,
-  stack: string[] = []
+  stack: string[] = [],
 ): AlgebraicTypeExpression => {
   switch (type.kind) {
     case 'ref':
@@ -144,7 +168,7 @@ export const substituteTypeParameters = (
         ref: {
           ...type.ref,
           args: type.ref.args?.map((arg) =>
-            substituteTypeParameters(arg, args, stack)
+            substituteTypeParameters(arg, args, stack),
           ),
         },
       };
@@ -157,7 +181,7 @@ export const substituteTypeParameters = (
       return {
         ...type,
         items: type.items.map((item) =>
-          substituteTypeParameters(item, args, stack)
+          substituteTypeParameters(item, args, stack),
         ),
         rest: type.rest
           ? substituteTypeParameters(type.rest, args, stack)
@@ -173,7 +197,7 @@ export const substituteTypeParameters = (
               ...field,
               type: substituteTypeParameters(field.type, args, stack),
             },
-          ])
+          ]),
         ),
         index: type.index
           ? {
@@ -192,7 +216,7 @@ export const substituteTypeParameters = (
       return {
         ...type,
         variants: type.variants.map((item) =>
-          substituteTypeParameters(item, args, stack)
+          substituteTypeParameters(item, args, stack),
         ),
       };
     case 'tagged-union':
@@ -202,7 +226,7 @@ export const substituteTypeParameters = (
           Object.entries(type.variants).map(([key, value]) => [
             key,
             substituteTypeParameters(value, args, stack),
-          ])
+          ]),
         ),
       };
     case 'refinement':

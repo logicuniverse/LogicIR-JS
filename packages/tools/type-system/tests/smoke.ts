@@ -1,8 +1,8 @@
 import {
   AlgebraicTypeExpression,
   PayloadTypePayload,
-  TypeChecker,
-  TypeRegistry,
+  createTypeChecker,
+  createTypeRegistry,
   readFirstPayloadType,
 } from '../src';
 
@@ -42,7 +42,7 @@ const userType: AlgebraicTypeExpression = {
   exact: true,
 };
 
-const registry = new TypeRegistry({
+const registry = createTypeRegistry({
   definitions: {
     User: {
       kind: 'alias',
@@ -88,7 +88,7 @@ const registry = new TypeRegistry({
   },
 });
 
-const checker = new TypeChecker({ registry });
+const checker = createTypeChecker({ registry });
 
 const cases: SmokeCase[] = [
   {

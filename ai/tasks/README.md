@@ -6,6 +6,17 @@
 
 这里用于 `/goal`、roadmap round、parallel agents，或其它明确要求“AI 自动完成、之后人工 review”的任务。Sandbox 输出是探索和 review 素材，不是已接受项目结果。
 
+AI task 不用于实质性制定 LogicIR core IR、feature、extension、profile 或 stack
+语义。这些高自由度设计必须由人工先在正式文档或 package 上下文中确认原则和边界。
+所有 IR / feature / extension 数据结构都以人类为主要编写者和决策者；AI 可以在
+对话中辅助分析和局部编辑，但不能通过 autonomous task 自动完成制定。
+AI task 适合在规则明确后做低自由度工作，例如生成 examples/fixtures、wrapper、
+mechanical migration、coverage map、negative cases、验证脚本或受限实现切片。
+AI task 也可以探索基于固定 schema / feature contract 的独立工具，例如
+validator、type system、lint/checker、fixture generator、diagnostic reporter 或
+projection helper；这类 task 的自由度在工具算法和验证方式，不在 IR / feature /
+extension 语义。
+
 临时 spike、失败尝试、短期笔记或尚未准备好成为 review evidence 的内容，应进入 [`../scratch/`](../scratch/)。
 
 ## 默认路由
@@ -21,6 +32,11 @@
 AI task 输出是证据，不是权威。Task 使用的 legacy code 是设计输入和兼容性证据，不是 schema 真理，也不是唯一有效实现路线。
 
 Task-local runtime、projector、compiler、HDL、catalog 或 validation behavior 应理解为该 task scope 内的 verified baseline。后续正式实现可以使用不同算法、数据布局、执行模型或 lowering strategy，只要 profile、feature contract、lowering trace、diagnostics 和 verification 能证明相关 LogicIR 语义被保留。
+
+如果 task 内部为了跑通 smoke 临时引入了 schema subset、feature-like field、
+extension-like payload、runtime plan 或 provider contract，它们默认只是 task-local
+mechanism，不是设计提案，更不是 accepted protocol。需要进入正式设计时，必须先回到
+`dev/` / `packages/` 的人工 review 流程。
 
 特别是 2026-05-14 / 2026-05-15 的 software 和 HDL tasks 中出现的 lazy pull、pipeline、independent state realization、composition function、Verilog structural payload、legacy stdlib replica 等术语，只描述 task baseline。除非有正式 promotion 文档说明，否则不能把它们读成最终 core schema、最终 feature schema 或强制 engine/projector 架构。
 
@@ -55,6 +71,8 @@ ai/tasks/YYYY-MM-DD-<task>/
 - 写入 `dev/`，除非人类明确要求做 task 之外的已 review 文档更新；
 - 从正式 workspace package import task 输出；
 - 把 task 文件当作 schema 权威或 accepted implementation。
+- 自行决定新的 IR / feature / extension / profile 语义；遇到这类问题应写成
+  open question 或 review blocker。
 
 ## 推荐内容
 

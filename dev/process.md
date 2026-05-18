@@ -1,157 +1,98 @@
 # 开发流程
 
-这份文档说明 LogicIR 项目“怎么推进”。它是写入协议和操作规程，不是路线图，也不是 schema 权威。
+这份文档说明 LogicIR 项目怎么推进。它是操作规程，不是路线图，也不是 schema 权威。
 
-职责边界：
+## 文档读者边界
 
-- 当前要做什么、优先级和阶段进度见 [roadmap.md](roadmap.md)。
-- 理论原则见 [operational-theory.md](operational-theory.md)。
-- Schema 和 projection 约束见 [schema-principles.md](schema-principles.md)。
-- Feature 方向见 [feature-catalog.md](feature-catalog.md)。
-- 重大变更提案见 [changes/](changes/)。
-- AI task 目录格式见 [`../ai/tasks/README.md`](../ai/tasks/README.md)。
-- 人 + AI 共同底线规则见 [shared-rules.md](shared-rules.md)。
+- `dev/` 面向人类协作者：短、稳定、决策导向。
+- `ai/` 面向 AI agent 和自动化 review：可以详尽保存 source map、验证记录、失败尝试、
+  长 checklist、coverage report、promotion checklist 和 material index。
+- 同一信息两边都需要时，`dev/` 只保留决策摘要，`ai/` 保留详细证据和步骤。
 
 ## 开发节奏
 
-- 每一轮都必须端到端打通，而不是先堆完整 feature catalog、profile 或 engine。
-- 每一轮只增加少量语义，保持可审阅、可晋升。
-- 每一轮至少包含：LogicIR fixture、最小 profile/stack 声明、validator/resolver
-  检查、projection 或 execution plan、runtime/`iverilog` 验证、diagnostic 记录。
-- 每一轮必须声明本轮支持的 LU kind、每种 kind 的处理入口、明确拒绝的 kind，
-  以及 unsupported 时的 diagnostic。
-- 不能把 `LUCore.luis` 默认拍平成 eager node list；只有 profile 明确声明
-  flatten/lowering 并保留语义时，才可以生成平面 execution plan。
-- 不为下一轮提前实现复杂抽象。下一轮开始前再根据上一轮验证结果决定是否扩展。
+- 每一轮只增加少量语义，保持可审阅、可验证。
+- 不为下一轮提前实现复杂抽象。
+- 当前主线先做无 feature 的 core-only examples，再考虑 feature/profile/runtime。
+- 所有 projector、compiler、engine 必须按 `LUCore.kindOrganization.kind` 首层分派；
+  不能把 `LUCore.luis` 默认拍平成 eager node list。
+- Unsupported semantics 必须 diagnostic、明确拒绝或显式 lowering，不能静默降级。
+- 正式 TS/JS package 默认避免 `class`；优先 plain object、factory、closure 和
+  数据驱动 helper，便于后续移植到其它语言和运行时。
 
-## AI Task 流程
+## AI Task 边界
 
-适合 `/goal`、roadmap round、parallel-agent work 或其它明确可审阅的自动化
-任务，应进入 `ai/tasks/YYYY-MM-DD-<task>/`。
+AI task 不承担实质性的 IR、feature 或 extension 制定。所有 IR / feature /
+extension 数据结构都以人类为主要编写者和决策者；AI 可以在对话中提供分析、对照、
+草案、风险提示和局部编辑协助，但不得通过 autonomous task 自动制定这些结构。
 
-每个 AI task 必须：
+AI task 适合在规则明确后做低自由度工作：
 
-- 独立写入一个 task 子目录。
-- 从 [`../ai/templates/task/`](../ai/templates/task/) 开始，除非已有明确理由。
-- 记录 `README.md`、`source-map.md`、`design-notes.md`、`verification.md` 和
-  `promotion-checklist.md`。
-- 如果包含 JS/TS 可运行代码，在 task 根目录提供 `package.json` 和 task-local
-  verification scripts。
-- 如果包含 Verilog HDL，激活 `E:\oss-cad-suite\environment.ps1` 后直接运行
-  `iverilog`。
-- 通过相对路径读取正式仓库文件时，把这些文件记录为只读 source evidence。
-- 完成时同步 [`../ai/tasks/material-index.md`](../ai/tasks/material-index.md)。
+- examples / fixtures。
+- wrappers / mechanical migration。
+- coverage map / negative cases。
+- verification scripts。
+- 基于固定 schema/feature contract 的 validator、type system、lint/checker、
+  diagnostic reporter、projection helper。
 
-AI task 不得：
+如果 task 发现需要改变 IR / feature / extension 语义，必须记录为 open question，
+回到人工设计流程。
 
-- 写入其它 task 目录。
-- 写入 `packages/`、`schema/`、`docs/`、`examples/`、`fixtures/` 或其它正式
-  项目目录，除非人类明确要求做 task 之外的已审阅文档更新。
-- 让正式 workspace package import task-local code。
-- 把 task-local schema subset 或 runtime shape 当作 accepted schema。
+## AI Task 路由
 
-## Roadmap Round 验收
+- `/goal`、roadmap round、parallel-agent work 或明确可 review 的自动化任务，进入
+  `ai/tasks/YYYY-MM-DD-<task>/`。
+- 不确定、探索性、可丢弃内容进入 `ai/scratch/`。
+- 新 task 细节按 [`../ai/tasks/README.md`](../ai/tasks/README.md) 执行。
+- AI task 完成时必须更新 [`../ai/tasks/material-index.md`](../ai/tasks/material-index.md)。
 
-Roadmap round 类 task 必须证明端到端链路。不能只生成中间 schema、plan 或
-artifact；必须从 fixture 跑到 runtime、engine、projector result、`iverilog`
-simulation 或其它最终验证点。
+AI task 不得写入正式目录，除非人类明确要求做 task 之外的已审阅文档更新。正式目录包括
+`packages/`、`schema/`、`docs/`、`dev/`、`examples/`、`fixtures/`。
 
-最低验收记录：
-
-- 输入 fixture。
-- 使用的 profile/stack 或 task-local equivalent。
-- validator/resolver/capability check 结果，或当前 round 不包含这些工具的说明。
-- 生成的 projection、execution plan 或 artifact。
-- runtime/engine/simulator 命令。
-- 最终观测结果。
-- unsupported path 的 structured diagnostic。
-- 未验证路径的 concrete blocker。
-
-## 最小 Round 规则
-
-每个 round 只保留当前端到端业务路径实际使用的数据结构、schema 片段、profile
-字段、stack 字段、feature contract、runtime plan 字段和 helper。
-
-不要因为后续 round 可能需要，就提前声明 future feature catalog、stage、provider
-contract、diagnostic、capability、execution plan field、validator 或 runtime
-abstraction。
-
-如果正式 schema 类型要求空字段，例如 `featureContracts: []`、`stages: []` 或
-`providerContracts: []`，task 可以保留这些字段，但必须说明这是 schema-shape
-constraint，不是业务预留。
-
-## 审阅和晋升
+## Review 和 Promotion
 
 AI task output 是素材，不是项目结果。人工晋升时：
 
+- 先粗筛，再细读。
+- 如果一批 task 暴露出基础语义错误，立即停止细读，标记为 `needs-rework` 或
+  `archive-only`，转向更小的基础例子。
+- 不把 AI task 的创造性探索直接当作 IR / feature / extension 设计依据。
 - 只迁移经过审阅的最小成果。
-- 重新放入正确正式目录，例如 `packages/`、`schema/`、`examples/`、`fixtures/`
-  或 `dev/`。
-- 重新满足正式目录的 package、schema、documentation、fixture 和 verification
-  规则。
 - 不整包复制 task。
-- 不晋升 task-local generated reports、exploratory logs、宽泛 README
-  material 或整个 sandbox directory，除非它们被明确审阅为正式 artifact。
+- Promotion 后必须在正式项目上下文重新验证。
 
-晋升前至少检查：
-
-- `verification.md` 是否记录最终命令和结果。
-- `promotion-checklist.md` 是否列出可 promotion / 不可 promotion 内容。
-- `material-index.md` 是否同步分类、证据、风险和 review ticket。
-- task-local 构建产物是否已清理，或明确作为 review artifact 保留。
-- promoted piece 是否能在正式 project context 中重新验证。
-
-正式 review 和 promotion 必须通过 [changes/](changes/) 管理：
+标准路径：
 
 ```text
 ai/tasks/<task>
--> review intake
--> dev/changes/<change-id>
--> interactive review and minimal edits
--> promote selected pieces
--> stabilize in formal context
--> close change
+-> material-index / promotion-checklist / verification evidence
+-> coarse dev/changes/<change-id>/review.md
+-> optional promotion change
+-> packages / schema / dev / examples / fixtures
 ```
 
-交互修改期间，聊天中确认的结论必须同步到对应 change：
+## Changes
 
-- 新问题和待办写入 `tasks.md`。
-- 语义决策和边界判断写入 `design.md`。
-- 稳定规范、正式类型、roadmap、feature catalog、task 模板或 material-index
-  的变化写入 `spec-delta.md`。
+重大 schema、API、runtime、projection、package 边界变化先记录到
+[changes/](changes/)。
 
-Promotion 后还要回写来源 task：将 `promotion-checklist.md` 和
-`material-index.md` 标记为 `promoted`、`partially-promoted`、`needs-rework`
-或 `archive-only`。
+- 默认 change 只需要 `review.md`。
+- `review.md` 记录范围、粗结论、决策表、关键语义判断和后续动作。
+- 只有确认进入正式 promotion / implementation 时，才补充 proposal/design/tasks/
+  spec-delta。
+- changes 面向人类 review，不保存长证据和长 checklist；这些留在 `ai/`。
 
-## Change 先于重大实现
+## 最小 Round 规则
 
-重大 schema、API、运行时语义、投影语义调整必须先写入
-[changes/](changes/) 中的变更提案。这个流程借鉴 OpenSpec 的 change /
-proposal / spec-delta 思路，但不引入外部工具，也不改变 schema authority。
+每一轮只保留当前端到端路径实际使用的数据结构、schema 片段、profile 字段、feature
+contract、runtime plan 字段和 helper。
 
-每个 change 至少包含：
+如果正式 schema 类型要求空字段，例如 `featureContracts: []`、`stages: []` 或
+`providerContracts: []`，可以保留，但必须说明这是 schema-shape constraint，不是未来
+业务预留。
 
-- `proposal.md`: 背景、问题、目标、非目标和成功标准。
-- `design.md`: 设计方案、理论映射、core/feature/profile 边界、JS/TS 与 HDL
-  影响、兼容和风险。
-- `tasks.md`: 可执行任务清单、验证命令和 review 状态。
-- `spec-delta.md`: 对稳定规范、正式类型、feature catalog、roadmap 或 task
-  规则的增删改摘要。
+## 验证纪律
 
-设计内容应说明：
-
-- 目标和成功标准。
-- 理论映射。
-- 当前旧实现参考点。
-- Core / feature / extension / profile / stack 边界。
-- Tool、projector、engine、provider capability 变化。
-- JS/TS runtime impact。
-- Verilog HDL impact。
-- 兼容策略和 migration 风险。
-- 测试和验收方式。
-
-AI task 输出要晋升到正式项目文件时，也应先收窄为一个 change；不要整包复制
-task。
-
-小型文档修正或明显局部修复可以直接执行，但最终说明仍要清楚。
+- 代码实现后运行相关 build/test/smoke。
+- 文档结构变更至少运行 `git diff --check`。
+- 无法验证时必须写明原因。

@@ -18,6 +18,16 @@
 
 AI task 输出可能包含有价值的代码、数据、笔记、测试或报告，但它在人工 review 和 promotion 前都只是素材。Promotion 时只移动最小、明确、已验证的部分。
 
+## 文档读者边界
+
+`ai/` 下的文档主要给 AI agent 和自动化 review 使用，可以比 `dev/` 更详尽。
+这里适合保存结构化证据、source map、长 checklist、失败尝试、coverage report、
+verification log、promotion checklist 和 material index。
+
+`dev/` 下的文档主要给人类协作者使用，应保持短、稳定、决策导向。AI 文档中的长
+过程和证据不要直接搬进 `dev/`；需要进入 `dev/` 时，只提炼成人类需要判断和记住的
+原则、边界、路线或结论。
+
 ## 默认路由
 
 - `/goal`、roadmap round、parallel-agent work 或其它明确可 review 的自动化任务，进入 `tasks/`。
