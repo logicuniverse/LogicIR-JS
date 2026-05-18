@@ -6,6 +6,7 @@ It is not a documentation source of truth.
 Source documents stay in:
 
 - `docs/`
+- `schema/`
 - `dev/`
 - selected AI entry pages under `ai/`
 

@@ -12,6 +12,7 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Docs', link: '/docs/' },
+      { text: 'Schema', link: '/schema/' },
       { text: 'Dev', link: '/dev/' },
       { text: 'AI Index', link: '/ai/tasks/material-index' },
       { text: 'All Docs', link: '/all-documents' },
@@ -22,6 +23,32 @@ export default defineConfig({
         items: [
           { text: 'Docs Index', link: '/docs/' },
           { text: 'Essay', link: '/docs/essay' },
+          { text: 'Reference', link: '/docs/reference/' },
+          { text: 'Schema Surfaces', link: '/docs/reference/schema-surfaces' },
+          {
+            text: 'Core Software Interpreter',
+            link: '/docs/reference/core-software-interpreter',
+          },
+          { text: 'Type System', link: '/docs/reference/type-system' },
+        ],
+      },
+      {
+        text: 'Schema',
+        items: [
+          { text: 'Schema Index', link: '/schema/' },
+          { text: 'Core v0 Draft', link: '/schema/core/v0-draft/' },
+          { text: 'Architecture', link: '/schema/architecture/' },
+          { text: 'Architecture v0 Draft', link: '/schema/architecture/v0-draft/' },
+          { text: 'Features', link: '/schema/features/' },
+          { text: 'Type System Feature', link: '/schema/features/type-system/' },
+          {
+            text: 'Type System Feature v0 Draft',
+            link: '/schema/features/type-system/v0-draft/',
+          },
+          { text: 'Profiles', link: '/schema/profiles/' },
+          { text: 'Projection', link: '/schema/projection/' },
+          { text: 'Extensions', link: '/schema/extensions/' },
+          { text: 'Legacy Migration', link: '/schema/migrations/legacy-tsjs-v1/' },
         ],
       },
       {

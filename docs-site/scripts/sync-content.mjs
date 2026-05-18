@@ -8,7 +8,7 @@ const siteDir = path.resolve(scriptDir, '..');
 const repoRoot = path.resolve(siteDir, '..');
 const generatedDir = path.join(siteDir, '.generated');
 
-const sourceRoots = ['docs', 'dev', 'ai'];
+const sourceRoots = ['docs', 'schema', 'dev', 'ai'];
 const ignoredPathParts = new Set([
   'node_modules',
   'dist',
@@ -120,6 +120,7 @@ truth.
 ## Start Here
 
 - [Reader docs](./docs/)
+- [Schema docs](./schema/)
 - [Development docs](./dev/)
 - [AI task material index](./ai/tasks/material-index)
 - [All projected documents](./all-documents)
@@ -127,6 +128,7 @@ truth.
 ## Source Boundaries
 
 - Reader-facing source: \`docs/\`
+- Published schema route: \`schema/\`
 - Human development source: \`dev/\`
 - AI/autonomous evidence source: \`ai/\`
 

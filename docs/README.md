@@ -6,6 +6,8 @@ This directory is for reader-facing LogicIR documentation.
 
 - [essay.md](essay.md): full LogicIR theory essay and canonical long-form
   theory source.
+- [reference/](reference/): current stable reader-visible schema, runtime, and
+  tool surfaces.
 
 ## Boundaries
 
@@ -16,3 +18,9 @@ This directory is for reader-facing LogicIR documentation.
 - Repository-local AI skill source lives in [`../ai/skills/`](../ai/skills/).
 - Generated or curated language-neutral schema artifacts live in
   [`../schema/`](../schema/).
+
+## Stable Outputs
+
+When a package or schema surface is stable enough to be shown to readers, it
+should be explained here in `docs/`, even if its exact source of truth remains
+in `packages/` or `schema/`.
