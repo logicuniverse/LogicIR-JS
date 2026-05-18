@@ -12,16 +12,16 @@ projection 和 runtime 工作保持一致：尊重理论来源，保持 core 目
 ## 必需工作流
 
 1. 先建立项目上下文：
-   - 如果仓库有 `dev/handoff.md`，先读它，确认当前状态和 review 入口。
-   - 如果仓库有 `dev/shared-rules.md`，再读它，确认协作、sandbox、
+   - 如果仓库有 `dev/getting-started/handoff.md`，先读它，确认当前状态和 review 入口。
+   - 如果仓库有 `dev/workflow/shared-rules.md`，再读它，确认协作、sandbox、
      promotion 和验证规则。
-   - 如果仓库有 `dev/operational-theory.md`，读它来理解 theory-to-engineering
+   - 如果仓库有 `dev/theory/operational-theory.md`，读它来理解 theory-to-engineering
      映射，包括 AI-assisted LogicIR editing 和 edit transactions。
-   - 如果仓库有 `dev/schema-principles.md`，读它来确认 schema 与 projection
+   - 如果仓库有 `dev/theory/schema-principles.md`，读它来确认 schema 与 projection
      边界。
-   - 如果仓库有 `dev/logicir-architecture.md`，读它来确认 feature、
+   - 如果仓库有 `dev/theory/logicir-architecture.md`，读它来确认 feature、
      profile、stack、provider 和 execution 术语。
-   - 如果仓库有 `dev/roadmap.md`，在 roadmap round、`/goal`、promotion
+   - 如果仓库有 `dev/planning/roadmap.md`，在 roadmap round、`/goal`、promotion
      或 implementation planning 前读它。
    - 把 `packages/core`、`packages/architecture` 和 `packages/features/*`
      视为已接受 protocol 与 feature data shape 的 TypeScript authoring

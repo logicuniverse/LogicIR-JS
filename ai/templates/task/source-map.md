@@ -11,8 +11,8 @@
 - `schema/`: language-neutral generated 或 curated specification surface；
   不是主要 TS authoring source。
 - `docs/`: 面向读者的 theory 和用户文档。
-- `dev/operational-theory.md`: 工程化理论摘录。
-- `dev/schema-principles.md`: schema 和 projection 纪律。
+- `dev/theory/operational-theory.md`: 工程化理论摘录。
+- `dev/theory/schema-principles.md`: schema 和 projection 纪律。
 
 ## Legacy Evidence
 

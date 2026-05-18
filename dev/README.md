@@ -1,25 +1,37 @@
 # LogicIR 开发文档
 
-`dev/` 面向人类协作者，保存短、稳定、决策导向的开发规则和当前路线。详细证据、
-长 checklist、自动化输出和失败尝试放在 [`../ai/`](../ai/)。
+`dev/` 面向人类协作者，保存短、稳定、决策导向的开发文档。它现在按网站浏览方式组织，
+分成入口、流程、理论和规划四栏。详细证据、长 checklist、自动化输出和失败尝试放在
+[`../ai/`](../ai/)。
 
 ## 语言约定
 
 `dev/` 和 `ai/` 下的项目协作文档默认使用中文。正式源码、package、schema、面向用户的
 `docs/`、examples、fixtures 等目录继续使用英文，除非目标读者明确需要中文。
 
-## 阅读路线
+## 栏目
 
-1. [handoff.md](handoff.md): 新会话快速入口。
-2. [process.md](process.md): 开发流程、AI task 边界、review/promotion 规则。
-3. [roadmap.md](roadmap.md): 当前确定路线。
-4. [schema-principles.md](schema-principles.md): schema / feature / projection 约束。
-5. [operational-theory.md](operational-theory.md): 工程化理论摘要。
-6. [logicir-architecture.md](logicir-architecture.md): profile、stack、provider、
-   execution 等生态术语。
-7. [feature-catalog.md](feature-catalog.md): feature 状态和候选方向。
-8. [long-term-vision.md](long-term-vision.md): 不确定中长期 pressure tests。
-9. [changes/](changes/): 粗粒度人工 review / decision 记录。
+1. [开始阅读](getting-started/)
+   - [新会话交接](getting-started/handoff.md)
+2. [开发流程](workflow/)
+   - [process.md](workflow/process.md)
+   - [shared-rules.md](workflow/shared-rules.md)
+   - [changes/](changes/)
+3. [理论与原则](theory/)
+   - [schema-principles.md](theory/schema-principles.md)
+   - [operational-theory.md](theory/operational-theory.md)
+   - [logicir-architecture.md](theory/logicir-architecture.md)
+4. [当前规划](planning/)
+   - [roadmap.md](planning/roadmap.md)
+   - [feature-catalog.md](planning/feature-catalog.md)
+   - [long-term-vision.md](planning/long-term-vision.md)
+
+## 建议阅读路线
+
+1. [开始阅读](getting-started/)
+2. [开发流程](workflow/)
+3. [当前规划](planning/roadmap.md)
+4. [理论与原则](theory/)
 
 ## 当前原则
 
@@ -27,3 +39,8 @@
 - AI task 不自动制定高自由度语义；它用于规则明确后的低自由度执行或工具探索。
 - 当前主线先做无 feature 的 core-only examples，再考虑 feature、profile、runtime。
 - 旧代码和 AI task 都是 evidence，不是 schema authority。
+
+## 兼容入口
+
+为避免打断旧链接，根目录下仍保留 `handoff.md`、`process.md`、`roadmap.md` 等兼容入口页；
+它们会指向这里的 canonical 分栏路径。

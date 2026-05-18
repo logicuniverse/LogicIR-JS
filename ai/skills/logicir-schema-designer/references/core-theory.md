@@ -5,7 +5,7 @@
 ## Source Priority
 
 - 完整理论源头：`docs/essay.md`。
-- 工程执行摘录：`dev/operational-theory.md`。
+- 工程执行摘录：`dev/theory/operational-theory.md`。
 
 ## LogicIR Role
 

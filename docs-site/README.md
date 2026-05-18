@@ -7,7 +7,14 @@ Source documents stay in:
 
 - `docs/`
 - `dev/`
-- selected AI indexes, currently `ai/tasks/material-index.md`
+- selected AI entry pages under `ai/`
+
+Current AI projection policy:
+
+- keep `ai/tasks/README.md`
+- keep `ai/tasks/material-index.md`
+- keep one page per task directory, using that task's `README.md`
+- do not project every file inside each task directory
 
 The generated VitePress source is written to `.generated/` by:
 

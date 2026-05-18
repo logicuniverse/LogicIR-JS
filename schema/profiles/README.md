@@ -8,6 +8,6 @@ Profile and stack content shapes are authored in:
 
 The current profile/stack model is documented in:
 
-- [`dev/logicir-architecture.md`](../../dev/logicir-architecture.md)
+- [`dev/theory/logicir-architecture.md`](../../dev/theory/logicir-architecture.md)
 
 No concrete generated profile or stack artifacts are checked in here yet.

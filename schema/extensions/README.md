@@ -9,7 +9,7 @@ source:
 
 General extension design rules live in:
 
-- [`dev/schema-principles.md`](../../dev/schema-principles.md)
-- [`dev/logicir-architecture.md`](../../dev/logicir-architecture.md)
+- [`dev/theory/schema-principles.md`](../../dev/theory/schema-principles.md)
+- [`dev/theory/logicir-architecture.md`](../../dev/theory/logicir-architecture.md)
 
 No standalone generated extension artifacts are checked in here yet.

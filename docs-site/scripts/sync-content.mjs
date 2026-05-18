@@ -18,6 +18,22 @@ const ignoredPathParts = new Set([
   '.vitepress',
 ]);
 
+function isAiTaskDirectoryRootMarkdown(sourceRel) {
+  return /^ai\/tasks\/[^/]+\/README\.md$/.test(sourceRel);
+}
+
+function shouldProjectMarkdown(sourceRel) {
+  if (!sourceRel.startsWith('ai/tasks/')) {
+    return true;
+  }
+
+  if (sourceRel === 'ai/tasks/README.md' || sourceRel === 'ai/tasks/material-index.md') {
+    return true;
+  }
+
+  return isAiTaskDirectoryRootMarkdown(sourceRel);
+}
+
 function toPosixPath(value) {
   return value.split(path.sep).join('/');
 }
@@ -61,7 +77,12 @@ async function listMarkdownFiles(rootRel) {
         continue;
       }
 
-      files.push(toPosixPath(path.relative(repoRoot, entryAbs)));
+      const sourceRel = toPosixPath(path.relative(repoRoot, entryAbs));
+      if (!shouldProjectMarkdown(sourceRel)) {
+        continue;
+      }
+
+      files.push(sourceRel);
     }
   }
 
@@ -129,7 +150,7 @@ async function writeAllDocumentsIndex(copiedFiles) {
   const lines = [
     '# All Projected Documents',
     '',
-    'This index is generated from all Markdown files under `docs/`, `dev/`, and `ai/`.',
+    'This index is generated from projected Markdown under `docs/`, `dev/`, and the selected public AI entry pages.',
     '',
   ];
 

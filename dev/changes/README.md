@@ -3,6 +3,8 @@
 `dev/changes/` 保存人类粗粒度 review / decision 记录。它不是 schema authority，
 也不是每个 AI task 的细粒度审阅队列。
 
+在网站结构中，它属于 [`../workflow/`](../workflow/) 栏目下的 review 记录区。
+
 详细证据、长 checklist、source map、失败尝试和自动化输出应留在 `ai/`；change
 只记录人类需要确认的结论、取舍和后续动作。
 

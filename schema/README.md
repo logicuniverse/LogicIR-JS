@@ -15,9 +15,9 @@ Authoring sources live in workspace packages:
 
 Design rationale and collaboration rules live in `dev/`, not here:
 
-- [`dev/operational-theory.md`](../dev/operational-theory.md)
-- [`dev/schema-principles.md`](../dev/schema-principles.md)
-- [`dev/logicir-architecture.md`](../dev/logicir-architecture.md)
+- [`dev/theory/operational-theory.md`](../dev/theory/operational-theory.md)
+- [`dev/theory/schema-principles.md`](../dev/theory/schema-principles.md)
+- [`dev/theory/logicir-architecture.md`](../dev/theory/logicir-architecture.md)
 
 ## Current Artifacts
 

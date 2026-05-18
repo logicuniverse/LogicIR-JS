@@ -61,18 +61,18 @@ Repository-level surfaces:
 If a new AI session is asked to "read the existing project", it should not start
 by recursively reading every task sandbox. Use this order:
 
-1. Read [`dev/handoff.md`](dev/handoff.md).
-2. Read [`dev/shared-rules.md`](dev/shared-rules.md) and
-   [`dev/process.md`](dev/process.md).
-3. Read [`dev/operational-theory.md`](dev/operational-theory.md),
-   [`dev/schema-principles.md`](dev/schema-principles.md), and
-   [`dev/logicir-architecture.md`](dev/logicir-architecture.md) as needed for
+1. Read [`dev/getting-started/handoff.md`](dev/getting-started/handoff.md).
+2. Read [`dev/workflow/shared-rules.md`](dev/workflow/shared-rules.md) and
+   [`dev/workflow/process.md`](dev/workflow/process.md).
+3. Read [`dev/theory/operational-theory.md`](dev/theory/operational-theory.md),
+   [`dev/theory/schema-principles.md`](dev/theory/schema-principles.md), and
+   [`dev/theory/logicir-architecture.md`](dev/theory/logicir-architecture.md) as needed for
    the task.
-4. Read [`dev/feature-catalog.md`](dev/feature-catalog.md) when feature scope
+4. Read [`dev/planning/feature-catalog.md`](dev/planning/feature-catalog.md) when feature scope
    or promotion is involved.
-5. Read [`dev/roadmap.md`](dev/roadmap.md) before starting roadmap or `/goal`
+5. Read [`dev/planning/roadmap.md`](dev/planning/roadmap.md) before starting roadmap or `/goal`
    work.
-6. Read [`dev/long-term-vision.md`](dev/long-term-vision.md) only for
+6. Read [`dev/planning/long-term-vision.md`](dev/planning/long-term-vision.md) only for
    uncertain long-term research or pressure-test directions.
 7. Read specific [`ai/tasks/`](ai/tasks) directories only as sandbox evidence
    for review or promotion. Task output is not accepted project source until a

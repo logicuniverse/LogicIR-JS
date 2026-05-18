@@ -12,7 +12,7 @@ ai/tasks/YYYY-MM-DD-<task>/
 
 ## Round 目标
 
-如果这个 task 是 `dev/roadmap.md` 中的端到端 round，填写本节：
+如果这个 task 是 `dev/planning/roadmap.md` 中的端到端 round，填写本节：
 
 - Stack:
 - Round:
