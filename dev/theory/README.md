@@ -6,7 +6,10 @@
 
 1. [schema-principles.md](schema-principles.md): core/schema/projection 边界和 TS authoring 规则。
 2. [operational-theory.md](operational-theory.md): 从 essay 提炼出的工程原则。
-3. [logicir-architecture.md](logicir-architecture.md): profile、stack、provider、execution、capability 等生态术语。
+3. [software-runtime-model.md](software-runtime-model.md): software interpreter 中 LU、Closure、LUI 的运行语义和接口收敛。
+4. [hdl-model.md](hdl-model.md): Verilog HDL 视角下 LU kinds、ports、phases 与 lowering/diagnostic 边界。
+5. [software-hdl-comparison.md](software-hdl-comparison.md): software runtime 与 HDL projection 的并排对照。
+6. [logicir-architecture.md](logicir-architecture.md): profile、stack、provider、execution、capability 等生态术语。
 
 ## 使用方式
 

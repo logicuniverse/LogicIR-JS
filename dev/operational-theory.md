@@ -8,4 +8,7 @@
 
 - [theory/](theory/)
 - [theory/schema-principles.md](theory/schema-principles.md)
+- [theory/software-runtime-model.md](theory/software-runtime-model.md)
+- [theory/hdl-model.md](theory/hdl-model.md)
+- [theory/software-hdl-comparison.md](theory/software-hdl-comparison.md)
 - [theory/logicir-architecture.md](theory/logicir-architecture.md)
