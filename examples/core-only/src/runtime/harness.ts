@@ -1,6 +1,8 @@
 import {
   createCoreSoftwareInterpreter,
-  type CoreRuntimeInstance,
+  type CoreRunResult,
+  type CoreRuntimeRunner,
+  type StatefulResponseHandle,
 } from '@logic-universe/logic-ir-engine-core-software-interpreter';
 import type {
   CompositionAnchorKey,
@@ -13,34 +15,36 @@ import { coreOnlyTargetCatalog } from './catalog.js';
 
 export type ExampleHarness = {
   readonly logicUnit: LogicUnit;
-  setInputValue: (key: InputPortKey, value: unknown) => void;
+  setInputCurrent: (key: InputPortKey, value: unknown) => void;
   pushInput: (key: InputPortKey, value: unknown) => void;
-  setOutletValue: (key: CompositionOutletKey, value: unknown) => void;
+  applyOutlets: (outlets: Record<CompositionOutletKey, unknown>) => void;
   readResult: () => unknown;
   readOutput: (key: OutputPortKey) => unknown;
   readAnchor: (key: CompositionAnchorKey) => unknown;
   subscribeOutput: (key: OutputPortKey, listener: (value: unknown) => void) => () => void;
+  run: () => CoreRunResult;
 };
 
 export const createExampleHarness = (logicUnit: LogicUnit): ExampleHarness => {
   const interpreter = createCoreSoftwareInterpreter({
     targets: coreOnlyTargetCatalog,
   });
-  const runtime = interpreter.instantiate(logicUnit);
+  const runtime = interpreter.manifest(logicUnit);
 
   return wrapRuntime(logicUnit, runtime);
 };
 
 const wrapRuntime = (
   logicUnit: LogicUnit,
-  runtime: CoreRuntimeInstance,
+  runtime: CoreRuntimeRunner,
 ): ExampleHarness => ({
   logicUnit,
-  setInputValue: (key, value) => runtime.setInputValue(key, value),
+  setInputCurrent: (key, value) => runtime.setInputCurrent(key, value),
   pushInput: (key, value) => runtime.pushInput(key, value),
-  setOutletValue: (key, value) => runtime.setOutletValue(key, value),
+  applyOutlets: (outlets) => runtime.applyOutlets(outlets),
   readResult: () => runtime.readResult(),
   readOutput: (key) => runtime.readOutput(key),
   readAnchor: (key) => runtime.readAnchor(key),
   subscribeOutput: (key, listener) => runtime.subscribeOutput(key, listener),
+  run: () => runtime.run(),
 });

@@ -19,7 +19,7 @@ export const statefulCounterExample: CoreOnlyExample = {
     harness.subscribeOutput('current', (value) => {
       notifications.push(Number(value));
     });
-    harness.setInputValue('initial', statefulCounterProgram.initial);
+    harness.setInputCurrent('initial', statefulCounterProgram.initial);
 
     for (const step of statefulCounterProgram.increments) {
       harness.pushInput('increment', step);

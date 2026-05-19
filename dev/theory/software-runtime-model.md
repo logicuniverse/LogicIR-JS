@@ -522,12 +522,12 @@ type ScopeRunResult = {
 
 - `initialObservation` 对应 `Phase C`
 - `handle` 只在 `stateful` 进入 `Phase D` 时存在
+- 当前 seed 故意保持这个结果类型较薄，不在类型层面对不同 `kind` 做完全判别式细分
 
 ### 11.3 Stateful response handle
 
 ```ts
 type StatefulResponseHandle = {
-  setInputCurrent(key: string, value: unknown): void;
   pushInput(key: string, value: unknown): void;
 
   readOutput(key: string): unknown;
@@ -541,10 +541,21 @@ type StatefulResponseHandle = {
 - `Phase D` 的 stateful response 能力
 - 与 phase 无关的 `emit` capability
 
+并且当前 seed 已经明确区分：
+
+- `readOutput(...)` 只面向可读 current 的 `property` output
+- `push` output 只能通过 connection / `subscribeOutput(...)` 观察
+- `push` output 不应被当成 retained current 来读取
+
 对于没有 `Phase D` 的 run：
 
 - `run(...)` 只需要返回 `initialObservation`
 - 不需要长期 response handle
+
+对于当前 seed：
+
+- `setInputCurrent(...)` 仍属于 runner / session setup surface，而不属于 `StatefulResponseHandle`
+- `applyOutlets(...)` 也属于 structural result surface 的补全动作，而不属于 `Phase D`
 
 对于 structural：
 
@@ -575,15 +586,17 @@ type LUIRunContext = {
 
 以当前 seed 而言，最值得继续收敛的点有：
 
-1. `readOutput()` 仍把不同 output contact 读法混在一起。
-2. stateful child instance 的 lifecycle 已经偏向旧 software runtime，而不是更薄的 core realization。
-3. structural 用 `setOutletValue(...)` 建模，容易把 outlet 误当普通输入。
+1. nested LU / closure 已经开始按 nested scope 自身的 `Phase C initialObservation`
+   读取，而不是一律强压成 `readResult()`；closure owner endpoint 也已经具备 direct
+   scope `input/result` 与 forwarded `push output` 的基本 runtime 路径。
+2. stateful child instance 的 lifecycle 仍偏向旧 software runtime，而不是更薄的 core realization。
+3. structural 虽然已经改成 `applyOutlets(...)`，但内部仍靠 runner-level `outletValues` map
+   realization，语义上还不够“surface-like”。
 4. root LU 与 closure 还没有真正收敛到同一种 scope runtime。
 5. `LUI.run(...)` 还没有被抽象成统一语义接口，而是散落在 interpreter 内部。
-6. 当前 seed 把 `Phase A` 做成了按需初始化，而不是显式 session phase，这和本文档的
-   LU phase model 还不一致。
-7. 当前 seed 默认把 runtime object 当成长期可操作对象，没有区分“`A/B/C` 一次性 run”
-   和“仅 stateful 才有的 `Phase D` response handle”。
+6. `Phase A/B` 已经在 seed 中显式化，但 `run()` 与 `read*()` 入口之间仍有一部分重复调度逻辑。
+7. `handle` 已经收敛为仅 stateful `Phase D` 才成立，但 runner 仍同时承载 setup、read、
+   push、subscription 等多类职责，session 边界还可以继续做薄。
 
 ## 13. 当前建议
 

@@ -5,6 +5,8 @@ import { sequentialPipelineExample } from './scenarios/03-sequential-pipeline/in
 import { structuralDomExample } from './scenarios/04-structural-dom/index.js';
 import { multiLuiCompositionExample } from './scenarios/05-multi-lui-composition/index.js';
 import { requirementClosureExample } from './scenarios/06-z-requirement-closure/index.js';
+import { closureDirectScopeExample } from './scenarios/07-closure-direct-scope/index.js';
+import { closureForwardedPushExample } from './scenarios/08-closure-forwarded-push/index.js';
 
 export type CoreOnlyExample = {
   key: string;
@@ -27,6 +29,8 @@ export const examples: CoreOnlyExample[] = [
   structuralDomExample,
   multiLuiCompositionExample,
   requirementClosureExample,
+  closureDirectScopeExample,
+  closureForwardedPushExample,
 ];
 
 export function runExamples(): CoreOnlyExampleResult[] {

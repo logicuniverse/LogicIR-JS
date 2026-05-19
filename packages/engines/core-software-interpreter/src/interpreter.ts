@@ -1,4 +1,5 @@
 import type {
+  Closure,
   CompositionLeaf,
   CompositionValue,
   Connection,
@@ -17,10 +18,13 @@ import type {
 import type {
   CoreExternalTargetRuntime,
   CoreInterpreterCatalog,
-  CoreRuntimeInstance,
+  CoreRunResult,
+  NestedCoreRuntimeRunner,
+  CoreRuntimeRunner,
   CoreSoftwareInterpreter,
   RuntimeListener,
   RuntimeValue,
+  StatefulResponseHandle,
   StatefulTargetInstance,
   StatefulTargetRuntime,
   StructuralTargetRuntime,
@@ -39,6 +43,13 @@ type StatefulChildRuntime = {
   instance: StatefulTargetInstance;
   outputs: Map<OutputPortKey, RuntimeValue>;
   initialized: boolean;
+};
+
+type ClosureChildRuntime = {
+  closureId: string;
+  closure: Closure;
+  runtime: CoreRuntimeRunner;
+  forwardedPushOutputUnsubscribes: Array<() => void>;
 };
 
 type LUBackedLUI = LUI & {
@@ -64,12 +75,13 @@ type InterpreterState = {
   outputValues: Map<OutputPortKey, RuntimeValue>;
   outputListeners: Map<OutputPortKey, Set<RuntimeListener>>;
   statefulChildren: Map<string, StatefulChildRuntime>;
+  closureChildren: Map<string, ClosureChildRuntime>;
 };
 
-export const createCoreRuntimeInstance = (
+export const createCoreRuntimeRunner = (
   logicUnit: LogicUnit,
   catalog: CoreInterpreterCatalog = {},
-): CoreRuntimeInstance => {
+): CoreRuntimeRunner => {
   const state: InterpreterState = {
     logicUnit,
     kind: logicUnit.core.kindOrganization.kind,
@@ -81,31 +93,33 @@ export const createCoreRuntimeInstance = (
     outputValues: new Map<OutputPortKey, RuntimeValue>(),
     outputListeners: new Map<OutputPortKey, Set<RuntimeListener>>(),
     statefulChildren: new Map<string, StatefulChildRuntime>(),
+    closureChildren: new Map<string, ClosureChildRuntime>(),
   };
 
-  const runtime: CoreRuntimeInstance = {
+  const runtime: CoreRuntimeRunner = {
     logicUnit,
     kind: state.kind,
-    setInputValue,
+    setInputCurrent,
     pushInput,
-    setOutletValue,
+    applyOutlets,
     readResult,
     readOutput,
     readAnchor,
     subscribeOutput,
+    run,
   };
 
   createStatefulChildren();
   return runtime;
 
-  function setInputValue(key: InputPortKey, value: RuntimeValue): void {
+  function setInputCurrent(key: InputPortKey, value: RuntimeValue): void {
     const contact = getBoundaryInputContact(state.logicUnit, key);
     if (!contact) {
       throw new Error(`Unknown boundary input '${key}'.`);
     }
     if (contact === 'push') {
       throw new Error(
-        `Boundary input '${key}' is push-only; use pushInput instead of setInputValue.`,
+        `Boundary input '${key}' is push-only; use pushInput instead of setInputCurrent.`,
       );
     }
 
@@ -115,9 +129,7 @@ export const createCoreRuntimeInstance = (
       if (!isBoundaryInputConnectedToLui(key, luiId)) {
         continue;
       }
-      if (!child.initialized) {
-        ensureStatefulChildInitialized(luiId);
-      } else {
+      if (child.initialized) {
         child.instance.refreshInput?.(key);
       }
     }
@@ -130,7 +142,7 @@ export const createCoreRuntimeInstance = (
     }
     if (contact !== 'push') {
       throw new Error(
-        `Boundary input '${key}' is not a push input; use setInputValue instead.`,
+        `Boundary input '${key}' is not a push input; use setInputCurrent instead.`,
       );
     }
 
@@ -143,11 +155,31 @@ export const createCoreRuntimeInstance = (
     );
   }
 
-  function setOutletValue(key: string, value: RuntimeValue): void {
+  function applyOutlets(outlets: Record<string, RuntimeValue>): void {
     if (state.kind !== 'structural') {
-      throw new Error('setOutletValue is only available for structural logic units.');
+      throw new Error('applyOutlets is only available for structural logic units.');
     }
-    state.outletValues.set(key, value);
+    state.outletValues.clear();
+    for (const [key, value] of Object.entries(outlets)) {
+      state.outletValues.set(key, value);
+    }
+  }
+
+  function run(): CoreRunResult {
+    runPhaseA();
+
+    const memo = new Map<string, RuntimeValue | undefined>();
+    runPhaseB(memo);
+
+    const initialObservation = runPhaseC(memo);
+    if (state.kind !== 'stateful') {
+      return { initialObservation };
+    }
+
+    return {
+      initialObservation,
+      handle: createStatefulResponseHandle(),
+    };
   }
 
   function readResult(): RuntimeValue | undefined {
@@ -157,18 +189,11 @@ export const createCoreRuntimeInstance = (
       );
     }
 
+    runPhaseA();
+
     if (state.kind === 'sequential') {
-      const sequentialCore = state.logicUnit.core as SequentialLUCore;
       const memo = new Map<string, RuntimeValue | undefined>();
-      for (const step of sequentialCore.kindOrganization.steps) {
-        const lui = sequentialCore.luis[step.luiId];
-        if (!lui) {
-          throw new Error(
-            `Sequential step references missing LUI '${step.luiId}'.`,
-          );
-        }
-        evaluateLui(step.luiId, lui, memo);
-      }
+      runPhaseB(memo);
       return readBoundaryResult(memo);
     }
 
@@ -181,24 +206,11 @@ export const createCoreRuntimeInstance = (
       throw new Error(`Unknown boundary output '${key}'.`);
     }
 
-    ensureAllStatefulChildrenInitialized();
-
-    if (state.outputValues.has(key)) {
-      return state.outputValues.get(key);
-    }
-
-    const value = readEndpoint(
-      {
-        owner: { kind: 'boundary' },
-        port: { kind: 'output', key },
-      },
+    runPhaseA();
+    return readBoundaryOutputValue(
+      key,
       new Map<string, RuntimeValue | undefined>(),
     );
-
-    if (value !== undefined) {
-      state.outputValues.set(key, value);
-    }
-    return value;
   }
 
   function readAnchor(key: string): RuntimeValue | undefined {
@@ -206,16 +218,8 @@ export const createCoreRuntimeInstance = (
       throw new Error('readAnchor is only available for structural logic units.');
     }
 
-    const structuralCore = state.logicUnit.core as StructuralLUCore;
-    const fill = structuralCore.kindOrganization.anchorFills[key];
-    if (!fill) {
-      return undefined;
-    }
-
-    return resolveCompositionValue(
-      fill,
-      new Map<string, RuntimeValue | undefined>(),
-    );
+    runPhaseA();
+    return readAnchorValue(key, new Map<string, RuntimeValue | undefined>());
   }
 
   function subscribeOutput(
@@ -261,7 +265,12 @@ export const createCoreRuntimeInstance = (
       const instance = targetRuntime.create({
         getInputValue: (key) => readLuiInputValue(luiId, key, new Map()),
         emitOutput: (key, value) => {
-          childOutputs.set(key, value);
+          const outputContact = lui.ports.outputs[key]?.contact;
+          if (outputContact === 'property') {
+            childOutputs.set(key, value);
+          } else {
+            childOutputs.delete(key);
+          }
           dispatchFromSource(
             {
               owner: { kind: 'lui', luiId },
@@ -297,6 +306,48 @@ export const createCoreRuntimeInstance = (
     }
   }
 
+  function runPhaseA(): void {
+    if (state.kind === 'combinational') {
+      return;
+    }
+
+    ensureAllStatefulChildrenInitialized();
+  }
+
+  function runPhaseB(
+    memo: Map<string, RuntimeValue | undefined>,
+  ): void {
+    if (state.kind !== 'sequential') {
+      return;
+    }
+
+    const sequentialCore = state.logicUnit.core as SequentialLUCore;
+    for (const step of sequentialCore.kindOrganization.steps) {
+      const lui = sequentialCore.luis[step.luiId];
+      if (!lui) {
+        throw new Error(
+          `Sequential step references missing LUI '${step.luiId}'.`,
+        );
+      }
+      evaluateLui(step.luiId, lui, memo);
+    }
+  }
+
+  function runPhaseC(
+    memo: Map<string, RuntimeValue | undefined>,
+  ): RuntimeValue | undefined {
+    if (state.kind === 'combinational' || state.kind === 'sequential') {
+      return readBoundaryResult(memo);
+    }
+
+    if (state.kind === 'structural') {
+      const preferredAnchorKey = getPreferredStructuralAnchorKey();
+      return preferredAnchorKey ? readAnchorValue(preferredAnchorKey, memo) : undefined;
+    }
+
+    return materializeStatefulObservation();
+  }
+
   function readBoundaryResult(
     memo: Map<string, RuntimeValue | undefined>,
   ): RuntimeValue | undefined {
@@ -325,7 +376,16 @@ export const createCoreRuntimeInstance = (
     } else if (endpoint.owner.kind === 'lui') {
       value = readLuiEndpoint(endpoint.owner.luiId, endpoint, memo);
     } else {
-      throw new Error('Closure endpoint runtime is not implemented in this seed.');
+      value = readClosureEndpoint(
+        {
+          ...endpoint,
+          owner: {
+            kind: 'closure',
+            closureId: endpoint.owner.closureId,
+          },
+        },
+        memo,
+      );
     }
 
     memo.set(endpointKey, value);
@@ -349,12 +409,87 @@ export const createCoreRuntimeInstance = (
         return readPinnedBoundaryResult(endpoint, memo);
       }
       if (endpoint.port.kind === 'output') {
+        const contact = getBoundaryOutputContact(
+          state.logicUnit,
+          endpoint.port.key,
+        );
+        if (contact === 'push') {
+          throw new Error(
+            `Boundary output '${endpoint.port.key}' is push-only and cannot be read as current.`,
+          );
+        }
         return state.outputValues.get(endpoint.port.key);
       }
       return undefined;
     }
 
     return readEndpoint(connection.from, memo);
+  }
+
+  function readBoundaryOutputValue(
+    key: OutputPortKey,
+    memo: Map<string, RuntimeValue | undefined>,
+  ): RuntimeValue | undefined {
+    const contact = getBoundaryOutputContact(state.logicUnit, key);
+    if (contact !== 'property') {
+      throw new Error(
+        `Boundary output '${key}' is ${contact ?? 'unknown'} and cannot be read as current; use subscribeOutput for push outputs.`,
+      );
+    }
+
+    if (state.outputValues.has(key)) {
+      return state.outputValues.get(key);
+    }
+
+    const value = readEndpoint(
+      {
+        owner: { kind: 'boundary' },
+        port: { kind: 'output', key },
+      },
+      memo,
+    );
+
+    if (value !== undefined) {
+      state.outputValues.set(key, value);
+    }
+
+    return value;
+  }
+
+  function readClosureEndpoint(
+    endpoint: EndpointRef & { owner: { kind: 'closure'; closureId: string } },
+    memo: Map<string, RuntimeValue | undefined>,
+  ): RuntimeValue | undefined {
+    const { closureId } = endpoint.owner;
+    const child = getClosureChildRuntime(closureId);
+
+    if (endpoint.port.kind === 'input') {
+      return readClosureInputValue(
+        closureId,
+        endpoint.port.key,
+        memo,
+        endpoint.payloadPath,
+      );
+    }
+
+    if (endpoint.port.kind === 'result') {
+      if (!('result' in child.runtime.logicUnit.core.ports)) {
+        return undefined;
+      }
+
+      prepareClosureBoundaryInputs(child, memo);
+      return readPayloadPath(
+        readNestedScopeInitialObservation(child.runtime),
+        endpoint.payloadPath,
+      );
+    }
+
+    return readClosureOutputValue(
+      child,
+      endpoint.port.key,
+      memo,
+      endpoint.payloadPath,
+    );
   }
 
   function readLuiEndpoint(
@@ -382,6 +517,12 @@ export const createCoreRuntimeInstance = (
     }
 
     if (lui.kind === 'stateful') {
+      const outputContact = lui.ports.outputs[endpoint.port.key]?.contact;
+      if (outputContact === 'push') {
+        throw new Error(
+          `Push output endpoint read is unsupported for stateful LUI '${luiId}'.`,
+        );
+      }
       ensureStatefulChildInitialized(luiId);
       const child = state.statefulChildren.get(luiId);
       return readPayloadPath(
@@ -411,6 +552,27 @@ export const createCoreRuntimeInstance = (
     if (!connection) {
       return undefined;
     }
+    return readEndpoint(connection.from, memo);
+  }
+
+  function readClosureInputValue(
+    closureId: string,
+    key: InputPortKey,
+    memo: Map<string, RuntimeValue | undefined>,
+    payloadPath?: EndpointRef['payloadPath'],
+  ): RuntimeValue | undefined {
+    const connection = state.connectionByTarget.get(
+      getEndpointKey({
+        owner: { kind: 'closure', closureId },
+        port: { kind: 'input', key },
+        payloadPath,
+      }),
+    );
+
+    if (!connection) {
+      return undefined;
+    }
+
     return readEndpoint(connection.from, memo);
   }
 
@@ -467,7 +629,7 @@ export const createCoreRuntimeInstance = (
       );
     }
 
-    const nestedRuntime = createCoreRuntimeInstance(
+    const nestedRuntime = createCoreRuntimeRunner(
       nestedLogicUnit,
       state.catalog,
     );
@@ -475,11 +637,11 @@ export const createCoreRuntimeInstance = (
 
     for (const [key, value] of Object.entries(inputs)) {
       if (value !== undefined) {
-        nestedRuntime.setInputValue(key, value);
+        nestedRuntime.setInputCurrent(key, value);
       }
     }
 
-    return nestedRuntime.readResult();
+    return readNestedScopeInitialObservation(nestedRuntime);
   }
 
   function evaluateRequirementLui(
@@ -541,7 +703,7 @@ export const createCoreRuntimeInstance = (
       core: closure.core,
     };
 
-    const nestedRuntime = createCoreRuntimeInstance(
+    const nestedRuntime = createCoreRuntimeRunner(
       nestedLogicUnit,
       state.catalog,
     );
@@ -549,11 +711,11 @@ export const createCoreRuntimeInstance = (
     for (const inputKey of closure.forwardedPortKeys.inputs) {
       const value = readLuiInputValue(luiId, inputKey, memo);
       if (value !== undefined) {
-        nestedRuntime.setInputValue(inputKey, value);
+        nestedRuntime.setInputCurrent(inputKey, value);
       }
     }
 
-    return nestedRuntime.readResult();
+    return readNestedScopeInitialObservation(nestedRuntime);
   }
 
   function evaluateRequirementUpstreamFulfillment(
@@ -742,15 +904,50 @@ export const createCoreRuntimeInstance = (
       return;
     }
 
+    if (target.owner.kind === 'closure') {
+      if (target.port.kind !== 'input') {
+        throw new Error(
+          'Push delivery to closure only supports forwarded closure inputs.',
+        );
+      }
+
+      const child = getClosureChildRuntime(target.owner.closureId);
+      if (!child.closure.forwardedPortKeys.inputs.includes(target.port.key)) {
+        throw new Error(
+          `Closure '${target.owner.closureId}' does not forward input '${target.port.key}'.`,
+        );
+      }
+
+      const contact = getBoundaryInputContact(
+        child.runtime.logicUnit,
+        target.port.key,
+      );
+      if (contact !== 'push') {
+        throw new Error(
+          `Closure input '${target.owner.closureId}.${target.port.key}' is not push and cannot receive push delivery.`,
+        );
+      }
+
+      child.runtime.pushInput(target.port.key, value);
+      return;
+    }
+
     if (target.owner.kind !== 'lui' || target.port.kind !== 'input') {
       throw new Error(
-        'Push delivery only supports LUI input or boundary output endpoints.',
+        'Push delivery only supports LUI input, closure input, or boundary output endpoints.',
       );
     }
 
     const lui = state.logicUnit.core.luis[target.owner.luiId];
     if (!lui) {
       throw new Error(`Missing LUI '${target.owner.luiId}'.`);
+    }
+
+    const inputContact = lui.ports.inputs[target.port.key]?.contact;
+    if (inputContact !== 'push') {
+      throw new Error(
+        `LUI input '${target.owner.luiId}.${target.port.key}' is not push and cannot receive push delivery.`,
+      );
     }
 
     if (lui.kind === 'stateful') {
@@ -774,7 +971,17 @@ export const createCoreRuntimeInstance = (
     key: OutputPortKey,
     value: RuntimeValue,
   ): void {
-    state.outputValues.set(key, value);
+    const contact = getBoundaryOutputContact(state.logicUnit, key);
+    if (!contact) {
+      throw new Error(`Unknown boundary output '${key}'.`);
+    }
+
+    if (contact === 'property') {
+      state.outputValues.set(key, value);
+    } else {
+      state.outputValues.delete(key);
+    }
+
     const listeners = state.outputListeners.get(key);
     if (!listeners) {
       return;
@@ -782,6 +989,107 @@ export const createCoreRuntimeInstance = (
     for (const listener of listeners) {
       listener(value);
     }
+  }
+
+  function getClosureChildRuntime(closureId: string): ClosureChildRuntime {
+    const existing = state.closureChildren.get(closureId);
+    if (existing) {
+      return existing;
+    }
+
+    const closure = state.logicUnit.core.closures[closureId];
+    if (!closure) {
+      throw new Error(`Missing closure '${closureId}'.`);
+    }
+
+    const runtime = createCoreRuntimeRunner(
+      createClosureLogicUnit(closure),
+      state.catalog,
+    );
+
+    const forwardedPushOutputUnsubscribes = closure.forwardedPortKeys.pushOutputs.map(
+      (key) => {
+        const contact = getBoundaryOutputContact(runtime.logicUnit, key);
+        if (contact !== 'push') {
+          throw new Error(
+            `Closure '${closureId}' can only forward push outputs, but '${key}' is ${contact ?? 'missing'}.`,
+          );
+        }
+
+        return runtime.subscribeOutput(key, (emittedValue) => {
+          dispatchFromSource(
+            {
+              owner: { kind: 'closure', closureId },
+              port: { kind: 'output', key },
+            },
+            emittedValue,
+          );
+        });
+      },
+    );
+
+    const child: ClosureChildRuntime = {
+      closureId,
+      closure,
+      runtime,
+      forwardedPushOutputUnsubscribes,
+    };
+    state.closureChildren.set(closureId, child);
+    return child;
+  }
+
+  function createClosureLogicUnit(closure: Closure): LogicUnit {
+    return {
+      schemaVersion: state.logicUnit.schemaVersion,
+      featureUses: state.logicUnit.featureUses,
+      requirements: state.logicUnit.requirements,
+      core: closure.core,
+    };
+  }
+
+  function prepareClosureBoundaryInputs(
+    child: ClosureChildRuntime,
+    memo: Map<string, RuntimeValue | undefined>,
+  ): void {
+    for (const inputKey of child.closure.forwardedPortKeys.inputs) {
+      const contact = getBoundaryInputContact(child.runtime.logicUnit, inputKey);
+      if (!contact) {
+        throw new Error(
+          `Closure '${child.closureId}' forwards missing input '${inputKey}'.`,
+        );
+      }
+      if (contact === 'push') {
+        continue;
+      }
+
+      child.runtime.setInputCurrent(
+        inputKey,
+        readClosureInputValue(child.closureId, inputKey, memo),
+      );
+    }
+  }
+
+  function readClosureOutputValue(
+    child: ClosureChildRuntime,
+    key: OutputPortKey,
+    memo: Map<string, RuntimeValue | undefined>,
+    payloadPath?: EndpointRef['payloadPath'],
+  ): RuntimeValue | undefined {
+    if (!child.closure.forwardedPortKeys.pushOutputs.includes(key)) {
+      throw new Error(
+        `Closure '${child.closureId}' does not forward output '${key}'.`,
+      );
+    }
+
+    const contact = getBoundaryOutputContact(child.runtime.logicUnit, key);
+    if (contact === 'push') {
+      throw new Error(
+        `Closure output '${child.closureId}.${key}' is push-only and cannot be read as current.`,
+      );
+    }
+
+    prepareClosureBoundaryInputs(child, memo);
+    return readPayloadPath(child.runtime.readOutput(key), payloadPath);
   }
 
   function isBoundaryInputConnectedToLui(
@@ -851,6 +1159,71 @@ export const createCoreRuntimeInstance = (
     const outlets = evaluateStructuralLui(leaf.luiId, lui, memo);
     return outlets[leaf.outletKey];
   }
+
+  function getPreferredStructuralAnchorKey(): string | undefined {
+    const structuralCore = state.logicUnit.core as StructuralLUCore;
+    return 'root' in structuralCore.kindOrganization.anchors
+      ? 'root'
+      : Object.keys(structuralCore.kindOrganization.anchors)[0];
+  }
+
+  function readAnchorValue(
+    key: string,
+    memo: Map<string, RuntimeValue | undefined>,
+  ): RuntimeValue | undefined {
+    const structuralCore = state.logicUnit.core as StructuralLUCore;
+    const fill = structuralCore.kindOrganization.anchorFills[key];
+    if (!fill) {
+      return undefined;
+    }
+
+    return resolveCompositionValue(fill, memo);
+  }
+
+  function readNestedScopeInitialObservation(
+    nestedRuntime: NestedCoreRuntimeRunner,
+  ): RuntimeValue | undefined {
+    return nestedRuntime.run().initialObservation;
+  }
+
+  function materializeStatefulObservation(): RuntimeValue | undefined {
+    if (!('outputs' in state.logicUnit.core.ports)) {
+      return undefined;
+    }
+
+    const propertyOutputKeys = Object.entries(state.logicUnit.core.ports.outputs)
+      .filter(([, port]) => port.contact === 'property')
+      .map(([key]) => key);
+    if (propertyOutputKeys.length === 0) {
+      return undefined;
+    }
+
+    if (propertyOutputKeys.length === 1) {
+      return readBoundaryOutputValue(
+        propertyOutputKeys[0],
+        new Map<string, RuntimeValue | undefined>(),
+      );
+    }
+
+    return Object.fromEntries(
+      propertyOutputKeys.map((key) => [
+        key,
+        readBoundaryOutputValue(
+          key,
+          new Map<string, RuntimeValue | undefined>(),
+        ),
+      ]),
+    );
+  }
+
+  function createStatefulResponseHandle(): StatefulResponseHandle {
+    return {
+      logicUnit,
+      pushInput,
+      readOutput,
+      subscribeOutput,
+    };
+  }
 };
 
 const buildConnectionsBySource = (
@@ -883,5 +1256,5 @@ const buildConnectionByTarget = (
 export const createCoreSoftwareInterpreter = (
   catalog: CoreInterpreterCatalog = {},
 ): CoreSoftwareInterpreter => ({
-  instantiate: (logicUnit) => createCoreRuntimeInstance(logicUnit, catalog),
+  manifest: (logicUnit) => createCoreRuntimeRunner(logicUnit, catalog),
 });

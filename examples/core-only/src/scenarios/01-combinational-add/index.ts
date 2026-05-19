@@ -10,8 +10,8 @@ export const combinationalAddExample: CoreOnlyExample = {
   logicUnit: combinationalAddFixture,
   run: () => {
     const harness = createExampleHarness(combinationalAddFixture);
-    harness.setInputValue('left', combinationalAddInputs.left);
-    harness.setInputValue('right', combinationalAddInputs.right);
+    harness.setInputCurrent('left', combinationalAddInputs.left);
+    harness.setInputCurrent('right', combinationalAddInputs.right);
     const result = harness.readResult();
 
     const hasOnlyResultOutput =

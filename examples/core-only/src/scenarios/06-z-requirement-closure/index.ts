@@ -13,7 +13,7 @@ export const requirementClosureExample: CoreOnlyExample = {
   logicUnit: requirementClosureFixture,
   run: () => {
     const harness = createExampleHarness(requirementClosureFixture);
-    harness.setInputValue('value', requirementClosureInput);
+    harness.setInputCurrent('value', requirementClosureInput);
 
     const result = harness.readResult() as
       | { closure?: number; upstream?: number }

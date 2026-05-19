@@ -27,6 +27,8 @@ gradually consolidated into one formal engine package.
 4. `04-structural-dom`: headless structural UI/DOM composition surface.
 5. `05-multi-lui-composition`: multiple LUI connection composition.
 6. `06-z-requirement-closure`: requirement target and closure fulfillment.
+7. `07-closure-direct-scope`: direct closure boundary input/result wiring.
+8. `08-closure-forwarded-push`: closure forwarded push output propagation.
 
 ## Commands
 

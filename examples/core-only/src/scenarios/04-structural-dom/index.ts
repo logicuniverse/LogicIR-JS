@@ -26,9 +26,11 @@ export const structuralDomExample: CoreOnlyExample = {
     const layoutFills = structuralCore.kindOrganization.luiFills.layout;
     const harness = createExampleHarness(structuralDomFixture);
 
-    harness.setInputValue('theme', structuralDomProgram.theme);
-    harness.setOutletValue('header', structuralDomProgram.outlets.header);
-    harness.setOutletValue('body', structuralDomProgram.outlets.body);
+    harness.setInputCurrent('theme', structuralDomProgram.theme);
+    harness.applyOutlets({
+      header: structuralDomProgram.outlets.header,
+      body: structuralDomProgram.outlets.body,
+    });
 
     const projectedTree = harness.readAnchor('root') as
       | {

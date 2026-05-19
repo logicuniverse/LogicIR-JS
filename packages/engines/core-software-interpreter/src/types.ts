@@ -67,23 +67,36 @@ export type CoreInterpreterCatalog = {
   targets?: CoreExternalTargetCatalog;
 };
 
-export type NestedCoreRuntimeInstance = Pick<
-  CoreRuntimeInstance,
-  'setInputValue' | 'pushInput' | 'readResult' | 'readOutput' | 'readAnchor' | 'subscribeOutput'
->;
+export type StatefulResponseHandle = {
+  readonly logicUnit: LogicUnit;
+  pushInput: (key: InputPortKey, value: RuntimeValue) => void;
+  readOutput: (key: OutputPortKey) => RuntimeValue | undefined;
+  subscribeOutput: (key: OutputPortKey, listener: RuntimeListener) => () => void;
+};
 
-export type CoreRuntimeInstance = {
+export type CoreRunResult = {
+  initialObservation: RuntimeValue | undefined;
+  handle?: StatefulResponseHandle;
+};
+
+export type CoreRuntimeRunner = {
   readonly logicUnit: LogicUnit;
   readonly kind: LogicUnit['core']['kindOrganization']['kind'];
-  setInputValue: (key: InputPortKey, value: RuntimeValue) => void;
+  setInputCurrent: (key: InputPortKey, value: RuntimeValue) => void;
   pushInput: (key: InputPortKey, value: RuntimeValue) => void;
-  setOutletValue: (key: CompositionOutletKey, value: RuntimeValue) => void;
+  applyOutlets: (outlets: Record<CompositionOutletKey, RuntimeValue>) => void;
   readResult: () => RuntimeValue | undefined;
   readOutput: (key: OutputPortKey) => RuntimeValue | undefined;
   readAnchor: (key: CompositionAnchorKey) => RuntimeValue | undefined;
   subscribeOutput: (key: OutputPortKey, listener: RuntimeListener) => () => void;
+  run: () => CoreRunResult;
 };
 
+export type NestedCoreRuntimeRunner = Pick<
+  CoreRuntimeRunner,
+  'setInputCurrent' | 'pushInput' | 'readResult' | 'readOutput' | 'readAnchor' | 'run'
+>;
+
 export type CoreSoftwareInterpreter = {
-  instantiate: (logicUnit: LogicUnit) => CoreRuntimeInstance;
+  manifest: (logicUnit: LogicUnit) => CoreRuntimeRunner;
 };

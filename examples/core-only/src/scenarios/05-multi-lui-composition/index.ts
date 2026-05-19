@@ -13,8 +13,8 @@ export const multiLuiCompositionExample: CoreOnlyExample = {
   logicUnit: multiLuiCompositionFixture,
   run: () => {
     const harness = createExampleHarness(multiLuiCompositionFixture);
-    harness.setInputValue('left', multiLuiCompositionInputs.left);
-    harness.setInputValue('right', multiLuiCompositionInputs.right);
+    harness.setInputCurrent('left', multiLuiCompositionInputs.left);
+    harness.setInputCurrent('right', multiLuiCompositionInputs.right);
 
     const result = harness.readResult();
     const connectionCount = Object.keys(

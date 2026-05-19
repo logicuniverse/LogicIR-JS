@@ -51,6 +51,13 @@ examples/core-only/
 6. **Z requirement + closure**
    - requirement target、closure fulfillment、upstream fulfillment 的最小例子。
    - 证明 Z 不是普通 dataflow，也不需要 software feature gate。
+7. **Closure direct scope**
+   - 直接使用 closure owner `input/result` endpoint。
+   - 证明 closure 不只是 requirement fulfillment 特判，而是可运行的 nested core scope。
+8. **Closure forwarded push**
+   - 使用 `forwardedPortKeys.inputs` 和 `pushOutputs`。
+   - 证明 closure forwarded push output 通过 parent scope 传播，同时 `push` output
+     不能被当作 retained current 读取。
 
 验收标准：
 
