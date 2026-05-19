@@ -24,7 +24,7 @@ export const sequentialPipelineExample: CoreOnlyExample = {
     const harness = createExampleHarness(sequentialPipelineFixture);
     const sequentialCore = sequentialPipelineFixture.core as SequentialLUCore;
     harness.setInputCurrent('value', sequentialPipelineInput);
-    const current = harness.readResult();
+    const current = harness.run().initialObservation;
     const trace = sequentialCore.kindOrganization.steps.map((step) => step.luiId);
 
     const hasOnlyResultPull =

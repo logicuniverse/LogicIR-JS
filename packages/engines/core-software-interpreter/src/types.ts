@@ -74,6 +74,12 @@ export type StatefulResponseHandle = {
   subscribeOutput: (key: OutputPortKey, listener: RuntimeListener) => () => void;
 };
 
+export type StructuralObservationSurface = {
+  readonly logicUnit: LogicUnit;
+  applyOutlets: (outlets: Record<CompositionOutletKey, RuntimeValue>) => void;
+  readAnchor: (key: CompositionAnchorKey) => RuntimeValue | undefined;
+};
+
 export type CoreRunResult = {
   initialObservation: RuntimeValue | undefined;
   handle?: StatefulResponseHandle;

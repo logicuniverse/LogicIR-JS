@@ -21,6 +21,14 @@ core schema。
   `packages/legacy/flow-core` 只作为历史实现证据，不是 schema authority。
 - `ai/tasks/` 是自动化探索素材，不是正式设计来源。
 
+对当前 `core-software-interpreter` seed 而言，还应额外遵守一条实现策略：
+
+- 在不违背当前已确认 core 语义的前提下，优先参考旧 runtime 的执行路径和局部结构，
+  先做出一个可运行版本。
+- 只有当偏离旧实现能带来明确收益，例如语义更准确、代码明显更薄、验证更简单，
+  才主动改写执行方式。
+- 重构不是当前第一目标；当前第一目标是得到一个可 build/run、行为可验证的版本。
+
 ## 既有生态
 
 LogicIR 不要求世界重写。现有 JS/TS、Python、C/C++、HDL、服务、数据库、UI node、

@@ -60,6 +60,15 @@ export const coreOnlyTargetCatalog: CoreExternalTargetCatalog = {
       },
     }),
   },
+  'logicir.examples.core-only/init-ack@0.1.0': {
+    kind: 'stateful',
+    create: (context: StatefulTargetContext) => ({
+      initialize: () => {
+        context.emitOutput('ack', `ack:${String(context.getInputValue('message') ?? '')}`);
+      },
+      pushInput: () => {},
+    }),
+  },
   'logicir.examples.core-only/headless-layout@0.1.0': {
     kind: 'structural',
     compose: ({

@@ -283,6 +283,12 @@ run context 参数的使用，而不是 retained-state 响应阶段。
 5. `Phase C`: 最后读取 boundary `result`，或把 boundary push outputs 视为运行中产生
    的可观察事件。
 
+在当前 seed API 中，建议再收紧一步：
+
+- `sequential` 的 root / closure scope 应显式调用 `run()` 完成 `A + B + C`
+- 不把 `readResult()` 当作 sequential 的执行入口
+- `readResult()` 更适合作为 `combinational` 的 demand-read helper
+
 当前 core 只保证：
 
 - 有 step order
@@ -561,6 +567,8 @@ type StatefulResponseHandle = {
 
 - `applyOutlets(...)` 更自然地属于 `initialObservation` 的 structural result surface
 - 它不属于 `Phase D` handle
+- 当前 seed 已开始把 structural `run().initialObservation` 收敛成一个 late-bound
+  surface，而不是直接把某个 anchor 的 materialized 值当作 run 返回值
 
 ### 11.4 LUI run context
 
@@ -590,8 +598,8 @@ type LUIRunContext = {
    读取，而不是一律强压成 `readResult()`；closure owner endpoint 也已经具备 direct
    scope `input/result` 与 forwarded `push output` 的基本 runtime 路径。
 2. stateful child instance 的 lifecycle 仍偏向旧 software runtime，而不是更薄的 core realization。
-3. structural 虽然已经改成 `applyOutlets(...)`，但内部仍靠 runner-level `outletValues` map
-   realization，语义上还不够“surface-like”。
+3. structural 的 API 已经开始回到 late-bound surface，但内部仍靠 runner-level
+   `outletValues` map realization，距离旧 composable 路径还有差距。
 4. root LU 与 closure 还没有真正收敛到同一种 scope runtime。
 5. `LUI.run(...)` 还没有被抽象成统一语义接口，而是散落在 interpreter 内部。
 6. `Phase A/B` 已经在 seed 中显式化，但 `run()` 与 `read*()` 入口之间仍有一部分重复调度逻辑。
@@ -611,5 +619,7 @@ type LUIRunContext = {
 7. `outlet` 不是普通 input。
 8. `handle` 只在 stateful 的 `Phase D` 成立；没有 `Phase D` 时，`Phase C` 返回就结束。
 9. `emit` 是 capability，不是 phase；delayed emit 不自动推出 `Phase D`。
+10. 对当前 `core-software-interpreter` seed，默认优先沿用旧 runtime 的可运行执行路径；
+    只有在收益明确时，才偏离旧实现做新的 realization 结构。
 
 在此基础上，再回头改 `packages/engines/core-software-interpreter` 的 API，会比继续局部补丁更稳。

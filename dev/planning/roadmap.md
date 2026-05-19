@@ -58,6 +58,9 @@ examples/core-only/
    - 使用 `forwardedPortKeys.inputs` 和 `pushOutputs`。
    - 证明 closure forwarded push output 通过 parent scope 传播，同时 `push` output
      不能被当作 retained current 读取。
+9. **Nested LU forwarded push**
+   - 使用 `target.kind = "lu"` 的 nested scope。
+   - 证明 nested LU 的 boundary `push` output 可以经 outer LUI 转发到 root boundary。
 
 验收标准：
 
@@ -104,6 +107,8 @@ Core examples 和 validator 稳定后，再推进：
   - 当前已先建立 feature-free 的
     `packages/engines/core-software-interpreter` seed，后续在它上面渐进加入
     closure / requirement / feature 支持。
+  - 当前阶段默认优先参考旧 runtime 的执行方式，先做出稳定可运行版本；除非收益明确，
+    否则不主动偏离旧实现结构。
   - 不从旧 S1-S5 直接 promotion；只吸收经人工确认的最小语义和 evidence。
 - `basic-hdl-sim`
   - `LogicIR -> Verilog HDL -> iverilog simulation`。

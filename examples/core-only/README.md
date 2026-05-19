@@ -29,6 +29,7 @@ gradually consolidated into one formal engine package.
 6. `06-z-requirement-closure`: requirement target and closure fulfillment.
 7. `07-closure-direct-scope`: direct closure boundary input/result wiring.
 8. `08-closure-forwarded-push`: closure forwarded push output propagation.
+9. `09-lu-target-forwarded-push`: nested `target.kind=lu` push-output forwarding.
 
 ## Commands
 

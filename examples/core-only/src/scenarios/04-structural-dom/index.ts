@@ -1,4 +1,5 @@
 import type { StructuralLUCore } from '@logic-universe/logic-ir-core';
+import type { StructuralObservationSurface } from '@logic-universe/logic-ir-engine-core-software-interpreter';
 import type { CoreOnlyExample } from '../../index.js';
 import { createExampleHarness } from '../../runtime/harness.js';
 import {
@@ -25,14 +26,16 @@ export const structuralDomExample: CoreOnlyExample = {
     const rootFill = structuralCore.kindOrganization.anchorFills.root;
     const layoutFills = structuralCore.kindOrganization.luiFills.layout;
     const harness = createExampleHarness(structuralDomFixture);
+    const structuralSurface = harness.run()
+      .initialObservation as StructuralObservationSurface | undefined;
 
     harness.setInputCurrent('theme', structuralDomProgram.theme);
-    harness.applyOutlets({
+    structuralSurface?.applyOutlets({
       header: structuralDomProgram.outlets.header,
       body: structuralDomProgram.outlets.body,
     });
 
-    const projectedTree = harness.readAnchor('root') as
+    const projectedTree = structuralSurface?.readAnchor('root') as
       | {
           type: string;
           theme: string;
@@ -61,6 +64,8 @@ export const structuralDomExample: CoreOnlyExample = {
         isRootFilledFromChildOutlet &&
         isChildAnchoredFromParentOutlets &&
         usesPropertyInput &&
+        typeof structuralSurface?.applyOutlets === 'function' &&
+        typeof structuralSurface?.readAnchor === 'function' &&
         projectedTree?.slots.body.kind === 'list' &&
         projectedTree.slots.body.items.length === 3,
       summary: `theme=${projectedTree?.theme}, header=${projectedTree?.slots.header.kind}, body-items=${projectedTree?.slots.body.kind === 'list' ? projectedTree.slots.body.items.length : 0}`,

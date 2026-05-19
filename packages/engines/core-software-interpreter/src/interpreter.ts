@@ -27,6 +27,7 @@ import type {
   StatefulResponseHandle,
   StatefulTargetInstance,
   StatefulTargetRuntime,
+  StructuralObservationSurface,
   StructuralTargetRuntime,
 } from './types.js';
 import {
@@ -64,6 +65,10 @@ type RequirementBackedLUI = LUI & {
   };
 };
 
+type StructuralObservationState = {
+  outletValues: Map<string, RuntimeValue>;
+};
+
 type InterpreterState = {
   logicUnit: LogicUnit;
   kind: LogicUnit['core']['kindOrganization']['kind'];
@@ -71,7 +76,6 @@ type InterpreterState = {
   connectionsBySource: Map<string, Connection[]>;
   connectionByTarget: Map<string, Connection>;
   inputValues: Map<InputPortKey, RuntimeValue>;
-  outletValues: Map<string, RuntimeValue>;
   outputValues: Map<OutputPortKey, RuntimeValue>;
   outputListeners: Map<OutputPortKey, Set<RuntimeListener>>;
   statefulChildren: Map<string, StatefulChildRuntime>;
@@ -89,12 +93,15 @@ export const createCoreRuntimeRunner = (
     connectionsBySource: buildConnectionsBySource(logicUnit),
     connectionByTarget: buildConnectionByTarget(logicUnit),
     inputValues: new Map<InputPortKey, RuntimeValue>(),
-    outletValues: new Map<string, RuntimeValue>(),
     outputValues: new Map<OutputPortKey, RuntimeValue>(),
     outputListeners: new Map<OutputPortKey, Set<RuntimeListener>>(),
     statefulChildren: new Map<string, StatefulChildRuntime>(),
     closureChildren: new Map<string, ClosureChildRuntime>(),
   };
+  let activeStructuralSurface: StructuralObservationSurface | undefined;
+  let currentStructuralObservationState:
+    | StructuralObservationState
+    | undefined;
 
   const runtime: CoreRuntimeRunner = {
     logicUnit,
@@ -159,10 +166,8 @@ export const createCoreRuntimeRunner = (
     if (state.kind !== 'structural') {
       throw new Error('applyOutlets is only available for structural logic units.');
     }
-    state.outletValues.clear();
-    for (const [key, value] of Object.entries(outlets)) {
-      state.outletValues.set(key, value);
-    }
+
+    ensureStructuralObservationSurface().applyOutlets(outlets);
   }
 
   function run(): CoreRunResult {
@@ -183,18 +188,16 @@ export const createCoreRuntimeRunner = (
   }
 
   function readResult(): RuntimeValue | undefined {
-    if (state.kind !== 'combinational' && state.kind !== 'sequential') {
+    if (state.kind === 'sequential') {
       throw new Error(
-        'readResult is only available for combinational or sequential logic units.',
+        'Sequential logic units must execute via run(); readResult is reserved for combinational demand-read.',
       );
     }
 
-    runPhaseA();
-
-    if (state.kind === 'sequential') {
-      const memo = new Map<string, RuntimeValue | undefined>();
-      runPhaseB(memo);
-      return readBoundaryResult(memo);
+    if (state.kind !== 'combinational') {
+      throw new Error(
+        'readResult is only available for combinational logic units.',
+      );
     }
 
     return readBoundaryResult(new Map<string, RuntimeValue | undefined>());
@@ -219,7 +222,7 @@ export const createCoreRuntimeRunner = (
     }
 
     runPhaseA();
-    return readAnchorValue(key, new Map<string, RuntimeValue | undefined>());
+    return ensureStructuralObservationSurface().readAnchor(key);
   }
 
   function subscribeOutput(
@@ -341,8 +344,9 @@ export const createCoreRuntimeRunner = (
     }
 
     if (state.kind === 'structural') {
-      const preferredAnchorKey = getPreferredStructuralAnchorKey();
-      return preferredAnchorKey ? readAnchorValue(preferredAnchorKey, memo) : undefined;
+      const surface = createStructuralObservationSurface();
+      activeStructuralSurface = surface;
+      return surface;
     }
 
     return materializeStatefulObservation();
@@ -641,7 +645,24 @@ export const createCoreRuntimeRunner = (
       }
     }
 
-    return readNestedScopeInitialObservation(nestedRuntime);
+    const unsubscribeNestedPushOutputs = subscribeNestedPushOutputs(
+      nestedRuntime,
+      (key, value) => {
+        dispatchFromSource(
+          {
+            owner: { kind: 'lui', luiId },
+            port: { kind: 'output', key },
+          },
+          value,
+        );
+      },
+    );
+
+    try {
+      return readNestedScopeInitialObservation(nestedRuntime);
+    } finally {
+      unsubscribeNestedPushOutputs();
+    }
   }
 
   function evaluateRequirementLui(
@@ -715,7 +736,24 @@ export const createCoreRuntimeRunner = (
       }
     }
 
-    return readNestedScopeInitialObservation(nestedRuntime);
+    const unsubscribeNestedPushOutputs = subscribeNestedPushOutputs(
+      nestedRuntime,
+      (key, value) => {
+        dispatchFromSource(
+          {
+            owner: { kind: 'lui', luiId },
+            port: { kind: 'output', key },
+          },
+          value,
+        );
+      },
+    );
+
+    try {
+      return readNestedScopeInitialObservation(nestedRuntime);
+    } finally {
+      unsubscribeNestedPushOutputs();
+    }
   }
 
   function evaluateRequirementUpstreamFulfillment(
@@ -1146,7 +1184,7 @@ export const createCoreRuntimeRunner = (
     }
 
     if (leaf.kind === 'outlet') {
-      return state.outletValues.get(leaf.outletKey);
+      return currentStructuralObservationState?.outletValues.get(leaf.outletKey);
     }
 
     const lui = state.logicUnit.core.luis[leaf.luiId];
@@ -1184,6 +1222,71 @@ export const createCoreRuntimeRunner = (
     nestedRuntime: NestedCoreRuntimeRunner,
   ): RuntimeValue | undefined {
     return nestedRuntime.run().initialObservation;
+  }
+
+  function ensureStructuralObservationSurface(): StructuralObservationSurface {
+    if (!activeStructuralSurface) {
+      activeStructuralSurface = createStructuralObservationSurface();
+    }
+
+    return activeStructuralSurface;
+  }
+
+  function withStructuralObservationState<T>(
+    structuralObservationState: StructuralObservationState,
+    callback: () => T,
+  ): T {
+    const previous = currentStructuralObservationState;
+    currentStructuralObservationState = structuralObservationState;
+
+    try {
+      return callback();
+    } finally {
+      currentStructuralObservationState = previous;
+    }
+  }
+
+  function createStructuralObservationSurface(): StructuralObservationSurface {
+    const structuralObservationState: StructuralObservationState = {
+      outletValues: new Map<string, RuntimeValue>(),
+    };
+
+    return {
+      logicUnit,
+      applyOutlets: (outlets) => {
+        structuralObservationState.outletValues.clear();
+        for (const [key, value] of Object.entries(outlets)) {
+          structuralObservationState.outletValues.set(key, value);
+        }
+      },
+      readAnchor: (key) =>
+        withStructuralObservationState(structuralObservationState, () =>
+          readAnchorValue(key, new Map<string, RuntimeValue | undefined>()),
+        ),
+    };
+  }
+
+  function subscribeNestedPushOutputs(
+    nestedRuntime: CoreRuntimeRunner,
+    emit: (key: OutputPortKey, value: RuntimeValue) => void,
+  ): () => void {
+    if (!('outputs' in nestedRuntime.logicUnit.core.ports)) {
+      return () => {};
+    }
+
+    const unsubscribes = Object.entries(nestedRuntime.logicUnit.core.ports.outputs)
+      .filter(([, port]) => port.contact === 'push')
+      .map(([key]) =>
+        nestedRuntime.subscribeOutput(key, (value) => {
+          emit(key, value);
+        }),
+      );
+
+    return () => {
+      for (const unsubscribe of unsubscribes) {
+        unsubscribe();
+      }
+    };
   }
 
   function materializeStatefulObservation(): RuntimeValue | undefined {
