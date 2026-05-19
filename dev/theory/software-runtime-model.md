@@ -189,6 +189,13 @@ Phase D: stateful-only response phase after the initial observation
 - `Phase D` 只负责 stateful 响应
 - 普通 `emit` 不是一个 phase，而是 execution context 中可传递、可延后使用的 capability
 
+从解释结构上看，这里还形成了一组很有价值的对照：
+
+- `A / C` 更接近与时间弱相关的状态建立与观察截面
+- `B / D` 更接近与时间强相关的推进与响应
+
+因此 `A/B/C/D` 不是任意切分，而是一组静态截面与时间演化相互对照的对称结构。
+
 ## 6. Combinational
 
 ### 6.1 `Combinational LU`

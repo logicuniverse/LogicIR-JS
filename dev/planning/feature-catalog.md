@@ -42,6 +42,11 @@
   - signal、module、clocking、state、combinational constraint、elaboration、
     structural slices。
   - 暂缓到 core examples 和 HDL sim seed 重新设计后。
+  - 当前候选可继续拆成三层：
+    - `timing-context`
+    - `structural-context-binding`
+    - `timing-projection-binding`
+  - 设计原则：clock/reset 作为 shared timing context，通过 structural 继承，不作为普通数据线。
 - `logicir.control-flow / core`
   - guard、branch、loop、return、go-back 等 sequential `steps` 之外的控制语义。
 - `logicir.adapter / core`

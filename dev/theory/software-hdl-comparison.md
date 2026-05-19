@@ -55,6 +55,14 @@
 - `B` 在两侧都表达“时间推进”
 - `D` 在两侧都只属于 stateful，但 software 用 handle 表达，HDL 用持续存在的状态电路表达
 
+同时还要明确区分两类不同关系：
+
+- `dataflow connection`
+- `context inheritance`
+
+在 software 中，这种区分未必总是突出；但在 HDL 中它非常关键，尤其当 `clock/reset`
+被视为 structural 传播的 timing context 时更是如此。
+
 ## 4. 四种 `LU` 的对照
 
 | LU kind | Software Runtime | HDL Projection | 备注 |

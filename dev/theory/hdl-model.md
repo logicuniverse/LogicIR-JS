@@ -154,6 +154,11 @@ manifest
 - 顶层 timing context 如何最终 lower 成 Verilog 端口与连线，是 projector/profile 问题，
   不是 core schema 本身的问题
 
+可以把这条判断压成一句话：
+
+> 在 HDL 中，structural 不只是结构装配机制，也是共享 timing context 的主要表达机制；
+> 其中最基本的 context 就是 `clock/reset`。
+
 ## 5. 四种 LU 的 HDL 对应
 
 ### 5.1 Combinational
@@ -413,3 +418,276 @@ HDL 不能简单复制 software runtime 的 `A/B/C/D` 机制，但这四相依�
 6. `push` 在 HDL 中必须通过握手/脉冲/valid 等约定显式化。
 7. software handle、subscription、runtime callback 不是 HDL core semantics。
 8. 无法保持的必需语义必须 diagnostic，不能静默降级。
+
+## 11. 候选数据形状：Timing Context / Projection Binding
+
+下面不是正式 schema，只是基于当前理论往前推进的一版候选数据形状，用来帮助后续判断：
+
+- 这些信息应放在 feature / architecture / projection binding 层，而不是 core。
+- 目标是表达：
+  - 哪个 structural scope 提供 timing context
+  - 哪些子结构继承该 context
+  - projector 最终如何把它 lower 成 Verilog `clk/rst` 端口与连线
+
+### 11.1 为什么不放在 core
+
+因为这些字段回答的是：
+
+- HDL 如何接线
+- 使用哪个 clock domain / reset policy
+- 顶层端口叫什么
+- 某个 subtree 是否跨域
+
+这些都属于 target/projector/profile 问题，而不是 target-neutral logical topology 本体。
+
+### 11.2 第一层：feature-owned context declaration
+
+最自然的一层是某个 HDL feature 在 structural owner 上挂一条声明：
+
+```ts
+type HdlTimingContextDecl = {
+  contextKey: string;
+  clock: {
+    policy: 'required-parent' | 'root-provided';
+  };
+  reset?: {
+    policy: 'inherit' | 'required-parent' | 'root-provided' | 'none';
+    activeLevel?: 'high' | 'low';
+    style?: 'sync' | 'async';
+  };
+};
+```
+
+作用是：
+
+- 声明这里存在一个 timing context
+- 声明这个 context 是否必须由父级提供，还是允许 root 自己提供
+- 不直接决定 Verilog 端口名
+
+这个声明可以挂在：
+
+- 顶层 structural LU
+- structural closure
+- structural child LUI 的 owner-level extension
+
+### 11.3 第二层：structural mount 上的 context inheritance / override
+
+然后需要一层“挂载时如何继承”的信息。
+
+候选形状：
+
+```ts
+type HdlStructuralContextBinding = {
+  anchorKey: string;
+  inheritedContextKey: string;
+  childContextKey?: string;
+  mode: 'inherit' | 'override' | 'bridge';
+};
+```
+
+语义上：
+
+- `inherit`
+  - child outlet 挂到该 anchor 时，默认继承父 context
+- `override`
+  - 子结构在这个 mount 点进入另一个 context
+- `bridge`
+  - 明确这是跨域点，需要 CDC / adapter / lowering pass
+
+这里最重要的不是字段名字，而是三种关系必须可区分：
+
+- 同域继承
+- 明确切域
+- 明确桥接
+
+### 11.4 第三层：projection binding / profile policy
+
+最后才是 projector 真正需要的 Verilog 绑定信息，例如：
+
+```ts
+type HdlTimingProjectionBinding = {
+  contextKey: string;
+  clockPort: string;
+  resetPort?: string;
+  resetPolicy?: {
+    activeLevel: 'high' | 'low';
+    style: 'sync' | 'async';
+  };
+};
+```
+
+这一层回答的是：
+
+- 生成的 module 端口名是什么
+- reset 用什么极性
+- reset 用同步还是异步
+
+也就是说：
+
+- feature declaration 说明“这里需要一个 timing context”
+- structural binding 说明“它如何继承/切换/桥接”
+- projection binding 说明“最终在 Verilog 里怎么落”
+
+### 11.5 一个最小例子
+
+可以把一个共享时钟/复位的 structural subtree 想成：
+
+```text
+top structural root
+-> anchor main provides timing context sys
+-> child outlet mounted into main
+-> child inherits sys
+-> projector lowers sys to clk/rst_n
+```
+
+如果某个子结构要跨到另一个时钟域：
+
+```text
+anchor io inherits sys
+-> child requests io_clk context
+-> mount mode = bridge
+-> projector must insert / require explicit CDC lowering
+```
+
+### 11.6 一个伪 schema 样例
+
+下面这个例子不是正式 schema，只是把三层候选能力放到同一张示意图里。
+
+场景：
+
+- 顶层 structural LU 有一个 `main` anchor
+- 一个顺序/状态子结构挂到 `main`
+- 它默认继承 `sys` timing context
+- projector 最终把 `sys` lower 成 `clk` / `rst_n`
+
+```ts
+const logicUnit = {
+  featureUses: {
+    hdlTiming: {
+      namespace: 'logicir.hdl',
+      key: 'timing-context',
+      version: '0.0.0-candidate',
+    },
+    hdlMount: {
+      namespace: 'logicir.hdl',
+      key: 'structural-context-binding',
+      version: '0.0.0-candidate',
+    },
+    hdlProjection: {
+      namespace: 'logicir.hdl',
+      key: 'timing-projection-binding',
+      version: '0.0.0-candidate',
+    },
+  },
+  core: {
+    kindOrganization: {
+      kind: 'structural',
+      anchors: {
+        main: { shape: 'single', required: true },
+      },
+      outlets: {},
+      anchorFills: {
+        main: { kind: 'lui-outlet', luiId: 'pipeline', outletKey: 'root' },
+      },
+      luiFills: {},
+    },
+    luis: {
+      pipeline: {
+        kind: 'structural',
+        target: { kind: 'lu', luId: 'pipelineLu' },
+        ports: { inputs: {}, outputs: {} },
+        compositionSurface: {
+          outlets: { root: { required: true } },
+          anchors: {},
+        },
+        fulfillments: {},
+        extensions: [
+          {
+            featureKey: 'hdlMount',
+            key: 'mount-context-binding',
+            payload: {
+              anchorKey: 'main',
+              inheritedContextKey: 'sys',
+              mode: 'inherit',
+            },
+          },
+        ],
+      },
+    },
+    extensions: [
+      {
+        featureKey: 'hdlTiming',
+        key: 'timing-context-declarations',
+        payload: {
+          contexts: [
+            {
+              contextKey: 'sys',
+              clock: { policy: 'root-provided' },
+              reset: {
+                policy: 'root-provided',
+                activeLevel: 'low',
+                style: 'sync',
+              },
+            },
+          ],
+        },
+      },
+    ],
+  },
+  projectionBindings: {
+    hdl: {
+      timingContexts: [
+        {
+          contextKey: 'sys',
+          clockPort: 'clk',
+          resetPort: 'rst_n',
+          resetPolicy: {
+            activeLevel: 'low',
+            style: 'sync',
+          },
+        },
+      ],
+    },
+  },
+};
+```
+
+如果某个 child 要跨到另一个时钟域，则 mount 点更像：
+
+```ts
+{
+  featureKey: 'hdlMount',
+  key: 'mount-context-binding',
+  payload: {
+    anchorKey: 'io',
+    inheritedContextKey: 'sys',
+    childContextKey: 'io_clk',
+    mode: 'bridge',
+  },
+}
+```
+
+这里表达的是：
+
+- 当前 subtree 所在父 context 是 `sys`
+- child 想进入 `io_clk`
+- 这不是普通继承，而是明确桥接
+- projector 不能静默接线，必须插入或要求 CDC-like lowering
+
+### 11.7 当前建议
+
+如果继续推进 HDL feature family，我建议优先拆成三类能力，而不是一口气做成一个大而杂的
+“clocking feature”：
+
+1. `timing-context`
+   - 声明 context 本身
+2. `structural-context-binding`
+   - 声明 structural mount 的继承/切换/桥接
+3. `timing-projection-binding`
+   - 声明 Verilog/HDL 端口与 reset policy 落地
+
+这样更符合你现在已经建立起来的原则：
+
+- core / feature / projection 正交
+- structural 负责共享 context
+- HDL 具体接线不污染 core
