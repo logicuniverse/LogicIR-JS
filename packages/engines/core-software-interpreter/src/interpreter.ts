@@ -108,10 +108,8 @@ export const createCoreRuntimeRunner = (
     kind: state.kind,
     setInputCurrent,
     pushInput,
-    applyOutlets,
     readResult,
     readOutput,
-    readAnchor,
     subscribeOutput,
     run,
   };
@@ -162,14 +160,6 @@ export const createCoreRuntimeRunner = (
     );
   }
 
-  function applyOutlets(outlets: Record<string, RuntimeValue>): void {
-    if (state.kind !== 'structural') {
-      throw new Error('applyOutlets is only available for structural logic units.');
-    }
-
-    ensureStructuralObservationSurface().applyOutlets(outlets);
-  }
-
   function run(): CoreRunResult {
     runPhaseA();
 
@@ -214,15 +204,6 @@ export const createCoreRuntimeRunner = (
       key,
       new Map<string, RuntimeValue | undefined>(),
     );
-  }
-
-  function readAnchor(key: string): RuntimeValue | undefined {
-    if (state.kind !== 'structural') {
-      throw new Error('readAnchor is only available for structural logic units.');
-    }
-
-    runPhaseA();
-    return ensureStructuralObservationSurface().readAnchor(key);
   }
 
   function subscribeOutput(
@@ -1222,14 +1203,6 @@ export const createCoreRuntimeRunner = (
     nestedRuntime: NestedCoreRuntimeRunner,
   ): RuntimeValue | undefined {
     return nestedRuntime.run().initialObservation;
-  }
-
-  function ensureStructuralObservationSurface(): StructuralObservationSurface {
-    if (!activeStructuralSurface) {
-      activeStructuralSurface = createStructuralObservationSurface();
-    }
-
-    return activeStructuralSurface;
   }
 
   function withStructuralObservationState<T>(

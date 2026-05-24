@@ -90,17 +90,15 @@ export type CoreRuntimeRunner = {
   readonly kind: LogicUnit['core']['kindOrganization']['kind'];
   setInputCurrent: (key: InputPortKey, value: RuntimeValue) => void;
   pushInput: (key: InputPortKey, value: RuntimeValue) => void;
-  applyOutlets: (outlets: Record<CompositionOutletKey, RuntimeValue>) => void;
   readResult: () => RuntimeValue | undefined;
   readOutput: (key: OutputPortKey) => RuntimeValue | undefined;
-  readAnchor: (key: CompositionAnchorKey) => RuntimeValue | undefined;
   subscribeOutput: (key: OutputPortKey, listener: RuntimeListener) => () => void;
   run: () => CoreRunResult;
 };
 
 export type NestedCoreRuntimeRunner = Pick<
   CoreRuntimeRunner,
-  'setInputCurrent' | 'pushInput' | 'readResult' | 'readOutput' | 'readAnchor' | 'run'
+  'setInputCurrent' | 'pushInput' | 'readResult' | 'readOutput' | 'run'
 >;
 
 export type CoreSoftwareInterpreter = {

@@ -114,7 +114,8 @@ scope runtime 负责：
 - memoize 本次 session 内已经求值过的 LUI result
 - 管理本次 session 内的 stateful child instance
 - 解析 closure fulfillment
-- 暴露 boundary read / push / structural apply 等入口
+- 暴露 boundary read / push 等入口
+- 在 structural 情况下，于 `Phase C` 返回 structural observation surface
 
 ### 4.2 LUI 层
 

@@ -10,8 +10,10 @@
 4. [hdl-model.md](hdl-model.md): Verilog HDL 视角下 LU kinds、ports、phases 与 lowering/diagnostic 边界。
 5. [software-hdl-comparison.md](software-hdl-comparison.md): software runtime 与 HDL projection 的并排对照。
 6. [logicir-architecture.md](logicir-architecture.md): profile、stack、provider、execution、capability 等生态术语。
+7. [schemair-logicir-typedfabric.md](schemair-logicir-typedfabric.md): SchemaIR、LogicIR、TypedFabric 三层关系和依赖方向。
 
 ## 使用方式
 
 - 讨论 core schema、feature、projection 或 runtime 边界时先读这里。
 - 如果这里与实现冲突，以这里和 `packages/` 中已接受的数据结构为准，再回头修实现。
+
